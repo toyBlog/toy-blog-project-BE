@@ -1,0 +1,39 @@
+trace: false
+
+spring:
+  profiles:
+    include:
+      - domain
+  datasource:
+
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:api;DB_CLOSE_ON_EXIT=FALSE;DB_CLOSE_DELAY=-1;
+    username: user
+    password: pass
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        trace: true
+  jpa:
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show-sql: true
+        format_sql: true
+        globally_quoted_identifiers: true
+        globally_quoted_identifiers_skip_column_definitions: true
+  redis:
+    host: localhost
+    port: 6379
+
+logging:
+  level:
+    org.hibernate:
+      SQL: debug
+      type: debug
+    com.zaxxer.hikari.HikariDataSource: error
