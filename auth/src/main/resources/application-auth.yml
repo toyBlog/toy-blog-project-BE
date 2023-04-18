@@ -1,1 +1,7 @@
-
+security:
+  jwt:
+    key: c3ByaW5nLWJvb3Qtc2VjdXJpdHktand0LXR1dG9yaWFsLWppd29vbi1zcHJpbmctYm9vdC1zZWN1cml0eS1qd3QtdHV0b3JpYWwK
+  pbkdf2:
+    salt: s[y{3AmLx7QWXQTM*T(Cfb*6A
+    iteration-count: 3000
+    key-length: 288
