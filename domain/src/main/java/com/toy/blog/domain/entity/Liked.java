@@ -6,33 +6,32 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
-import javax.validation.constraints.Positive;
 
 @Entity
-@Table(name = "user_friend")
+@Table(name = "liked")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class UserFriend extends BaseEntity{
+public class Liked extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_friend_id")
+    @Column(name = "liked_id")
     Long id;
 
     @Enumerated(EnumType.STRING)
-    Status.Follow status;
+    Status.Like status;
 
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     User user;
 
-    @Column(name = "friend_id")
-    @Positive
-    Long friendId;
+    @JoinColumn(name = "article_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
+    Article article;
 }
-

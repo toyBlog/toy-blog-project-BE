@@ -1,3 +1,5 @@
+trace: true
+
 spring:
   profiles:
     include:
