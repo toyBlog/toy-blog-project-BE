@@ -11,6 +11,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final TokenProvider tokenProvider;
+
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
@@ -25,6 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf()
                 .disable()
                 .exceptionHandling()
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
                 .headers()
                 .frameOptions()
@@ -35,6 +43,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .authorizeRequests()
 //                .antMatchers("/admin/**").hasRole("ADMIN") //TODO:: 개발중 임시 주석
-                .anyRequest().permitAll();
+                .anyRequest().permitAll()
+                .and()
+                .apply(new JwtSecurityConfig(tokenProvider));
     }
 }
