@@ -13,15 +13,14 @@ import java.security.spec.InvalidKeySpecException;
 
 /**
  * CustomPasswordEncoder 정리
- *
+ * <p>
  * - PasswordEncoder ?
- *   - 사용자의 비멀번호를 암호화 하는 인터페이스
- *   - 사용자의 비밀번호를 텍스트 그대로 저장하는 것은 보안상 매우 취약하므로, 비밀번호를 암호화 하여 저장해야함
- *   - 제공하는 메서드
- *     1. encode(CharSequence rawPassword): 주어진 비밀번호를 암호화하여 반환합니다.
- *     2. matches(CharSequence rawPassword, String encodedPassword): 주어진 비밀번호(rawPassword)가
- *     암호화된 비밀번호(encodedPassword)와 일치하는지 여부를 반환합니다.
- *
+ * - 사용자의 비멀번호를 암호화 하는 인터페이스
+ * - 사용자의 비밀번호를 텍스트 그대로 저장하는 것은 보안상 매우 취약하므로, 비밀번호를 암호화 하여 저장해야함
+ * - 제공하는 메서드
+ * 1. encode(CharSequence rawPassword): 주어진 비밀번호를 암호화하여 반환합니다.
+ * 2. matches(CharSequence rawPassword, String encodedPassword): 주어진 비밀번호(rawPassword)가
+ * 암호화된 비밀번호(encodedPassword)와 일치하는지 여부를 반환합니다.
  */
 
 @Slf4j

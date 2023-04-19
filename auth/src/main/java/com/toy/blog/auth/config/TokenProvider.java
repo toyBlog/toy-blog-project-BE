@@ -29,6 +29,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
+/**
+ * TokenProvider 정리
+ * <p>
+ * - 인증에 사용되는 토큰을 생성하고 검증하는 기능을 제공하는 클래스
+ * <p>
+ * - 주로 Spring Security 와 함께 사용되며, JWT(JsonWebToken) 또는
+ * OAuth2 와 같은 인증 프로토콜에서 사용됩니다.
+ * - 보통 인증된 사용자를 식별하기 위해 사용되는 토큰을 생성하고, 해당 토큰의 유효성을 검증합니다.
+ * 이를 통해 사용자가 애플리케이션에 로그인한 후, 다른 요청에서도 인증정보를 계속 유지할 수 있습니다.
+ */
+
 @Slf4j
 @Component
 public class TokenProvider {
@@ -91,11 +102,10 @@ public class TokenProvider {
                 .compact();
     }
 
-    // todo: 예외 설정(우성)
     public Authentication getAuthentication(String token) {
         Claims claims = parseClaims(token);
         if (ObjectUtils.isEmpty(claims.get(AUTHORITY_KEY))) {
-            //throw new InvalidTokenException(token);
+            throw new InvalidTokenException(token);
         }
 
         Collection<? extends GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(claims.get(AUTHORITY_KEY).toString()));
