@@ -1,0 +1,38 @@
+package com.toy.blog.domain.entity;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.toy.blog.domain.common.Status;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+import javax.persistence.*;
+import javax.validation.constraints.Positive;
+
+@Entity
+@Table(name = "user_friend")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
+public class UserFriend extends BaseEntity{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_friend_id")
+    Long id;
+
+    @Enumerated(EnumType.STRING)
+    Status.Follow status;
+
+    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonBackReference
+    User user;
+
+    @Column(name = "friend_id")
+    @Positive
+    Long friendId;
+}
+

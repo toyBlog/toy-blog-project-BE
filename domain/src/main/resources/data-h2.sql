@@ -1,4 +1,4 @@
-INSERT INTO "user" ("id", "email", "password", "nickname", "created_at", "updated_at")
+INSERT INTO "user" ("user_id", "email", "password", "nickname", "created_at", "updated_at")
 VALUES (1, 'a@naver.com', '1234', '김유성',  '2020-12-31 05:51:47', '2020-12-31 05:52:29'),
        (2, 'b@naver.com', '1234', '김가영',  '2020-12-31 05:51:47', '2020-12-31 05:52:29'),
        (3, 'c@naver.com', '1234', '강현준',  '2020-12-31 05:51:47', '2020-12-31 05:52:29'),
