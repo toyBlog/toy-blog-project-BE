@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "liked")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

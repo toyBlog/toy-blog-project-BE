@@ -9,7 +9,6 @@ import javax.persistence.*;
 import javax.validation.constraints.Positive;
 
 @Entity
-@Table(name = "user_friend")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
