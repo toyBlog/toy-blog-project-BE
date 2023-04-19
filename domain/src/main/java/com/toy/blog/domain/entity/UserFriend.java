@@ -11,11 +11,11 @@ import javax.validation.constraints.Positive;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Builder
-public class UserFriend extends BaseEntity{
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class UserFriend extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
