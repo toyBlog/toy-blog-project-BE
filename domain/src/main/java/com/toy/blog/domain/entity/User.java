@@ -17,7 +17,6 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-@Table(name = "user")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
@@ -32,7 +31,7 @@ public class User extends BaseEntity {
     String email;
 
     @NotNull @Size(min = 8, max = 20)
-    @Pattern(regexp = CommonConstant.RegExp.PASSWORD)
+    //@Pattern(regexp = CommonConstant.RegExp.PASSWORD)
     String password;
 
     @NotNull @Size(min = 2, max = 10)
