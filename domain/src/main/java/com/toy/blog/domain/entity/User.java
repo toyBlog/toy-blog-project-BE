@@ -7,25 +7,23 @@ import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "user")
-@Getter @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
+@Setter
 @Builder
-public class User extends BaseEntity{
+@AllArgsConstructor
+@Table(name = "user")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class User extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     Long id;
 
@@ -34,7 +32,7 @@ public class User extends BaseEntity{
     String email;
 
     @NotNull @Size(min = 8, max = 20)
-    @Pattern(regexp = CommonConstant.RegExp.PASSWORD)
+    //@Pattern(regexp = CommonConstant.RegExp.PASSWORD)
     String password;
 
     @NotNull @Size(min = 2, max = 10)
