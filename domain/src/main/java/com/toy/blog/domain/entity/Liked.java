@@ -8,14 +8,14 @@ import lombok.experimental.FieldDefaults;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "liked")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class Liked extends BaseEntity{
+@AllArgsConstructor
+@Table(name = "liked")
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Liked extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
