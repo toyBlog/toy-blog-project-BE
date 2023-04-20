@@ -1,9 +1,9 @@
 package com.toy.blog.domain;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootTest
+@SpringBootApplication(scanBasePackages = "com.toy.blog.domain")
 class DomainApplicationTests {
 
     @Test
