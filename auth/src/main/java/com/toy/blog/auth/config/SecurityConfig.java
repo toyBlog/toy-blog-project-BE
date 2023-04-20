@@ -7,6 +7,15 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
+/**
+ * SecurityConfig 정리
+ * <p>
+ * - WebSecurityConfigurerAdapter ?
+ * - 웹 보안 구성을 쉽게 구현할 수 있도록 도와주는 클래스
+ * - 주로 configure 메소드는 HTTP 보안 구성을 위해 사용됩니다.
+ * - 이 메소드를 사용하여 인증, 권한 부여, 로그인, 로그아웃 등을 설정할 수 있습니다.
+ */
+
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
