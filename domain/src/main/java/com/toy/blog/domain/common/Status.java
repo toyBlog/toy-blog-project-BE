@@ -17,7 +17,7 @@ public class Status {
         INACTIVE
     }
 
-    public enum Follow{
+    public enum UserFriend {
         FOLLOW,
         UNFOLLOW,
         BLOCKED

@@ -10,4 +10,9 @@ public class CommonConstant {
         public static final String EMAIL = "^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$";
         //public static final String PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\\\d)(?=.*[@$!%*?&])[A-Za-z\\\\d@$!%*?&]+$";
     }
+
+    @UtilityClass
+    public static class BaseUrl{
+        public static final String BASE_URL = "";
+    }
 }
