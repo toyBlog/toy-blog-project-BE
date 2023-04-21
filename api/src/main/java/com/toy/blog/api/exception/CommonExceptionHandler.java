@@ -19,4 +19,13 @@ public class CommonExceptionHandler {
                 .message(e.getError().getMessage())
                 .build();
     }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Response<Void> exceptionHandler(Exception e) {
+        return Response.<Void>builder()
+                .code(Error.INTERNAL_SERVER_ERROR.getCode())
+                .message(Error.INTERNAL_SERVER_ERROR.getMessage())
+                .build();
+    }
 }
