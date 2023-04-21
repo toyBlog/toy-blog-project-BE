@@ -23,7 +23,7 @@ public class UserFriend extends BaseEntity {
     Long id;
 
     @Enumerated(EnumType.STRING)
-    Status.Follow status;
+    Status.UserFriend status;
 
     @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,5 +33,12 @@ public class UserFriend extends BaseEntity {
     @Column(name = "friend_id")
     @Positive
     Long friendId;
+
+    /**
+     * [변경 메서드]
+     * */
+    public void changeStatus(Status.UserFriend status){
+        this.status = status;
+    }
 }
 

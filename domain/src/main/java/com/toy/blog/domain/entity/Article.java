@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "article")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

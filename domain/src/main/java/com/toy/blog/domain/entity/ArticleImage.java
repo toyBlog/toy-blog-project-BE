@@ -8,7 +8,6 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "article_image")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
