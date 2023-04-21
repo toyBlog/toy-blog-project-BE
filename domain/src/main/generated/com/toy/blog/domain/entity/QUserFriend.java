@@ -8,6 +8,7 @@ import com.querydsl.core.types.PathMetadata;
 import javax.annotation.Generated;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.PathInits;
+import com.toy.blog.domain.common.Status;
 
 
 /**
@@ -31,7 +32,7 @@ public class QUserFriend extends EntityPathBase<UserFriend> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final EnumPath<com.toy.blog.domain.common.Status.Follow> status = createEnum("status", com.toy.blog.domain.common.Status.Follow.class);
+    public final EnumPath<Status.UserFriend> status = createEnum("status", Status.UserFriend.class);
 
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> updatedAt = _super.updatedAt;
