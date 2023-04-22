@@ -37,6 +37,7 @@ public enum Error {
     ALREADY_EXIST_USER(2140, "already exist user"),
     INVALID_PASSWORD(2141, "invalid password"),
     NOT_FOUND_ARTICLE(2220, "not found article"), // To do 코드 확인
+    NOT_FOUND_LIKED(2420, "not found liked"), // To do 코드 확인
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
     NOT_FOUND_USER_FRIEND(2522, "user-friend not found"),
 
