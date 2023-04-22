@@ -6,6 +6,7 @@ import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.repository.custom.ArticleCustomRepository;
 import lombok.RequiredArgsConstructor;
+
 import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
@@ -18,25 +19,46 @@ import static com.toy.blog.domain.entity.QUser.user;
 public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
     private final EntityManager entityManager;
-    
-    public  Optional<Article> findArticleWithUserBy(Long id) {
+
+    /**
+     * 게시글 목록 조회
+     */
+    public List<Article> findAllArticleBySearch(String title, String content, String nickname, Integer page, Integer size) {
+        return new JPAQuery<Article>(entityManager)
+                .from(article)
+                .join(article.user, user)
+                .where(article.title.like(title)
+                        .or(article.content.like(content)
+                                .or(article.user.nickname.like(nickname))))
+                .limit(size).offset(page)
+                .fetch();
+    }
+
+    /**
+     * 팔로우한 친구의 게시글 목록 조회
+     */
+    @Override
+    public List<Article> findAllFollowedArticleBySearch(String title, String content, String nickname, Integer page, Integer size) {
+        return new JPAQuery<Article>(entityManager)
+                .from(article)
+                .join(article.user, user)
+                .where(article.title.like(title)
+                        .or(article.content.like(content)
+                                .or(article.user.nickname.like(nickname))))
+                .limit(size).offset(page)
+                .fetch();
+    }
+
+    /**
+     * id로 게시글 조회
+     */
+    public Optional<Article> findArticleWithUserBy(Long id) {
         return Optional.ofNullable(new JPAQuery<Article>(entityManager)
                 .from(article)
                 .join(article.user, user)
                 .fetchJoin()
                 .where(article.id.eq(id))
                 .fetchOne());
-    }
-
-    public List<Article> findArticlebySearchColum(String title, String content,String nickname,Integer page, Integer size) {
-        return new JPAQuery<Article>(entityManager)
-                .from(article)
-                .join(article.user, user)
-                .where(article.title.like(title)
-                .or(article.content.like(content)
-                .or(article.user.nickname.like(nickname))))
-                .limit(size).offset(page)
-                .fetch();
     }
 
     /**
@@ -50,16 +72,11 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                 .execute();
     }
 
-    public List<Article> findArticleListByOrderByIdDesc(Integer page, Integer size) {
-        return new JPAQuery<Article>(entityManager)
-                .from(article)
-                .where(article.status.eq(Status.Article.ACTIVE))
-                .limit(size).offset(page)
-                .fetch();
-    }
-    
-    public long editArticle(Long id, Long userId, String title, String content) {
-        return new JPAUpdateClause(entityManager, article)
+    /**
+     * 게시글 수정
+     */
+    public void editArticle(Long id, Long userId, String title, String content) {
+        new JPAUpdateClause(entityManager, article)
                 .set(article.title, article.title.append(title))
                 .set(article.content, article.content.append(content))
                 .where(
@@ -68,14 +85,16 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
                 )
                 .execute();
     }
-    
-    public long deleteArticle(Long id) {
-        return new JPAUpdateClause(entityManager, article)
+
+    /**
+     * 게시글 삭제
+     */
+    public void deleteArticle(Long id) {
+        new JPAUpdateClause(entityManager, article)
                 .set(article.status, Status.Article.INACTIVE)
                 .where(article.id.eq(id).and(article.status.eq(Status.Article.ACTIVE)))
                 .execute();
     }
-    
 
 
 }
