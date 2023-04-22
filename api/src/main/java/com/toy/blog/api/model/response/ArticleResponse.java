@@ -1,9 +1,6 @@
 package com.toy.blog.api.model.response;
 
-import com.querydsl.core.annotations.QueryProjection;
-import com.toy.blog.domain.common.CommonConstant;
 import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.entity.ArticleImage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -92,9 +89,5 @@ public class ArticleResponse {
                     .collect(Collectors.toList());
         }
     }
-
-
-
-
 
 }
