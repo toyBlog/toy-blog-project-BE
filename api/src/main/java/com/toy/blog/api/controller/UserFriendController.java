@@ -20,9 +20,9 @@ public class UserFriendController {
      * [API. ] : 친구 맺기 or 친구 끊기
      * */
     @PostMapping("/{userId}")
-    public Response<UserFriendResponse.UserFriendInfo> followFriend(@PathVariable Long userId, @Validated @RequestBody UserFriendRequest.PostUserFriend request) {
+    public Response<UserFriendResponse.Detail> followFriend(@PathVariable Long userId, @Validated @RequestBody UserFriendRequest.PostUserFriend request) {
 
-        return Response.<UserFriendResponse.UserFriendInfo>builder()
+        return Response.<UserFriendResponse.Detail>builder()
                 .data(userFriendService.followFriend(userId, request.getFriendId()))
                 .code(HttpStatus.OK.value())
                 .build();
@@ -32,9 +32,9 @@ public class UserFriendController {
      * [API. ] : 친구 차단 or 차단 해제
      * */
     @PatchMapping("/{userId}")
-    public Response<UserFriendResponse.UserFriendInfo> blockFriend(@PathVariable Long userId, @Validated @RequestBody UserFriendRequest.BlockUserFriend request) {
+    public Response<UserFriendResponse.Detail> blockFriend(@PathVariable Long userId, @Validated @RequestBody UserFriendRequest.BlockUserFriend request) {
 
-        return Response.<UserFriendResponse.UserFriendInfo>builder()
+        return Response.<UserFriendResponse.Detail>builder()
                 .data(userFriendService.blockFriend(userId, request.getFriendId()))
                 .code(HttpStatus.OK.value())
                 .build();

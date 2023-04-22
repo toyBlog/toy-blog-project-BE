@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -13,17 +14,27 @@ public class UserFriendResponse {
 
     @Getter
     @Setter
-    @Builder
+    @SuperBuilder
     @AllArgsConstructor
-    public static class UserFriendInfo {
+    public static class UserFriendBase {
+
+        Long id;
 
         Status.UserFriend status;
+    }
 
-        public static UserFriendInfo of(UserFriend userFriend){
+    @Getter
+    @Setter
+    @SuperBuilder
+    public static class Detail extends UserFriendBase{
 
-            return  UserFriendInfo.builder()
-                                  .status(userFriend.getStatus())
-                                  .build();
+        public static Detail of(UserFriend userFriend) {
+
+            return Detail.builder()
+                    .id(userFriend.getId())
+                    .status(userFriend.getStatus())
+                    .build();
         }
     }
+
 }
