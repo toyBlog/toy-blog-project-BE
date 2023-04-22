@@ -6,7 +6,7 @@ import com.toy.blog.api.model.response.UserFriendResponse;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.User;
 import com.toy.blog.domain.entity.UserFriend;
-import com.toy.blog.domain.repository.user_friend.UserFriendRepository;
+import com.toy.blog.domain.repository.UserFriendRepository;
 import com.toy.blog.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
