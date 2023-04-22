@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import lombok.experimental.UtilityClass;
 
 import java.util.List;
@@ -16,9 +17,9 @@ public class UserResponse {
 
     @Getter
     @Setter
-    @Builder
+    @SuperBuilder
     @AllArgsConstructor
-    public static class UserInfo{
+    public static class UserBase{
 
         Long id;
 
@@ -26,20 +27,26 @@ public class UserResponse {
 
         String nickname;
 
-        public static UserInfo of(User user) {
+    }
 
-            return UserInfo.builder()
-                           .id(user.getId())
-                           .email(user.getEmail())
-                           .nickname(user.getNickname())
-                           .build();
+    @Getter
+    @Setter
+    @SuperBuilder
+    public static class Detail extends UserBase {
+
+        public static Detail of(User user) {
+
+           return Detail.builder()
+                   .id(user.getId())
+                   .email(user.getEmail())
+                   .nickname(user.getNickname())
+                   .build();
         }
 
-        public static List<UserInfo> of(List<User> userList) {
+        public static List<Detail> of(List<User> userList) {
 
-            return userList.stream()
-                    .map(UserInfo::of)
-                    .collect(Collectors.toList());
+            return userList.stream().map(Detail::of).collect(Collectors.toList());
         }
     }
+
 }

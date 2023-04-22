@@ -1,15 +1,19 @@
 package com.toy.blog.api.model.response;
 
+import com.querydsl.core.annotations.QueryProjection;
+import com.toy.blog.domain.common.CommonConstant;
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.entity.ArticleImage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.experimental.UtilityClass;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.File;
+import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.toy.blog.domain.common.CommonConstant.BaseUrl.BASE_URL;
@@ -33,8 +37,7 @@ public class ArticleResponse {
 
         Integer likedCount;
 
-        String url;
-
+        ZonedDateTime createdAt;
     }
 
     @Getter
@@ -44,42 +47,52 @@ public class ArticleResponse {
 
         String content;
 
-
+        List<String> urlList;
 
         public static Detail of(Article article) {
+
             return Detail.builder()
                     .id(article.getId())
                     .title(article.getTitle())
+                    .content(article.getContent())
+                    .writer(article.getUser().getNickname())
                     .viewCount(article.getViewCount())
                     .likedCount(article.getLikedCount())
-                    .writer(article.getUser().getNickname())
-                    .content(article.getContent())
+                    .urlList(article.getArticleImageList().stream().map(articleImage -> BASE_URL + File.separator + articleImage.getPath()).collect(Collectors.toList()))
                     .build();
         }
 
     }
-
 
     @Getter
     @Setter
     @SuperBuilder
     public static class Search extends ArticleBase {
 
-        public static List<Search> of(List<Article> article) {
-            return article.stream().map(Search::of).collect(Collectors.toList());
-        }
+        String url;
 
         public static Search of(Article article) {
+
             return Search.builder()
                     .id(article.getId())
                     .title(article.getTitle())
+                    .writer(article.getUser().getNickname())
                     .viewCount(article.getViewCount())
                     .likedCount(article.getLikedCount())
-                    .writer(article.getUser().getNickname())
+                    .createdAt(article.getCreatedAt())
+                    .url(CollectionUtils.isEmpty(article.getArticleImageList()) ? "" : BASE_URL + File.separator + article.getArticleImageList().get(0).getPath())
                     .build();
+
         }
 
+        public static List<Search> of(List<Article> articleList) {
+
+            return articleList.stream()
+                    .map(Search::of)
+                    .collect(Collectors.toList());
+        }
     }
+
 
 
 
