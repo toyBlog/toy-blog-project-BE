@@ -1,6 +1,7 @@
 package com.toy.blog.domain.repository;
 
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.repository.article.ArticleRepository;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;

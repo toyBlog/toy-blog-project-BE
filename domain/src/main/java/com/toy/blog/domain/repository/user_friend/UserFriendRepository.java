@@ -1,4 +1,4 @@
-package com.toy.blog.domain.repository;
+package com.toy.blog.domain.repository.user_friend;
 
 import com.toy.blog.domain.entity.UserFriend;
 import org.springframework.data.jpa.repository.JpaRepository;

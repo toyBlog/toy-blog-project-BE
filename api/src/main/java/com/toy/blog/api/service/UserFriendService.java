@@ -2,12 +2,11 @@ package com.toy.blog.api.service;
 
 import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.exception.user_friend.BlockedUserFriendException;
-import com.toy.blog.api.exception.user_friend.UserFriendException;
 import com.toy.blog.api.model.response.UserFriendResponse;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.User;
 import com.toy.blog.domain.entity.UserFriend;
-import com.toy.blog.domain.repository.UserFriendRepository;
+import com.toy.blog.domain.repository.user_friend.UserFriendRepository;
 import com.toy.blog.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ public class UserFriendService {
      *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
      * */
     @Transactional
-    public UserFriendResponse.UserFriendInfo followFriend(Long userId, Long friendId) {
+    public UserFriendResponse.Detail followFriend(Long userId, Long friendId) {
 
         //1. ACTIVE 한 User를 조회
         User user = getUser(userId, ACTIVE);
@@ -56,7 +55,7 @@ public class UserFriendService {
         userFriendRepository.save(userFriend);
 
         //5. 결과 리턴
-        return UserFriendResponse.UserFriendInfo.of(userFriend);
+        return UserFriendResponse.Detail.of(userFriend);
     }
 
     /** [(id, status) 를 가지고 User를 조회하는 private Service 로직]*/
@@ -72,7 +71,7 @@ public class UserFriendService {
      *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
      * */
     @Transactional
-    public UserFriendResponse.UserFriendInfo blockFriend(Long userId, Long friendId) {
+    public UserFriendResponse.Detail blockFriend(Long userId, Long friendId) {
 
         //1. ACTIVE 한 User를 조회
         User user = getUser(userId, ACTIVE);
@@ -90,6 +89,6 @@ public class UserFriendService {
         }
 
         //4. 결과 리턴
-        return UserFriendResponse.UserFriendInfo.of(userFriend);
+        return UserFriendResponse.Detail.of(userFriend);
     }
 }
