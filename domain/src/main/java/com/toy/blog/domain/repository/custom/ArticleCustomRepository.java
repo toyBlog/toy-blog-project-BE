@@ -1,16 +1,14 @@
 package com.toy.blog.domain.repository.custom;
 
-
 import com.toy.blog.domain.entity.Article;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface ArticleCustomRepository {
 
-    List<Article> findAllArticleBySearch(String title, String content, String nickname, Integer page, Integer size);
-
-    List<Article> findAllFollowedArticleBySearch(String title, String content, String nickname, Integer page, Integer size);
+    List<Article> getArticleList(Integer page, Integer size);
 
     Optional<Article> findArticleWithUserBy(Long id);
 
@@ -19,4 +17,6 @@ public interface ArticleCustomRepository {
     void editArticle(Long id, Long userId, String title, String content);
 
     void deleteArticle(Long id);
+
+    List<Article> getFollowArticleList(List<Long> friendIdList, Pageable pageable);
 }
