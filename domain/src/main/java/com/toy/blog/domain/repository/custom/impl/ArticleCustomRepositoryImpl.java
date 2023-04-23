@@ -84,10 +84,7 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
     public void deleteArticle(Long id) {
         new JPAUpdateClause(entityManager, article)
                 .set(article.status, Status.Article.INACTIVE)
-                .where(
-                        article.id.eq(id),
-                        article.status.eq(Status.Article.ACTIVE)
-                )
+                .where(article.id.eq(id))
                 .execute();
     }
 
