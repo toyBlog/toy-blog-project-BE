@@ -32,12 +32,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Error {
 
-    ACCESS_DENIED_EXCEPTION(2100, "access denied exception"), // To do 코드 수정
+    ACCESS_DENIED_EXCEPTION(2100, "access denied exception"),
     NOT_FOUND_ACTIVE_USER(2121, "user not found"),
     ALREADY_EXIST_USER(2140, "already exist user"),
     INVALID_PASSWORD(2141, "invalid password"),
-    NOT_FOUND_ARTICLE(2220, "not found article"), // To do 코드 확인
-    NOT_FOUND_LIKED(2420, "not found liked"), // To do 코드 확인
+    NOT_FOUND_ARTICLE(2220, "not found article"),
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
     NOT_FOUND_USER_FRIEND(2522, "user-friend not found"),
 
