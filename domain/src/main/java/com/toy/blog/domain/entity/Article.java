@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class Article extends BaseEntity{
+public class Article extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,8 @@ public class Article extends BaseEntity{
     @Size(min = 2, max = 20)
     String title;
 
-    @NotNull @Size(min = 10, max = 200)
+    @NotNull
+    @Size(min = 2, max = 200)
     String content;
 
     @Column(name = "view_count")

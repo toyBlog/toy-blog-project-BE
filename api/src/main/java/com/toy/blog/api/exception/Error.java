@@ -7,7 +7,7 @@ import lombok.Getter;
  * [ 1000단위 ] - 오류의 범위
  *  1000 : 요청 성공
  *  2 : Request 오류
- *  3 : Reponse 오류
+ *  3 : Response 오류
  *  4 : DB, Server 오류
  *
  * [ 100단위 ] - 오류 도메인
@@ -16,10 +16,7 @@ import lombok.Getter;
  *  2 : article 오류
  *  3 : articleImage 오류
  *  4 : liked 오류
- *  5 : userFruend 오류
-
- *
- *
+ *  5 : userFriend 오류
  *
  * [10단위] - 오류 HTTP Method
  *  0~19 : Common
@@ -35,10 +32,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Error {
 
+    ACCESS_DENIED_EXCEPTION(2100, "access denied exception"),
     NOT_FOUND_ACTIVE_USER(2121, "user not found"),
     ALREADY_EXIST_USER(2140, "already exist user"),
-
     INVALID_PASSWORD(2141, "invalid password"),
+    NOT_FOUND_ARTICLE(2220, "not found article"),
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
     SAME_ID_USER_FRIEND(2501, "same id user-friend"),
     NOT_FOUND_USER_FRIEND(2522, "user-friend not found"),
