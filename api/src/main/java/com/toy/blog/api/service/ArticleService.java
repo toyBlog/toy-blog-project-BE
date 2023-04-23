@@ -2,7 +2,6 @@ package com.toy.blog.api.service;
 
 import com.toy.blog.api.exception.article.AccessDeniedException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
-import com.toy.blog.api.exception.liked.NotFoundLikedException;
 import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.request.LikedRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
@@ -47,8 +46,10 @@ public class ArticleService {
         Long userId = loginService.getLoginUserId();
         Article article = articleRepository.findArticleById(id).orElseThrow(NotFoundArticleException::new);
 
-        // 조회수 증가
+        // 조회수 증가 Todo: 조회수 증가 로직 고민
         if (!userId.equals(article.getUser().getId())) {
+            articleRepository.updateViewCount(id);
+        } else if (userId == null) {
             articleRepository.updateViewCount(id);
         }
 
@@ -57,6 +58,7 @@ public class ArticleService {
 
     /**
      * 게시글 작성
+     * Todo: 이미지 업로드 추가
      */
     public void insertArticle(ArticleRequest.Register request) {
         Long userId = loginService.getLoginUserId();
@@ -94,9 +96,11 @@ public class ArticleService {
     /**
      * 좋아요 증가/취소
      * 좋아요 테이블 저장/삭제 처리
+     * Todo: 좋아요 수정(박수빈)
      */
     public void likeArticle(Long id) {
         Long userId = loginService.getLoginUserId();
+        Liked liked = likedRepository.findByArticleAndUser(id, userId).orElseThrow();
 
         if (likedRepository.findByArticleAndUser(id, userId).isEmpty()) { /** 처음 좋아요 누르는 경우 */
             // article 테이블의 좋아요 +1
@@ -104,7 +108,6 @@ public class ArticleService {
             // liked 테이블 생성 (ACTIVE)
             likedRepository.save(new LikedRequest.Register().toEntity(id, userId));
         } else { /** 좋아요 취소 */
-            Liked liked = likedRepository.findByArticleAndUser(id, userId).orElseThrow(NotFoundLikedException::new);
             // article 테이블의 좋아요 -1
             articleRepository.updateLikedCount(id, -1);
             // liked 테이블 상태 변경 (INACTIVE)
@@ -114,7 +117,7 @@ public class ArticleService {
 
     /**
      * [특정 User가 Follow 한 Friend들이 올린 Article List를 조회 하는 서비스]
-     * To do 구현
+     * Todo: 구현(용준님^^)
      * */
 //    public List<ArticleResponse.Search> getFollowArticles(Long userId, Pageable pageable) {
 //

@@ -42,6 +42,7 @@ public class ArticleController {
 
     /**
      * [API. ] : 글 작성
+     * Todo: 이미지 업로드 추가(박수빈)
      */
     @PostMapping("/articles")
     public Response<Void> insertArticle(@RequestBody ArticleRequest.Register request) {
@@ -70,6 +71,11 @@ public class ArticleController {
     }
 
     /**
+     * [API. ] : 글 검색
+     * Todo: 구현(박수빈)
+     */
+
+    /**
      * [API. ] : 좋아요
      */
     @PostMapping("/articles/{id}")
@@ -80,7 +86,7 @@ public class ArticleController {
 
     /**
      * [API. ] : 팔로우한 친구의 게시글 목록 조회
-     * To do 구현
+     * Todo: 구현
      * */
 //    @GetMapping("/articles/follow/{userId}")
 //    public Response<List<ArticleResponse.Search>> getFollowArticleList(@PathVariable Long userId, Pageable pageable){

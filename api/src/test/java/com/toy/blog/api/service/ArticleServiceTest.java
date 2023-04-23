@@ -1,7 +1,6 @@
 package com.toy.blog.api.service;
 
 import com.toy.blog.api.exception.article.NotFoundArticleException;
-import com.toy.blog.api.exception.liked.NotFoundLikedException;
 import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.request.LikedRequest;
 import com.toy.blog.domain.common.Status;
@@ -133,7 +132,7 @@ class ArticleServiceTest {
     @Transactional
     public void createLikedTableTest() {
         likedRepository.save(new LikedRequest.Register().toEntity(1L, 1L));
-        Liked liked = likedRepository.findByArticleAndUser(1L, 1L).orElseThrow(NotFoundLikedException::new);
+        Liked liked = likedRepository.findByArticleAndUser(1L, 1L).orElseThrow();
         log.info("게시글 id : {}", liked.getArticle().getId());
         log.info("사용자 id : {}", liked.getUser().getId());
         log.info("좋아요 id : {}", liked.getId());
@@ -158,7 +157,7 @@ class ArticleServiceTest {
     @Transactional
     public void deleteLikedTableTest() {
         likedRepository.deleteLiked(1L);
-        Liked liked = likedRepository.findById(1L).orElseThrow(NotFoundLikedException::new);
+        Liked liked = likedRepository.findById(1L).orElseThrow();
         log.info("좋아요 상태 : {}", liked.getStatus());
         assertThat(liked.getStatus()).isEqualTo(Status.Like.INACTIVE);
     }
