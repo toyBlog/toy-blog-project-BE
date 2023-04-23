@@ -58,7 +58,7 @@ public class ArticleService {
 
     /**
      * 게시글 작성
-     * Todo: 이미지 업로드 추가
+     * Todo: 이미지 업로드 추가(박수빈)
      */
     public void insertArticle(ArticleRequest.Register request) {
         Long userId = loginService.getLoginUserId();

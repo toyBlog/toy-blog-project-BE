@@ -101,7 +101,7 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
 
     /**
      * 팔로우한 친구의 게시글 목록 조회
-     * To do 구현
+     * Todo: 구현(용준님)
      */
     @Override
     public List<Article> getFollowArticleList(List<Long> friendIdList, Pageable pageable) {
