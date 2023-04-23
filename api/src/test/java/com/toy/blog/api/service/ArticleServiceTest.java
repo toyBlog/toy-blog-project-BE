@@ -1,10 +1,14 @@
 package com.toy.blog.api.service;
 
 import com.toy.blog.api.exception.article.NotFoundArticleException;
+import com.toy.blog.api.exception.liked.NotFoundLikedException;
 import com.toy.blog.api.model.request.ArticleRequest;
+import com.toy.blog.api.model.request.LikedRequest;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.entity.Liked;
 import com.toy.blog.domain.repository.ArticleRepository;
+import com.toy.blog.domain.repository.LikedRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +35,9 @@ class ArticleServiceTest {
     @Autowired
     ArticleRepository articleRepository;
 
+    @Autowired
+    LikedRepository likedRepository;
+
     @Test
     @DisplayName("게시글 목록 조회")
     public void getArticlesTest() {
@@ -47,7 +54,7 @@ class ArticleServiceTest {
     @Test
     @DisplayName("게시글 상세 보기")
     public void getArticleTest() {
-        Article article = articleRepository.findById(1L).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findArticleById(1L).orElseThrow(NotFoundArticleException::new);
 
         log.info("article.getId() : {}", article.getId());
         log.info("article.getTitle() : {}", article.getTitle());
@@ -94,7 +101,7 @@ class ArticleServiceTest {
         request.setContent(testContent);
         articleRepository.editArticle(1L, request.getTitle(), request.getContent());
 
-        Article edit = articleRepository.findById(1L).orElseThrow(NotFoundArticleException::new);
+        Article edit = articleRepository.findArticleById(1L).orElseThrow(NotFoundArticleException::new);
         log.info("수정된 제목 : {}", edit.getTitle());
         log.info("수정된 내용 : {}", edit.getContent());
         assertThat(edit.getTitle()).isEqualTo(testTitle);
@@ -104,11 +111,56 @@ class ArticleServiceTest {
     @Test
     @DisplayName("게시글 삭제")
     @Transactional
-    public void deleteArticle() {
+    public void deleteArticleTest() {
         articleRepository.deleteArticle(1L);
         Article delete = articleRepository.findById(1L).orElseThrow(NotFoundArticleException::new);
         log.info("게시글 상태 : {}", delete.getStatus());
         assertThat(delete.getStatus()).isEqualTo(Status.Article.INACTIVE);
+    }
+
+    @Test
+    @DisplayName("좋아요 증가")
+    @Transactional
+    public void increaseLikedCount() {
+        articleRepository.updateLikedCount(1L, 1);
+        Article article = articleRepository.findArticleById(1L).orElseThrow(NotFoundArticleException::new);
+        log.info("게시글 좋아요 : {}", article.getLikedCount());
+        assertThat(article.getLikedCount()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("좋아요 테이블 생성")
+    @Transactional
+    public void createLikedTableTest() {
+        likedRepository.save(new LikedRequest.Register().toEntity(1L, 1L));
+        Liked liked = likedRepository.findByArticleAndUser(1L, 1L).orElseThrow(NotFoundLikedException::new);
+        log.info("게시글 id : {}", liked.getArticle().getId());
+        log.info("사용자 id : {}", liked.getUser().getId());
+        log.info("좋아요 id : {}", liked.getId());
+        assertThat(liked).isNotNull();
+        assertThat(liked.getArticle().getId()).isEqualTo(1L);
+        assertThat(liked.getUser().getId()).isEqualTo(1L);
+        assertThat(liked.getId()).isEqualTo(5L);
+    }
+
+    @Test
+    @DisplayName("좋아요 취소")
+    @Transactional
+    public void decreaseLikedCount() {
+        articleRepository.updateLikedCount(1L, -1);
+        Article article = articleRepository.findArticleById(1L).orElseThrow(NotFoundArticleException::new);
+        log.info("게시글 좋아요 취소 : {}", article.getLikedCount());
+        assertThat(article.getLikedCount()).isEqualTo(-1);
+    }
+
+    @Test
+    @DisplayName("좋아요 테이블 상태 변경")
+    @Transactional
+    public void deleteLikedTableTest() {
+        likedRepository.deleteLiked(1L);
+        Liked liked = likedRepository.findById(1L).orElseThrow(NotFoundLikedException::new);
+        log.info("좋아요 상태 : {}", liked.getStatus());
+        assertThat(liked.getStatus()).isEqualTo(Status.Like.INACTIVE);
     }
 
 }
