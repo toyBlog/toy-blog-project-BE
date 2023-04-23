@@ -70,7 +70,6 @@ public class ArticleController {
 
     /**
      * [API. ] : 좋아요
-     * To do 구현
      */
     @PostMapping("/articles/{id}")
     public void likeArticle(@PathVariable Long id) {
