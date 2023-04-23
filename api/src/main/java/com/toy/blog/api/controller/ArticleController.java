@@ -44,8 +44,9 @@ public class ArticleController {
      * [API. ] : 글 작성
      */
     @PostMapping("/articles")
-    public void insertArticle(@RequestBody ArticleRequest.Register request) {
+    public Response<Void> insertArticle(@RequestBody ArticleRequest.Register request) {
         articleService.insertArticle(request);
+        return Response.<Void>builder().build();
     }
 
     /**
@@ -72,8 +73,9 @@ public class ArticleController {
      * [API. ] : 좋아요
      */
     @PostMapping("/articles/{id}")
-    public void likeArticle(@PathVariable Long id) {
+    public Response<Void> likeArticle(@PathVariable Long id) {
         articleService.likeArticle(id);
+        return Response.<Void>builder().build();
     }
 
     /**

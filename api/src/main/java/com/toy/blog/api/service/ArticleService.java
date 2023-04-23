@@ -97,14 +97,14 @@ public class ArticleService {
      */
     public void likeArticle(Long id) {
         Long userId = loginService.getLoginUserId();
-        Liked liked = likedRepository.findByArticleAndUser(id, userId).orElseThrow(NotFoundLikedException::new);
 
-        if (liked == null) { /** 처음 좋아요 누르는 경우 */
+        if (likedRepository.findByArticleAndUser(id, userId).isEmpty()) { /** 처음 좋아요 누르는 경우 */
             // article 테이블의 좋아요 +1
             articleRepository.updateLikedCount(id, 1);
             // liked 테이블 생성 (ACTIVE)
             likedRepository.save(new LikedRequest.Register().toEntity(id, userId));
         } else { /** 좋아요 취소 */
+            Liked liked = likedRepository.findByArticleAndUser(id, userId).orElseThrow(NotFoundLikedException::new);
             // article 테이블의 좋아요 -1
             articleRepository.updateLikedCount(id, -1);
             // liked 테이블 상태 변경 (INACTIVE)
