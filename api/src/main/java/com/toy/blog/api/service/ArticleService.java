@@ -42,7 +42,7 @@ public class ArticleService {
      */
     public ArticleResponse.Detail getArticle(Long id) {
         Long userId = loginService.getLoginUserId();
-        Article article = articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findArticleById(id).orElseThrow(NotFoundArticleException::new);
 
         // 조회수 증가
         if (!userId.equals(article.getUser().getId())) {
@@ -65,7 +65,7 @@ public class ArticleService {
      */
     public void editArticle(Long id, ArticleRequest.Register request) {
         Long userId = loginService.getLoginUserId();
-        Article article = articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findArticleById(id).orElseThrow(NotFoundArticleException::new);
 
         if (!userId.equals(article.getUser().getId())) {
             throw new AccessDeniedException();
@@ -79,7 +79,7 @@ public class ArticleService {
      */
     public void deleteArticle(Long id) {
         Long userId = loginService.getLoginUserId();
-        Article article = articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findArticleById(id).orElseThrow(NotFoundArticleException::new);
 
         if (!userId.equals(article.getUser().getId())) {
             throw new AccessDeniedException();

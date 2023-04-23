@@ -41,6 +41,20 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
     }
 
     /**
+     * id로 게시글 찾기
+     */
+    @Override
+    public Optional<Article> findArticleById(Long id) {
+        return Optional.ofNullable(new JPAQuery<Article>(entityManager)
+                .from(article)
+                .where(
+                        article.id.eq(id),
+                        article.status.eq(Status.Article.ACTIVE)
+                )
+                .fetchOne());
+    }
+
+    /**
      * 조회수 증가
      */
     @Override
