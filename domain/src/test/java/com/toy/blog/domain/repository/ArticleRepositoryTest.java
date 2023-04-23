@@ -1,7 +1,6 @@
 package com.toy.blog.domain.repository;
 
 import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.repository.article.ArticleRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +23,7 @@ public class ArticleRepositoryTest {
 
     @Test
     @DisplayName("UserId로 게시글 찾기")
-    public void findArticleByUserId() {
+    public void findArticleByUserIdTest() {
         Article article = articleRepository.findById(1L).orElseThrow();
         log.info("articleId : {}", article.getId());
         log.info("articleId : {}", article.getTitle());
