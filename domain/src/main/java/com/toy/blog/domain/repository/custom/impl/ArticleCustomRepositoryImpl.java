@@ -68,14 +68,11 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
      * 게시글 수정
      */
     @Override
-    public void editArticle(Long id, Long userId, String title, String content) {
+    public void editArticle(Long id, String title, String content) {
         new JPAUpdateClause(entityManager, article)
-                .set(article.title, article.title.append(title))
-                .set(article.content, article.content.append(content))
-                .where(
-                        article.id.eq(id),
-                        article.user.id.eq(userId)
-                )
+                .set(article.title, title)
+                .set(article.content, content)
+                .where(article.id.eq(id))
                 .execute();
     }
 
@@ -86,7 +83,10 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
     public void deleteArticle(Long id) {
         new JPAUpdateClause(entityManager, article)
                 .set(article.status, Status.Article.INACTIVE)
-                .where(article.id.eq(id).and(article.status.eq(Status.Article.ACTIVE)))
+                .where(
+                        article.id.eq(id),
+                        article.status.eq(Status.Article.ACTIVE)
+                )
                 .execute();
     }
 
