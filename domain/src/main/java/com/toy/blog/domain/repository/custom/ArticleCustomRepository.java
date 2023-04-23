@@ -14,7 +14,7 @@ public interface ArticleCustomRepository {
 
     void updateViewCount(Long id);
 
-    void editArticle(Long id, Long userId, String title, String content);
+    void editArticle(Long id, String title, String content);
 
     void deleteArticle(Long id);
 
