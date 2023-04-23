@@ -4,13 +4,10 @@ import com.toy.blog.domain.entity.Article;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ArticleCustomRepository {
 
     List<Article> getArticleList(Integer page, Integer size);
-
-    Optional<Article> findArticleWithUserBy(Long id);
 
     void updateViewCount(Long id);
 

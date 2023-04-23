@@ -41,19 +41,6 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
     }
 
     /**
-     * id로 게시글 조회
-     */
-    @Override
-    public Optional<Article> findArticleWithUserBy(Long id) {
-        return Optional.ofNullable(new JPAQuery<Article>(entityManager)
-                .from(article)
-                .join(article.user, user)
-                .fetchJoin()
-                .where(article.id.eq(id))
-                .fetchOne());
-    }
-
-    /**
      * 조회수 증가
      */
     @Override

@@ -65,13 +65,13 @@ public class ArticleService {
      */
     public void editArticle(Long id, ArticleRequest.Register request) {
         Long userId = loginService.getLoginUserId();
-        Article article = articleRepository.findArticleWithUserBy(id).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
 
         if (!userId.equals(article.getUser().getId())) {
             throw new AccessDeniedException();
         }
 
-        articleRepository.editArticle(id, userId, request.getTitle(), request.getContent());
+        articleRepository.editArticle(id, request.getTitle(), request.getContent());
     }
 
     /**
@@ -79,7 +79,7 @@ public class ArticleService {
      */
     public void deleteArticle(Long id) {
         Long userId = loginService.getLoginUserId();
-        Article article = articleRepository.findArticleWithUserBy(id).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
 
         if (!userId.equals(article.getUser().getId())) {
             throw new AccessDeniedException();
