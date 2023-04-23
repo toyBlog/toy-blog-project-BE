@@ -37,6 +37,7 @@ public enum Error {
 
     NOT_FOUND_ACTIVE_USER(2121, "user not found"),
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
+    SAME_ID_USER_FRIEND(2501, "same id user-friend"),
     NOT_FOUND_USER_FRIEND(2522, "user-friend not found");
 
 

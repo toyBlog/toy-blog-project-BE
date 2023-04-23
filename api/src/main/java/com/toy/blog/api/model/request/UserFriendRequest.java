@@ -14,7 +14,7 @@ public class UserFriendRequest {
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class PostUserFriend {
+    public static class FollowUserFriend {
 
         @NotNull(message = "friendId는 필수값 입니다.")
         Long friendId;

@@ -23,14 +23,14 @@ public class ArticleController {
     /**
      * [API. ] : follower들의 게시물 조회
      * */
-//    @GetMapping("/follow/list/{userId}")
-//    public Response<List<ArticleResponse.Search>> getFollowArticleList(@PathVariable Long userId, Pageable pageable){
-//
-//        return Response.<List<ArticleResponse.Search>>builder()
-//                .data(articleService.getFollowArticleList(userId, pageable))
-//                .code(HttpStatus.OK.value())
-//                .build();
-//    }
+    @GetMapping("/follow/list/{userId}")
+    public Response<List<ArticleResponse.Search>> getFollowArticleList(@PathVariable Long userId, Pageable pageable){
+
+        return Response.<List<ArticleResponse.Search>>builder()
+                .data(articleService.getFollowArticleList(userId, pageable))
+                .code(HttpStatus.OK.value())
+                .build();
+    }
 
 
 }

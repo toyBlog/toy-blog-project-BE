@@ -13,6 +13,7 @@ import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.File;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,9 +30,11 @@ public class ArticleResponse {
 
         Long id;
 
+        String writer;
+
         String title;
 
-        String writer;
+        String content;
 
         Integer viewCount;
 
@@ -45,11 +48,13 @@ public class ArticleResponse {
     @SuperBuilder
     public static class Detail extends ArticleBase {
 
-        String content;
-
         List<String> urlList;
 
         public static Detail of(Article article) {
+
+            List<String> urlList = article.getArticleImageList().stream()
+                    .map(ai -> BASE_URL + File.separator + ai.getPath())
+                    .collect(Collectors.toList());
 
             return Detail.builder()
                     .id(article.getId())
@@ -58,7 +63,7 @@ public class ArticleResponse {
                     .writer(article.getUser().getNickname())
                     .viewCount(article.getViewCount())
                     .likedCount(article.getLikedCount())
-                    .urlList(article.getArticleImageList().stream().map(articleImage -> BASE_URL + File.separator + articleImage.getPath()).collect(Collectors.toList()))
+                    .urlList(CollectionUtils.isEmpty(article.getArticleImageList()) ? new ArrayList<>() : urlList)
                     .build();
         }
 
@@ -76,6 +81,7 @@ public class ArticleResponse {
             return Search.builder()
                     .id(article.getId())
                     .title(article.getTitle())
+                    .content(article.getContent().length() >= 100 ? article.getContent().substring(0, 100) : article.getContent())
                     .writer(article.getUser().getNickname())
                     .viewCount(article.getViewCount())
                     .likedCount(article.getLikedCount())

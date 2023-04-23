@@ -26,6 +26,7 @@ sourceSets {
     }
 }
 
+
 compileQuerydsl{
     options.annotationProcessorPath = configurations.querydsl
 }

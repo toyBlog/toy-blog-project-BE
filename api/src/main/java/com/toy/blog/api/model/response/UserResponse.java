@@ -3,12 +3,12 @@ package com.toy.blog.api.model.response;
 
 import com.toy.blog.domain.entity.User;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.experimental.UtilityClass;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,20 +32,57 @@ public class UserResponse {
     @Getter
     @Setter
     @SuperBuilder
-    public static class Detail extends UserBase {
+    public static class SummaryInfo extends UserBase {
 
-        public static Detail of(User user) {
+        public static SummaryInfo of(User user) {
 
-           return Detail.builder()
+            return SummaryInfo.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .build();
+        }
+
+        public static List<SummaryInfo> of(List<User> userList) {
+            return userList.stream().map(SummaryInfo::of).collect(Collectors.toList());
+        }
+
+    }
+
+
+    @Getter
+    @Setter
+    @SuperBuilder
+    public static class Info extends UserBase {
+
+        List<Long> followIdList = new ArrayList<>();
+        List<Long> followingIdList = new ArrayList<>();
+        List<Long> connectingIdList = new ArrayList<>();
+
+        public static Info of(User user) {
+
+            return Info.builder()
+                       .id(user.getId())
+                       .email(user.getEmail())
+                       .nickname(user.getNickname())
+                       .build();
+        }
+
+        public static Info of(User user, List<Long> followIdList, List<Long> followingIdList, List<Long> connectingIdList) {
+
+           return Info.builder()
                    .id(user.getId())
                    .email(user.getEmail())
                    .nickname(user.getNickname())
+                   .followIdList(followIdList)
+                   .followingIdList(followingIdList)
+                   .connectingIdList(connectingIdList)
                    .build();
         }
 
-        public static List<Detail> of(List<User> userList) {
+        public static List<Info> of(List<User> userList) {
 
-            return userList.stream().map(Detail::of).collect(Collectors.toList());
+            return userList.stream().map(Info::of).collect(Collectors.toList());
         }
     }
 
