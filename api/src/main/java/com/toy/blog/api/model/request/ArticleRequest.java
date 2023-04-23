@@ -35,7 +35,6 @@ public class ArticleRequest {
         Integer size = 5;
     }
 
-
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -54,6 +53,8 @@ public class ArticleRequest {
                     .title(title)
                     .content(content)
                     .user(User.builder().id(userId).build())
+                    .viewCount(0)
+                    .likedCount(0)
                     .status(Status.Article.ACTIVE)
                     .build();
         }
