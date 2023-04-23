@@ -25,7 +25,7 @@ public class ArticleRequest {
         @Size(min = 2, max = 20)
         String title;
 
-        @Size(min = 10, max = 200)
+        @Size(min = 2, max = 200)
         String content;
 
         String nickname;
@@ -42,10 +42,11 @@ public class ArticleRequest {
     public static class Register {
 
         @NotNull
-        @Size(max = 50)
+        @Size(min = 2, max = 20)
         String title;
 
         @NotNull
+        @Size(min = 2, max = 200)
         String content;
 
         public Article toEntity(Long userId) {
