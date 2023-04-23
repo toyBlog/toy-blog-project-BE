@@ -72,6 +72,10 @@ public class ArticleController {
      * [API. ] : 좋아요
      * To do 구현
      */
+    @PostMapping("/articles/{id}")
+    public void likeArticle(@PathVariable Long id) {
+        articleService.likeArticle(id);
+    }
 
     /**
      * [API. ] : 팔로우한 친구의 게시글 목록 조회

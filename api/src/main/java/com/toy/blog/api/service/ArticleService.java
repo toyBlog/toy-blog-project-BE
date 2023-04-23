@@ -2,10 +2,13 @@ package com.toy.blog.api.service;
 
 import com.toy.blog.api.exception.article.AccessDeniedException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
+import com.toy.blog.api.exception.liked.NotFoundLikedException;
 import com.toy.blog.api.model.request.ArticleRequest;
+import com.toy.blog.api.model.request.LikedRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.auth.service.LoginService;
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.entity.Liked;
 import com.toy.blog.domain.repository.ArticleRepository;
 import com.toy.blog.domain.repository.LikedRepository;
 import com.toy.blog.domain.repository.UserRepository;
@@ -89,10 +92,25 @@ public class ArticleService {
     }
 
     /**
-     * 좋아요 증가
-     * 좋아요 테이블 저장
-     * To do 구현
+     * 좋아요 증가/취소
+     * 좋아요 테이블 저장/삭제 처리
      */
+    public void likeArticle(Long id) {
+        Long userId = loginService.getLoginUserId();
+        Liked liked = likedRepository.findByArticleAndUser(id, userId).orElseThrow(NotFoundLikedException::new);
+
+        if (liked == null) { /** 처음 좋아요 누르는 경우 */
+            // article 테이블의 좋아요 +1
+            articleRepository.updateLikedCount(id, 1);
+            // liked 테이블 생성 (ACTIVE)
+            likedRepository.save(new LikedRequest.Register().toEntity(id, userId));
+        } else { /** 좋아요 취소 */
+            // article 테이블의 좋아요 -1
+            articleRepository.updateLikedCount(id, -1);
+            // liked 테이블 상태 변경 (INACTIVE)
+            likedRepository.deleteLiked(liked.getId());
+        }
+    }
 
     /**
      * [특정 User가 Follow 한 Friend들이 올린 Article List를 조회 하는 서비스]

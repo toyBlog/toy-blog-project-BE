@@ -18,5 +18,7 @@ public interface ArticleCustomRepository {
 
     void deleteArticle(Long id);
 
+    void updateLikedCount(Long id, Integer value);
+
     List<Article> getFollowArticleList(List<Long> friendIdList, Pageable pageable);
 }

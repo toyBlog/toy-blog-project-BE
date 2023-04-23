@@ -92,9 +92,15 @@ public class ArticleCustomRepositoryImpl implements ArticleCustomRepository {
     }
 
     /**
-     * 게시글 좋아요 증가
-     * To do 구현
+     * 게시글 좋아요 증가/취소
      */
+    @Override
+    public void updateLikedCount(Long id, Integer value) {
+        new JPAUpdateClause(entityManager, article)
+                .set(article.likedCount, article.likedCount.add(value))
+                .where(article.id.eq(id))
+                .execute();
+    }
 
     /**
      * 팔로우한 친구의 게시글 목록 조회
