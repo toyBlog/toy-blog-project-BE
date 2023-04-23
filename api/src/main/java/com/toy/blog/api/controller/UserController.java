@@ -5,7 +5,9 @@ import com.toy.blog.api.model.response.Response;
 import com.toy.blog.api.model.response.UserFriendResponse;
 import com.toy.blog.api.model.response.UserResponse;
 import com.toy.blog.api.service.UserService;
+import com.toy.blog.auth.model.TokenResponseDto;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +41,25 @@ public class UserController {
     public Response<List<UserResponse.SummaryInfo>> getUserInfoList(@PathVariable Long userId, @ModelAttribute UserRequest.UserIdList request, Pageable pageable) {
 
         return Response.<List<UserResponse.SummaryInfo>>builder()
-                       .data(userService.getUserInfoList(userId, request.getUserIdList(), pageable))
-                       .code(HttpStatus.OK.value())
-                       .build();
+                .data(userService.getUserInfoList(userId, request.getUserIdList(), pageable))
+                .code(HttpStatus.OK.value())
+                .build();
+    }
+
+    @PostMapping("/join")
+    public Response<Void> join(UserRequest.Join request) {
+        userService.join(request);
+        return Response.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .build();
+    }
+
+    @PostMapping("/login")
+    public Response<TokenResponseDto> login(UserRequest.Login request) {
+        return Response.<TokenResponseDto>builder()
+                .code(HttpStatus.OK.value())
+                .data(userService.login(request))
+                .build();
+
     }
 }

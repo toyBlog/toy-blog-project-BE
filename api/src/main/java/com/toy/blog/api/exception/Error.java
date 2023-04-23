@@ -36,9 +36,17 @@ import lombok.Getter;
 public enum Error {
 
     NOT_FOUND_ACTIVE_USER(2121, "user not found"),
+    ALREADY_EXIST_USER(2140, "already exist user"),
+
+    INVALID_PASSWORD(2141, "invalid password"),
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
     SAME_ID_USER_FRIEND(2501, "same id user-friend"),
-    NOT_FOUND_USER_FRIEND(2522, "user-friend not found");
+    NOT_FOUND_USER_FRIEND(2522, "user-friend not found"),
+
+    INTERNAL_SERVER_ERROR(9999, "internal server error");
+
+
+
 
 
 
