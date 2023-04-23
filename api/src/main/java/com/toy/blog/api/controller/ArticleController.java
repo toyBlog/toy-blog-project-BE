@@ -88,13 +88,15 @@ public class ArticleController {
      * [API. ] : 팔로우한 친구의 게시글 목록 조회
      * Todo: 구현(용준님)
      * */
-//    @GetMapping("/articles/follow/{userId}")
-//    public Response<List<ArticleResponse.Search>> getFollowArticleList(@PathVariable Long userId, Pageable pageable){
-//
-//        return Response.<List<ArticleResponse.Search>>builder()
-//                .data(articleService.getFollowArticleList(userId, pageable))
-//                .code(HttpStatus.OK.value())
-//                .build();
-//    }
+
+    @GetMapping("/follow/list/{userId}")
+    public Response<List<ArticleResponse.Search>> getFollowArticleList(@PathVariable Long userId, Pageable pageable){
+
+        return Response.<List<ArticleResponse.Search>>builder()
+                .data(articleService.getFollowArticleList(userId, pageable))
+                .code(HttpStatus.OK.value())
+                .build();
+    }
+
 
 }

@@ -38,9 +38,11 @@ public enum Error {
     INVALID_PASSWORD(2141, "invalid password"),
     NOT_FOUND_ARTICLE(2220, "not found article"),
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
+    SAME_ID_USER_FRIEND(2501, "same id user-friend"),
     NOT_FOUND_USER_FRIEND(2522, "user-friend not found"),
 
     INTERNAL_SERVER_ERROR(9999, "internal server error");
+
 
 
 

@@ -3,7 +3,6 @@ package com.toy.blog.api.model.response;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.UserFriend;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -26,11 +25,11 @@ public class UserFriendResponse {
     @Getter
     @Setter
     @SuperBuilder
-    public static class Detail extends UserFriendBase{
+    public static class Info extends UserFriendBase{
 
-        public static Detail of(UserFriend userFriend) {
+        public static Info of(UserFriend userFriend) {
 
-            return Detail.builder()
+            return Info.builder()
                     .id(userFriend.getId())
                     .status(userFriend.getStatus())
                     .build();

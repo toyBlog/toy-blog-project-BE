@@ -40,5 +40,19 @@ public class UserFriend extends BaseEntity {
     public void changeStatus(Status.UserFriend status){
         this.status = status;
     }
+
+    /**
+     * [비교 메서드]
+     * */
+    public boolean isConnecting(UserFriend userFriend) {
+
+        if (this.getUser().getId().equals(userFriend.friendId) && this.getFriendId().equals(userFriend.getUser().getId())
+                && this.status.equals(Status.UserFriend.FOLLOW) && userFriend.getStatus().equals(Status.UserFriend.FOLLOW)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
 
