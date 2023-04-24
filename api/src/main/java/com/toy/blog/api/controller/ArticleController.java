@@ -5,6 +5,7 @@ import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.model.response.Response;
 import com.toy.blog.api.service.ArticleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +23,8 @@ public class ArticleController {
      * [API. ] : 게시글 목록 조회
      */
     @GetMapping("/articles")
-    public Response<List<ArticleResponse.Search>> getArticles(ArticleRequest.Search request) {
-        return Response.<List<ArticleResponse.Search>>builder()
+    public Response<List<ArticleResponse.Summary>> getArticles(ArticleRequest.Search request) {
+        return Response.<List<ArticleResponse.Summary>>builder()
                 .code(HttpStatus.OK.value())
                 .data(articleService.getArticles(request))
                 .build();
@@ -90,9 +91,9 @@ public class ArticleController {
      * */
 
     @GetMapping("/follow/list/{userId}")
-    public Response<List<ArticleResponse.Search>> getFollowArticleList(@PathVariable Long userId, Pageable pageable){
+    public Response<ArticleResponse.Search> getFollowArticleList(@PathVariable Long userId, Pageable pageable){
 
-        return Response.<List<ArticleResponse.Search>>builder()
+        return Response.<ArticleResponse.Search>builder()
                 .data(articleService.getFollowArticleList(userId, pageable))
                 .code(HttpStatus.OK.value())
                 .build();

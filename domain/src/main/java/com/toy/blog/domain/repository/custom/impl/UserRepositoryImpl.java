@@ -30,4 +30,13 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
                            .orderBy(user.createdAt.desc())
                            .fetch();
     }
+
+    @Override
+    public long findUserListCount(List<Long> userIdList) {
+
+        return queryFactory.select(user)
+                           .from(user)
+                           .where(user.id.in(userIdList), user.status.eq(ACTIVE))
+                           .fetchCount();
+    }
 }

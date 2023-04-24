@@ -86,18 +86,22 @@ public class UserService {
     /**
      * [해당 idList에 해당하는 모든 User들의 정보를 조회해주는 서비스]
      * */
-    public List<UserResponse.SummaryInfo> getUserInfoList(Long userId, List<Long> userIdList, Pageable pageable) {
+    public UserResponse.Search getUserInfoList(Long userId, List<Long> userIdList, Pageable pageable) {
 
         //1. 요청을 보낸 User가 ACTIVE한 user인지 판별
         if (!userRepository.existsByIdAndStatus(userId, ACTIVE)) {
             throw new NotFoundUserFriend();
         }
 
-        //2. userIdList들에 있는 각 Id를 기반으로 UserList를 조회하여 -> UserInfoList로 변환
+        //2_1. userIdList들에 있는 각 Id를 기반으로 UserList를 조회하여 -> UserInfoList로 변환
         List<User> userList = userRepository.findUserList(userIdList, pageable);
 
+        //2_2. totalCount 조회
+        long totalCount = userRepository.findUserListCount(userIdList);
+
+
         //3. 응답값 리턴
-        return UserResponse.SummaryInfo.of(userList);
+        return UserResponse.Search.of(UserResponse.SummaryInfo.of(userList), totalCount);
     }
 
 

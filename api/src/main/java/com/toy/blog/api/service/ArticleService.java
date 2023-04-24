@@ -2,23 +2,28 @@ package com.toy.blog.api.service;
 
 import com.toy.blog.api.exception.article.AccessDeniedException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
+import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.request.LikedRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.auth.service.LoginService;
+import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.entity.User;
 import com.toy.blog.domain.entity.UserFriend;
 import com.toy.blog.domain.repository.ArticleRepository;
 import com.toy.blog.domain.entity.Liked;
-import com.toy.blog.domain.repository.ArticleRepository;
 import com.toy.blog.domain.repository.LikedRepository;
 import com.toy.blog.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.toy.blog.domain.common.Status.User.ACTIVE;
 
 @Service
 @RequiredArgsConstructor
@@ -36,10 +41,10 @@ public class ArticleService {
     /**
      * 게시글 목록 조회
      */
-    public List<ArticleResponse.Search> getArticles(ArticleRequest.Search request) {
+    public List<ArticleResponse.Summary> getArticles(ArticleRequest.Search request) {
         List<Article> articles = articleRepository.getArticleList(request.getPage(), request.getSize());
 
-        return ArticleResponse.Search.of(articles);
+        return ArticleResponse.Summary.of(articles);
     }
 
     /**
@@ -123,7 +128,7 @@ public class ArticleService {
      * Todo: 구현(용준님^^)
      * */
 
-    public List<ArticleResponse.Search> getFollowArticleList(Long userId, Pageable pageable) {
+    public ArticleResponse.Search  getFollowArticleList(Long userId, Pageable pageable) {
 
         //1.ACTIVE 한 user 조회
         User user = getUser(userId, ACTIVE);
@@ -138,9 +143,13 @@ public class ArticleService {
         //2_2 in절을 사용하여 하여 그 friend들이 쓴 articleList 조회
         List<Article> articleList = articleRepository.findFollowArticleList(friendIdList, pageable);
 
+        //2_3. 총 articleList의 개수 조회
+        long totalCount = articleRepository.findFollowArticleListTotal(friendIdList);
+
 
         //3. 조회한 값 리턴
-        return ArticleResponse.Search.of(articleList);
+        return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList), totalCount);
+
     }
 
     /** [(id, status) 를 가지고 User를 조회하는 private Service 로직]*/

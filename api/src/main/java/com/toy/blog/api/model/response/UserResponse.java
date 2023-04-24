@@ -3,6 +3,7 @@ package com.toy.blog.api.model.response;
 
 import com.toy.blog.domain.entity.User;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -85,5 +86,23 @@ public class UserResponse {
             return userList.stream().map(Info::of).collect(Collectors.toList());
         }
     }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class Search {
+
+        List<UserResponse.SummaryInfo> summaryInfoList = new ArrayList<>();
+        long totalCount;
+
+        public static Search of(List<UserResponse.SummaryInfo> summaryInfoList, long totalCount) {
+
+            return Search.builder()
+                         .summaryInfoList(summaryInfoList)
+                         .totalCount(totalCount)
+                         .build();
+        }
+    }
+
 
 }

@@ -2,6 +2,7 @@ package com.toy.blog.api.model.response;
 
 import com.toy.blog.domain.entity.Article;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -69,13 +70,13 @@ public class ArticleResponse {
     @Getter
     @Setter
     @SuperBuilder
-    public static class Search extends ArticleBase {
+    public static class Summary extends ArticleBase {
 
         String url;
 
-        public static Search of(Article article) {
+        public static Summary of(Article article) {
 
-            return Search.builder()
+            return Summary.builder()
                     .id(article.getId())
                     .title(article.getTitle())
                     .content(article.getContent().length() >= 100 ? article.getContent().substring(0, 100) : article.getContent())
@@ -88,12 +89,29 @@ public class ArticleResponse {
 
         }
 
-        public static List<Search> of(List<Article> articleList) {
+        public static List<Summary> of(List<Article> articleList) {
 
             return articleList.stream()
-                    .map(Search::of)
+                    .map(Summary::of)
                     .collect(Collectors.toList());
         }
     }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class Search {
+
+        List<ArticleResponse.Summary> articleSummaryList = new ArrayList<>();
+        long totalCount;
+
+        public static Search of(List<ArticleResponse.Summary> articleSummaryList , long totalCount) {
+            return Search.builder()
+                    .articleSummaryList(articleSummaryList)
+                    .totalCount(totalCount)
+                    .build();
+        }
+    }
+
 
 }

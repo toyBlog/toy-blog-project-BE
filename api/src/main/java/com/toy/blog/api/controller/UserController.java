@@ -38,9 +38,9 @@ public class UserController {
      * [API. ] : 내가 follow 하는 or 나를 follow 하는 or 서로 follow 하는 ->  친구들의 IdList가 넘어오면 -> 그 친구듪의 정보들을 반환해줌
      * */
     @GetMapping("/info/list/{userId}")
-    public Response<List<UserResponse.SummaryInfo>> getUserInfoList(@PathVariable Long userId, @ModelAttribute UserRequest.UserIdList request, Pageable pageable) {
+    public Response<UserResponse.Search> getUserInfoList(@PathVariable Long userId, @ModelAttribute UserRequest.UserIdList request, Pageable pageable) {
 
-        return Response.<List<UserResponse.SummaryInfo>>builder()
+        return Response.<UserResponse.Search>builder()
                 .data(userService.getUserInfoList(userId, request.getUserIdList(), pageable))
                 .code(HttpStatus.OK.value())
                 .build();

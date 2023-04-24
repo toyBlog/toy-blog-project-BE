@@ -41,9 +41,7 @@ public class UserFriendService {
         }
 
         //2. userId와 friendId를 가지고, 기존에 있을 수도 있는 UserFriend를 조회 -> 없으면 조회한 ACTIVE한 User를 가지고 새 UserFriend를 생성
-        UserFriend userFriend = userFriendRepository.findByUserIdAndFriendId(userId, friendId).orElse(
-                UserFriend.builder().status(UNFOLLOW).user(user).friendId(friendId).build()
-        );
+        UserFriend userFriend = getUserFriend(user, userId, friendId);
 
         /** 만약 조회한 userFriend가 차단한 userFriend라면 -> 팔로우도 / 언팔로우도 안되는 경우니 Exception */
         if(userFriend.getStatus().equals(BLOCKED)){
@@ -70,6 +68,14 @@ public class UserFriendService {
         return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
     }
 
+    /** [(userId, friendId) 를 가지고 UserFruebd를 조회 or 생성 하는 private Service 로직]*/
+    private UserFriend getUserFriend(User user, Long userId, Long friendId) {
+
+        return userFriendRepository.findByUserIdAndFriendId(userId, friendId).orElse(
+                UserFriend.builder().status(UNFOLLOW).user(user).friendId(friendId).build()
+        );
+    }
+
     /** --------------------------------------------------------------------------------------------------------------*/
 
     /**
@@ -79,7 +85,7 @@ public class UserFriendService {
     @Transactional
     public UserFriendResponse.Info blockFriend(Long userId, Long friendId) {
 
-        //1. ACTIVE 한 User를 조회
+        //1. ACTIVE 한 User와 Friend를 조회
         User user = getUser(userId, ACTIVE);
         User friend = getUser(friendId, ACTIVE);
 
@@ -89,9 +95,7 @@ public class UserFriendService {
         }
 
         //2_1. userId의 User가 Friend를 Follow 하여 생성된 UserFriend를 조회 -> 없다면 BLOCKED 상태로 생성  (그래야 팔로우를 하지 않은 상태여도 차단 가능)
-        UserFriend userFriendFollow = userFriendRepository.findByUserIdAndFriendId(userId, friendId).orElse(
-                UserFriend.builder().status(UNFOLLOW).user(user).friendId(friendId).build()
-        );
+        UserFriend userFriendFollow = getUserFriend(user, userId, friendId);
 
         //3_1. BLOCKED 상태가 아니라면 -> BLOCKED 상태로 / BLOCKED 상태라면 -> UNFOLLOW 상태로 변경
         if(userFriendFollow.getStatus().equals(BLOCKED)){
@@ -103,9 +107,7 @@ public class UserFriendService {
         userFriendRepository.save(userFriendFollow);
 
         //2_2. 반대로 friendId의 User가 userId인 나를 Follow 하여 생성된 UserFriend를 조회 -> 없다면 BLOCKED 상태로 생성 (그래야 상대방이 나를 팔로우 할 수 없음)
-        UserFriend userFriendFollowing = userFriendRepository.findByUserIdAndFriendId(friendId, userId).orElse(
-                UserFriend.builder().status(UNFOLLOW).user(friend).friendId(userId).build()
-        );
+        UserFriend userFriendFollowing = getUserFriend(friend, friendId, userId);
 
         //3_2. BLOCKED 상태가 아니라면 -> BLOCKED 상태로 / BLOCKED 상태라면 -> UNFOLLOW 상태로 변경
         if(userFriendFollowing.getStatus().equals(BLOCKED)){
@@ -118,20 +120,5 @@ public class UserFriendService {
 
         //4. 결과 리턴
         return UserFriendResponse.Info.of(userFriendFollowing);
-    }
-
-    private void block(User user, Long userId, Long friendId) {
-
-        //1. userId의 User가 friendId의 Friend를 Follow 하여 생긴 UserFriend를 조회 -> 없으면 생성 -> 그래야 이후 follow를 해도 그 요청이 막아짐
-        UserFriend userFriend = userFriendRepository.findByUserIdAndFriendId(userId, friendId).orElse(
-                UserFriend.builder().status(UNFOLLOW).user(user).friendId(friendId).build()
-        );
-
-        //2. BLOCKED 상태가 아니라면 -> BLOCKED 상태로 / BLOCKED 상태라면 -> UNFOLLOW 상태로 변경
-        if(userFriend.getStatus().equals(BLOCKED)){
-            userFriend.changeStatus(UNFOLLOW);
-        } else{
-            userFriend.changeStatus(BLOCKED);
-        }
     }
 }
