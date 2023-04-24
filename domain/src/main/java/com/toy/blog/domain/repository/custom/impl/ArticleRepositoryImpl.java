@@ -21,6 +21,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private JPAQueryFactory queryFactory;
 
+    private EntityManager entityManager;
+
     public ArticleRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
@@ -39,7 +41,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ---------------------------------------------------------------------------------------------------------------
+     */
 
     @Override
     public long findFollowArticleListTotal(List<Long> friendIdList) {
@@ -67,11 +71,13 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
+
     /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
      * id로 게시글 찾기
      */
+
     @Override
     public Optional<Article> findArticleById(Long id) {
 
@@ -86,7 +92,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
         return Optional.ofNullable(article);
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
      * 조회수 증가
@@ -94,11 +99,13 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public void updateViewCount(Long id) {
 
+
         queryFactory.update(article)
                 .set(article.viewCount, article.viewCount.add(1))
                 .where(article.id.eq(id))
                 .execute();
     }
+
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
@@ -108,12 +115,14 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public void editArticle(Long id, String title, String content) {
 
+
         queryFactory.update(article)
                 .set(article.title, title)
                 .set(article.content, content)
                 .where(article.id.eq(id))
                 .execute();
     }
+
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
@@ -129,6 +138,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .execute();
     }
 
+
     /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
@@ -137,13 +147,14 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public void updateLikedCount(Long id, Integer value) {
 
+
         queryFactory.update(article)
                 .set(article.likedCount, article.likedCount.add(value))
                 .where(article.id.eq(id))
                 .execute();
     }
+}
 
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
-}

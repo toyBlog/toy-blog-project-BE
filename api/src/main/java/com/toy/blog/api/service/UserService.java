@@ -9,11 +9,9 @@ import com.toy.blog.domain.entity.User;
 import com.toy.blog.domain.entity.UserFriend;
 import com.toy.blog.api.exception.user.AlreadyExistUserException;
 import com.toy.blog.api.exception.user.InvalidPasswordException;
-import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.model.request.UserRequest;
 import com.toy.blog.auth.model.TokenResponseDto;
 import com.toy.blog.auth.service.LoginService;
-import com.toy.blog.domain.entity.User;
 
 import com.toy.blog.domain.repository.UserFriendRepository;
 import com.toy.blog.domain.repository.UserRepository;

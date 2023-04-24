@@ -24,4 +24,5 @@ public interface ArticleRepositoryCustom {
 
     void updateLikedCount(Long id, Integer value);
 
+
 }
