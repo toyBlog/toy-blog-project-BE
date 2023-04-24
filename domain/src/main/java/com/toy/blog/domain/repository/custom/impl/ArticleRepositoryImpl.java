@@ -1,5 +1,6 @@
 package com.toy.blog.domain.repository.custom.impl;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
@@ -37,6 +38,49 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .orderBy(article.createdAt.desc())
                 .fetch();
+    }
+
+    /**---------------------------------------------------------------------------------------------------------------*/
+
+    @Override
+    public List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size) {
+
+        return queryFactory.select(article)
+                           .from(article)
+                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
+                           .offset(page)
+                           .limit(size)
+                           .orderBy(article.createdAt.desc())
+                           .fetch();
+    }
+
+
+    private BooleanExpression titleCond(String title) {
+
+        return title.length()==0 ? null : article.title.like("%" + title + "%");
+    }
+
+    private BooleanExpression contentCond(String content) {
+
+        return content.length()==0 ? null : article.content.like("%" + content + "%");
+    }
+
+    private BooleanExpression writerCond(String writer) {
+
+        return writer.length()==0 ? null : article.user.nickname.like("%" + writer + "%");
+    }
+
+    /**
+     * ---------------------------------------------------------------------------------------------------------------
+     */
+
+    @Override
+    public long findArticleListCount(String title, String content, String writer) {
+
+        return queryFactory.select(article)
+                           .from(article)
+                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
+                           .fetchCount();
     }
 
     /**
@@ -148,8 +192,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .where(article.id.eq(id))
                 .execute();
     }
+
 }
 
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+
 
