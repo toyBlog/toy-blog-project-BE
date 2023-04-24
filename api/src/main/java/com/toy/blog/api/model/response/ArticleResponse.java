@@ -36,6 +36,8 @@ public class ArticleResponse {
 
         Integer viewCount;
 
+        boolean isLiked;
+
         Integer likedCount;
 
         ZonedDateTime createdAt;

@@ -17,11 +17,21 @@ import javax.validation.constraints.Size;
 @UtilityClass
 public class ArticleRequest {
 
+
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Search {
+    public static class Inventory {
 
+        Integer page = 0;
+
+        Integer size = 5;
+    }
+
+    @Getter
+    @Setter
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class Search extends Inventory{
         @Size(min = 2, max = 20)
         String title;
 
@@ -29,10 +39,6 @@ public class ArticleRequest {
         String content;
 
         String writer;
-
-        Integer page = 0;
-
-        Integer size = 5;
     }
 
     @Getter
