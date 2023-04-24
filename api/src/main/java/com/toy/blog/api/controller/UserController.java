@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -37,7 +37,7 @@ public class UserController {
     /**
      * [API. ] : 내가 follow 하는 or 나를 follow 하는 or 서로 follow 하는 ->  친구들의 IdList가 넘어오면 -> 그 친구듪의 정보들을 반환해줌
      * */
-    @GetMapping("/info/list/{userId}")
+    @GetMapping("/info/follower/{userId}")
     public Response<UserResponse.Search> getUserInfoList(@PathVariable Long userId, @ModelAttribute UserRequest.UserIdList request, Pageable pageable) {
 
         return Response.<UserResponse.Search>builder()

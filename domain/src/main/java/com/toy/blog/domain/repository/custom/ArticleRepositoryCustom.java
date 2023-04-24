@@ -12,15 +12,15 @@ public interface ArticleRepositoryCustom {
 
     long findFollowArticleListTotal(List<Long> friendIdList);
 
-    List<Article> getArticleList(Integer page, Integer size);
+    List<Article> findArticleList(Integer page, Integer size);
 
     Optional<Article> findArticleById(Long id);
 
     void updateViewCount(Long id);
 
-    void editArticle(Long id, String title, String content);
+    void updateArticle(Long id, String title, String content);
 
-    void deleteArticle(Long id);
+    void inactiveArticle(Long id);
 
     void updateLikedCount(Long id, Integer value);
 

@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/article")
+@RequestMapping("/articles")
 public class ArticleController {
 
     private final ArticleService articleService;
@@ -22,7 +22,7 @@ public class ArticleController {
     /**
      * [API. ] : 게시글 목록 조회
      */
-    @GetMapping("/articles")
+    @GetMapping("")
     public Response<List<ArticleResponse.Summary>> getArticles(ArticleRequest.Search request) {
         return Response.<List<ArticleResponse.Summary>>builder()
                 .code(HttpStatus.OK.value())
@@ -30,10 +30,11 @@ public class ArticleController {
                 .build();
     }
 
+
     /**
      * [API. ] : 게시글 상세 보기
      */
-    @GetMapping("/articles/{id}")
+    @GetMapping("/{id}")
     public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id) {
         return Response.<ArticleResponse.Detail>builder()
                 .code(HttpStatus.OK.value())
@@ -45,16 +46,23 @@ public class ArticleController {
      * [API. ] : 글 작성
      * Todo: 이미지 업로드 추가(박수빈)
      */
-    @PostMapping("/articles")
-    public Response<Void> insertArticle(@RequestBody ArticleRequest.Register request) {
-        articleService.insertArticle(request);
+
+    /**
+     * [수정사항]
+     * insertArticle -> registerArticle <insert는 쿼리에서 사용되는 용어이므로 배제>
+     * */
+    @PostMapping("")
+    public Response<Void> registerArticle(@RequestBody ArticleRequest.Register request) {
+        articleService.registerArticle(request);
         return Response.<Void>builder().build();
     }
+
+
 
     /**
      * [API. ] : 글 수정
      */
-    @PatchMapping("/articles/{id}")
+    @PatchMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public Response<Void> editArticle(@PathVariable Long id, ArticleRequest.Register request) {
         articleService.editArticle(id, request);
@@ -64,7 +72,7 @@ public class ArticleController {
     /**
      * [API. ] : 글 삭제
      */
-    @DeleteMapping("/articles/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public Response<Void> deleteArticle(@PathVariable Long id) {
         articleService.deleteArticle(id);
@@ -79,7 +87,7 @@ public class ArticleController {
     /**
      * [API. ] : 좋아요
      */
-    @PostMapping("/articles/{id}")
+    @PostMapping("/{id}")
     public Response<Void> likeArticle(@PathVariable Long id) {
         articleService.likeArticle(id);
         return Response.<Void>builder().build();
@@ -90,7 +98,7 @@ public class ArticleController {
      * Todo: 구현(용준님)
      * */
 
-    @GetMapping("/follow/list/{userId}")
+    @GetMapping("/follower/{userId}")
     public Response<ArticleResponse.Search> getFollowArticleList(@PathVariable Long userId, Pageable pageable){
 
         return Response.<ArticleResponse.Search>builder()
