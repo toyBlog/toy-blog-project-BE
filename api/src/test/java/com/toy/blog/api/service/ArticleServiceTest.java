@@ -42,7 +42,7 @@ class ArticleServiceTest {
     public void getArticlesTest() {
         ArticleRequest.Search search = new ArticleRequest.Search();
 //        articleService.getArticles(search);
-        List<Article> list = articleRepository.getArticleList(search.getPage(), search.getSize());
+        List<Article> list = articleRepository.findArticleList(search.getPage(), search.getSize());
 
         for (Article article : list) {
             log.info("article title : {}", article.getTitle());
@@ -98,7 +98,7 @@ class ArticleServiceTest {
         String testContent = "editArticleTest content";
         request.setTitle(testTitle);
         request.setContent(testContent);
-        articleRepository.editArticle(1L, request.getTitle(), request.getContent());
+        articleRepository.updateArticle(1L, request.getTitle(), request.getContent());
 
         Article edit = articleRepository.findArticleById(1L).orElseThrow(NotFoundArticleException::new);
         log.info("수정된 제목 : {}", edit.getTitle());
@@ -111,7 +111,7 @@ class ArticleServiceTest {
     @DisplayName("게시글 삭제")
     @Transactional
     public void deleteArticleTest() {
-        articleRepository.deleteArticle(1L);
+        articleRepository.inactiveArticle(1L);
         Article delete = articleRepository.findById(1L).orElseThrow(NotFoundArticleException::new);
         log.info("게시글 상태 : {}", delete.getStatus());
         assertThat(delete.getStatus()).isEqualTo(Status.Article.INACTIVE);

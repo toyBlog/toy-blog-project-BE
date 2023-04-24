@@ -28,7 +28,7 @@ public class ArticleRequest {
         @Size(min = 2, max = 200)
         String content;
 
-        String nickname;
+        String writer;
 
         Integer page = 0;
 

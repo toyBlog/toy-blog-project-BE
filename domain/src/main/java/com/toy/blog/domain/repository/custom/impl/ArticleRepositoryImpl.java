@@ -1,8 +1,6 @@
 package com.toy.blog.domain.repository.custom.impl;
 
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.querydsl.jpa.impl.JPAUpdateClause;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.entity.QArticle;
@@ -61,7 +59,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
      * 게시글 목록 조회
      */
     @Override
-    public List<Article> getArticleList(Integer page, Integer size) {
+    public List<Article> findArticleList(Integer page, Integer size) {
 
         return queryFactory
                 .select(article)
@@ -99,7 +97,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     @Override
     public void updateViewCount(Long id) {
 
-
         queryFactory.update(article)
                 .set(article.viewCount, article.viewCount.add(1))
                 .where(article.id.eq(id))
@@ -113,8 +110,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
      * 게시글 수정
      */
     @Override
-    public void editArticle(Long id, String title, String content) {
-
+    public void updateArticle(Long id, String title, String content) {
 
         queryFactory.update(article)
                 .set(article.title, title)
@@ -130,7 +126,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
      * 게시글 삭제
      */
     @Override
-    public void deleteArticle(Long id) {
+    public void inactiveArticle(Long id) {
 
         queryFactory.update(article)
                 .set(article.status, Status.Article.INACTIVE)
@@ -146,7 +142,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
      */
     @Override
     public void updateLikedCount(Long id, Integer value) {
-
 
         queryFactory.update(article)
                 .set(article.likedCount, article.likedCount.add(value))
