@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Liked;
-import com.toy.blog.domain.repository.custom.LikedCustomRepository;
+import com.toy.blog.domain.repository.custom.LikedRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 
 import javax.persistence.EntityManager;
@@ -14,7 +14,7 @@ import java.util.Optional;
 import static com.toy.blog.domain.entity.QLiked.liked;
 
 @RequiredArgsConstructor
-public class LikedCustomRepositoryImpl implements LikedCustomRepository {
+public class LikedRepositoryImpl implements LikedRepositoryCustom {
 
     private final EntityManager entityManager;
 
