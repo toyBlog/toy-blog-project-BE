@@ -34,4 +34,11 @@ public class Liked extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     Article article;
+
+    /**
+     * [변경 메서드]
+     * */
+    public void changeStatus(Status.Like status) {
+        this.status = status;
+    }
 }

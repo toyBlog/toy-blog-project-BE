@@ -20,6 +20,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
 
+    private EntityManager entityManager;
+
     public ArticleRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
@@ -38,26 +40,8 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
-    /**
-     * 팔로우한 친구의 게시글 목록 조회
-     */
-    @Override
-    public List<Article> findFollowArticleList(List<Long> friendIdList, Pageable pageable) {
 
-        return queryFactory
-                .select(article)
-                .from(article)
-                .join(article.user, user).fetchJoin()
-                .where(article.user.id.in(friendIdList), article.status.eq(ACTIVE))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(article.createdAt.desc())
-                .fetch();
-    }
-
-    /**
-     * 팔로우한 친구의 게시글 목록 개수
-     */
+  
     @Override
     public long findFollowArticleListTotal(List<Long> friendIdList) {
 
@@ -66,21 +50,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .from(article)
                 .where(article.user.id.in(friendIdList), article.status.eq(ACTIVE))
                 .fetchCount();
-    }
-
-    /**
-     * 게시글 검색
-     */
-    @Override
-    public List<Article> findSearchArticleList(String keyword, Integer page, Integer size) {
-        BooleanExpression titleCondition = article.title.contains(keyword);
-        BooleanExpression contentCondition = article.content.contains(keyword);
-        return queryFactory
-                .select(article)
-                .from(article)
-                .where(titleCondition.or(contentCondition))
-                .limit(size).offset(page)
-                .fetch();
     }
 
     /**
@@ -99,6 +68,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         return Optional.ofNullable(article);
     }
+
 
     /**
      * 조회수 증가

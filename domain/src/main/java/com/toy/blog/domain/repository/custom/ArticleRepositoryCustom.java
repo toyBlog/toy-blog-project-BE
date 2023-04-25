@@ -14,8 +14,6 @@ public interface ArticleRepositoryCustom {
 
     long findFollowArticleListTotal(List<Long> friendIdList);
 
-    List<Article> findSearchArticleList(String keyword, Integer page, Integer size);
-
     Optional<Article> findArticleById(Long id);
 
     void updateViewCount(Long id);

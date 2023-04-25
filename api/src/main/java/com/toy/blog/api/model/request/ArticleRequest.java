@@ -30,9 +30,14 @@ public class ArticleRequest {
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Search extends Inventory {
+    public static class Search extends Inventory{
+        @Size(min = 2, max = 20)
+        String title;
 
-        String keyword;
+        @Size(min = 2, max = 200)
+        String content;
+
+        String writer;
     }
 
     @Getter
