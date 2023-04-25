@@ -17,6 +17,7 @@ import lombok.Getter;
  *  3 : articleImage 오류
  *  4 : liked 오류
  *  5 : userFriend 오류
+ *  6 : file 오류
  *
  * [10단위] - 오류 HTTP Method
  *  0~19 : Common
@@ -40,6 +41,11 @@ public enum Error {
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
     SAME_ID_USER_FRIEND(2501, "same id user-friend"),
     NOT_FOUND_USER_FRIEND(2522, "user-friend not found"),
+    NO_EDIT_PERMISSION(2261, "no edit permission"),
+    NO_REMOVE_PERMISSION(2262, "no remove permission"),
+
+    FAIL_SAVE_FILE(4601, "fail save image"),
+    NOT_IMAGE_FILE(4602, "not image file"),
 
     INTERNAL_SERVER_ERROR(9999, "internal server error");
 

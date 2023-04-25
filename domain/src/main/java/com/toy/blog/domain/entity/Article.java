@@ -54,5 +54,18 @@ public class Article extends BaseEntity {
 
     @OneToMany(mappedBy = "article")
     List<Liked> likedList = new ArrayList<>();
+
+    /**
+     * [변경 메서드]
+     * */
+
+    public void changeStatus(Status.Article status) {
+        this.status = status;
+    }
+
+    public void changeTitleAndContent(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }
 

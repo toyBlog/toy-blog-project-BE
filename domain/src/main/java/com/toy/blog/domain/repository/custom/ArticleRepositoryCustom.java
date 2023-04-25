@@ -10,7 +10,7 @@ public interface ArticleRepositoryCustom {
 
     List<Article> findFollowArticleList(List<Long> friendIdList, Pageable pageable);
 
-    long findFollowArticleListTotal(List<Long> friendIdList);
+    long findFollowArticleListCount(List<Long> friendIdList);
 
     List<Article> findArticleList(Integer page, Integer size);
 
@@ -30,8 +30,9 @@ public interface ArticleRepositoryCustom {
      * --------------------------------------------------------------------------------------------------------------
      */
 
-    List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size);
 
-    long findArticleListCount(String title, String content, String writer);
+    List<Article> findByTitleOrContent(String keyword, Integer page, Integer size);
+
+    long findByTitleOrContentCount(String keyword);
 
 }

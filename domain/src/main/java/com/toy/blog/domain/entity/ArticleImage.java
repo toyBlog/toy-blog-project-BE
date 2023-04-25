@@ -1,6 +1,7 @@
 package com.toy.blog.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.toy.blog.domain.common.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -28,4 +29,15 @@ public class ArticleImage extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     Article article;
+
+    @Enumerated(EnumType.STRING)
+    Status.ArticleImage status;
+
+    /**
+     * [변경 메서드]
+     * */
+    public void changeStatus(Status.ArticleImage status) {
+        this.status = status;
+    }
+
 }
