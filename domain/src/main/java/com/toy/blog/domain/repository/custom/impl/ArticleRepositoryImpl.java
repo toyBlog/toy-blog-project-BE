@@ -18,86 +18,13 @@ import static com.toy.blog.domain.entity.QUser.user;
 
 public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
-    private JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
 
     private EntityManager entityManager;
 
     public ArticleRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
-
-    @Override
-    public List<Article> findFollowArticleList(List<Long> friendIdList, Pageable pageable) {
-
-        return queryFactory
-                .select(article)
-                .from(article)
-                .join(article.user, user).fetchJoin()
-                .where(article.user.id.in(friendIdList), article.status.eq(ACTIVE))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(article.createdAt.desc())
-                .fetch();
-    }
-
-    /**---------------------------------------------------------------------------------------------------------------*/
-
-    @Override
-    public List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size) {
-
-        return queryFactory.select(article)
-                           .from(article)
-                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
-                           .offset(page)
-                           .limit(size)
-                           .orderBy(article.createdAt.desc())
-                           .fetch();
-    }
-
-
-    private BooleanExpression titleCond(String title) {
-
-        return title.length()==0 ? null : article.title.like("%" + title + "%");
-    }
-
-    private BooleanExpression contentCond(String content) {
-
-        return content.length()==0 ? null : article.content.like("%" + content + "%");
-    }
-
-    private BooleanExpression writerCond(String writer) {
-
-        return writer.length()==0 ? null : article.user.nickname.like("%" + writer + "%");
-    }
-
-    /**
-     * ---------------------------------------------------------------------------------------------------------------
-     */
-
-    @Override
-    public long findArticleListCount(String title, String content, String writer) {
-
-        return queryFactory.select(article)
-                           .from(article)
-                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
-                           .fetchCount();
-    }
-
-    /**
-     * ---------------------------------------------------------------------------------------------------------------
-     */
-
-    @Override
-    public long findFollowArticleListTotal(List<Long> friendIdList) {
-
-        return queryFactory
-                .select(article)
-                .from(article)
-                .where(article.user.id.in(friendIdList), article.status.eq(ACTIVE))
-                .fetchCount();
-    }
-
-    /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
      * 게시글 목록 조회
@@ -114,12 +41,20 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     }
 
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+  
+    @Override
+    public long findFollowArticleListTotal(List<Long> friendIdList) {
+
+        return queryFactory
+                .select(article)
+                .from(article)
+                .where(article.user.id.in(friendIdList), article.status.eq(ACTIVE))
+                .fetchCount();
+    }
 
     /**
      * id로 게시글 찾기
      */
-
     @Override
     public Optional<Article> findArticleById(Long id) {
 
@@ -147,9 +82,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .execute();
     }
 
-
-    /**---------------------------------------------------------------------------------------------------------------*/
-
     /**
      * 게시글 수정
      */
@@ -163,9 +95,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .execute();
     }
 
-
-    /**---------------------------------------------------------------------------------------------------------------*/
-
     /**
      * 게시글 삭제
      */
@@ -177,9 +106,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .where(article.id.eq(id))
                 .execute();
     }
-
-
-    /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
      * 게시글 좋아요 증가/취소

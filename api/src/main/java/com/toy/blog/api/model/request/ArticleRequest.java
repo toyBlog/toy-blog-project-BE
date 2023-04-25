@@ -17,7 +17,6 @@ import javax.validation.constraints.Size;
 @UtilityClass
 public class ArticleRequest {
 
-
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
