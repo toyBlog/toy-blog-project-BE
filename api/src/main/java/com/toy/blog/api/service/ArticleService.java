@@ -50,6 +50,43 @@ public class ArticleService {
     }
 
     /**
+     * 팔로우한 친구의 게시글 목록 조회
+     * [특정 User가 Follow 한 Friend들이 올린 Article List를 조회 하는 서비스]
+     */
+
+    public ArticleResponse.Search getFollowArticleList(Long userId, Pageable pageable) {
+
+        //1.ACTIVE 한 user 조회
+        User user = getUser(userId, Status.User.ACTIVE);
+
+        //2_1. 그 user가 follow 한 friendIdList 조회 후
+        List<Long> friendIdList = user.getUserFriendList().stream()
+                .filter(userFriend -> userFriend.getStatus().equals(Status.UserFriend.FOLLOW))
+                .map(UserFriend::getFriendId)
+                .collect(Collectors.toList());
+
+
+        //2_2 in절을 사용하여 하여 그 friend들이 쓴 articleList 조회
+        List<Article> articleList = articleRepository.findFollowArticleList(friendIdList, pageable);
+
+        //2_3. 총 articleList의 개수 조회
+        long totalCount = articleRepository.findFollowArticleListTotal(friendIdList);
+
+
+        //3. 조회한 값 리턴
+        return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList), totalCount);
+
+    }
+
+    /**
+     * [(id, status) 를 가지고 User를 조회하는 private Service 로직]
+     */
+    private User getUser(Long userId, Status.User status) {
+
+        return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
+    }
+
+    /**
      * 게시글 검색
      */
     public List<ArticleResponse.Summary> getSearchArticles(String keyword, Integer page, Integer size) {
@@ -65,7 +102,15 @@ public class ArticleService {
      * findArticleById() -> findByIdAndStatus()  <동적 쿼리도 아니니깐 굳이 querydsl을 쓰기보다는 spring data jpa 를 쓰는게 훨씬 깔끔 + 네이밍 부터 findArticleById() 라고 인위적이므로 - 차라리 쉽게 있는 기능 쓰자!>
      */
     public ArticleResponse.Detail getArticle(Long id) {
+        Long userId = loginService.getLoginUserId();
         Article article = articleRepository.findByIdAndStatus(id, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
+
+        // 조회수 증가 Todo: 조회수 증가 로직 고민
+        if (!userId.equals(article.getUser().getId())) {
+            articleRepository.updateViewCount(id);
+        } else if (userId == null) {
+            articleRepository.updateViewCount(id);
+        }
 
         return ArticleResponse.Detail.of(article);
     }
@@ -117,107 +162,10 @@ public class ArticleService {
     }
 
     /**
-     * 좋아요 증가/취소
-     * 좋아요 테이블 저장/삭제 처리
-     * Todo: 좋아요 수정(박수빈)
-     */
-
-    /**
-     * [의문]
-     * findByArticleAndUser -> 이게 ArticleId와 UserId를 가지고 Liked를 조회하는 것인지 ? -> 그렇다면 findByArticleIdAndUserId() 로 명명지어야 함!
+     * 좋아요
      */
     public void likeArticle(Long id) {
-        Long userId = loginService.getLoginUserId();
-        Liked liked = likedRepository.findByArticleAndUser(id, userId).orElseThrow();
-
-        if (likedRepository.findByArticleAndUser(id, userId).isEmpty()) { /** 처음 좋아요 누르는 경우 */
-            // article 테이블의 좋아요 +1
-            articleRepository.updateLikedCount(id, 1);
-            // liked 테이블 생성 (ACTIVE)
-            likedRepository.save(new LikedRequest.Register().toEntity(id, userId));
-        } else { /** 좋아요 취소 */
-            // article 테이블의 좋아요 -1
-            articleRepository.updateLikedCount(id, -1);
-            // liked 테이블 상태 변경 (INACTIVE)
-            likedRepository.deleteLiked(liked.getId());
-        }
+        //
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
-
-    /**
-     * [특정 User가 Follow 한 Friend들이 올린 Article List를 조회 하는 서비스]
-     * Todo: 구현(용준님^^)
-     */
-
-    public ArticleResponse.Search getFollowArticleList(Long userId, Pageable pageable) {
-
-        //1.ACTIVE 한 user 조회
-        User user = getUser(userId, Status.User.ACTIVE);
-
-        //2_1. 그 user가 follow 한 friendIdList 조회 후
-        List<Long> friendIdList = user.getUserFriendList().stream()
-                .filter(userFriend -> userFriend.getStatus().equals(Status.UserFriend.FOLLOW))
-                .map(UserFriend::getFriendId)
-                .collect(Collectors.toList());
-
-
-        //2_2 in절을 사용하여 하여 그 friend들이 쓴 articleList 조회
-        List<Article> articleList = articleRepository.findFollowArticleList(friendIdList, pageable);
-
-        //2_3. 총 articleList의 개수 조회
-        long totalCount = articleRepository.findFollowArticleListTotal(friendIdList);
-
-
-        //3. 조회한 값 리턴
-        return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList), totalCount);
-
-    }
-
-    /**
-     * [(id, status) 를 가지고 User를 조회하는 private Service 로직]
-     */
-    private User getUser(Long userId, Status.User status) {
-
-        return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
-    }
-
-
-    /**
-     * 조회수 증가 메소드
-     */
-    @Transactional
-    public void viewCountUp(Long id) {
-        articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
-        articleRepository.updateViewCount(id);
-    }
-        
-
-
-    public ArticleResponse.Search getArticleList(String title, String content, String writer, Integer page, Integer size) {
-
-        //0. 로그인 한 User의 Id 가져옴
-        Long loginUserId = loginService.getLoginUserId();
-
-        //1_1. 넘어온 값에 따른 ArticleList 조회
-        List<Article> articleList = articleRepository.findArticleList(title, content, writer, page, size);
-
-        //1_2. totalCount 조회
-        long totalCount = articleRepository.findArticleListCount(title, content, writer);
-
-        //1_3. 각 Article별로 로그인 한 그 User가 이 Article에 대해 좋아요를 눌렀는지의 여부를 가져옴
-
-        //2. 결과 반환
-        return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList), totalCount);
-    }
-
-    public ArticleResponse.Detail getArticleYJ(Long id) {
-
-        //1. Ariticle 조회
-        Article article = articleRepository.findByIdAndStatus(id, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
-
-        //2. 결과 반환
-        return ArticleResponse.Detail.of(article);
-
-    }
 }

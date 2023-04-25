@@ -104,16 +104,15 @@ public class ArticleResponse {
     @Builder
     public static class Search {
 
-        List<ArticleResponse.Summary> articleSummaryList = new ArrayList<>();
+        List<ArticleResponse.Summary> articleSummaryList;
         long totalCount;
 
-        public static Search of(List<ArticleResponse.Summary> articleSummaryList , long totalCount) {
+        public static Search of(List<ArticleResponse.Summary> articleSummaryList, long totalCount) {
             return Search.builder()
                     .articleSummaryList(articleSummaryList)
                     .totalCount(totalCount)
                     .build();
         }
     }
-
 
 }
