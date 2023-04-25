@@ -118,10 +118,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
      */
     @Override
     public List<Article> findSearchArticleList(String keyword, Integer page, Integer size) {
+        BooleanExpression titleCondition = article.title.contains(keyword);
+        BooleanExpression contentCondition = article.content.contains(keyword);
         return queryFactory
                 .select(article)
                 .from(article)
-                .where(article.title.contains(keyword)).or(article.content.contains(keyword))
+                .where(titleCondition.or(contentCondition))
                 .limit(size).offset(page)
                 .fetch();
     }
