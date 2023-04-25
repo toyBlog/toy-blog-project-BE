@@ -45,6 +45,21 @@ public class ArticleResponse {
 
     @Getter
     @Setter
+    @Builder
+    public static class BaseResponse {
+
+        Long id;
+
+        public static BaseResponse of(Long id) {
+
+            return BaseResponse.builder()
+                    .id(id)
+                    .build();
+        }
+    }
+
+    @Getter
+    @Setter
     @SuperBuilder
     public static class Detail extends ArticleBase {
 

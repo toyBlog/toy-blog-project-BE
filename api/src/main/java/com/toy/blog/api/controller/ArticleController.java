@@ -24,77 +24,16 @@ public class ArticleController {
     private final ArticleService articleService;
 
     /**
-     * [API. ] : 게시글 목록 조회
-     */
-    @GetMapping("")
-    public Response<List<ArticleResponse.Summary>> getArticles(ArticleRequest.Inventory request) {
-        return Response.<List<ArticleResponse.Summary>>builder()
-                .code(HttpStatus.OK.value())
-                .data(articleService.getArticles(request.getPage(), request.getSize()))
-                .build();
-    }
-
-    /**
-     * [API. ] : 글 검색
-     */
-    @GetMapping("/search")
-    public Response<List<ArticleResponse.Summary>> getSearchArticles(ArticleRequest.Search request) {
-        return Response.<List<ArticleResponse.Summary>>builder()
-                .code(HttpStatus.OK.value())
-                .data(articleService.getSearchArticles(request.getKeyword(), request.getPage(), request.getSize()))
-                .build();
-    }
-
-    @GetMapping("/yj")
-    public Response<ArticleResponse.Search> getArticleList(@Validated @ModelAttribute ArticleRequest.Inventory request) {
-
-        return Response.<ArticleResponse.Search>builder()
-                .code(HttpStatus.OK.value())
-                .data(articleService.getArticleList(null, null, null, request.getPage(), request.getSize()))
-                .build();
-    }
-
-    @GetMapping("/yj/search")
-    public Response<ArticleResponse.Search> searchArticleList(@Validated @ModelAttribute ArticleRequest.Search request) {
-
-        return Response.<ArticleResponse.Search>builder()
-                .data(articleService.getArticleList(request.getTitle(), request.getContent(), request.getWriter(), request.getPage(), request.getSize()))
-                .code(HttpStatus.OK.value())
-                .build();
-    }
-
-
-    /**
-     * [API. ] : 게시글 상세 보기
-     */
-    @GetMapping("/{id}")
-    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
-        viewCountUp(id, request, response);
-        return Response.<ArticleResponse.Detail>builder()
-                .code(HttpStatus.OK.value())
-                .data(articleService.getArticle(id))
-                .build();
-    }
-
-    @GetMapping("/yj/{id}")
-    public Response<ArticleResponse.Detail> getArticleYJ(@PathVariable Long id) {
-
-        return Response.<ArticleResponse.Detail>builder()
-                .code(HttpStatus.OK.value())
-                .data(articleService.getArticleYJ(id))
-                .build();
-    }
-
-    /**
      * [API. ] : 글 작성
-     *
-     * [수정사항]
-     * insertArticle -> registerArticle <insert는 쿼리에서 사용되는 용어이므로 배제>
      */
     @PostMapping("")
-    public Response<Void> registerArticle(@RequestBody ArticleRequest.Register request) {
-        articleService.registerArticle(request);
-        return Response.<Void>builder().build();
+    @PreAuthorize("isAuthenticated()")
+    public Response<ArticleResponse.BaseResponse> registerArticle(@Validated @ModelAttribute ArticleRequest.Register request) {
+
+        return Response.<ArticleResponse.BaseResponse>builder()
+                .code(HttpStatus.CREATED.value())
+                .data(articleService.register(request.getTitle(), request.getContent(), request.getImageList()))
+                .build();
     }
 
     /**
@@ -118,19 +57,45 @@ public class ArticleController {
     }
 
     /**
-     * [API. ] : 좋아요
+     * [API. ] : 게시글 상세 보기
      */
-    @PostMapping("/likes/{id}")
-    public Response<Void> likeArticle(@PathVariable Long id) {
-        articleService.likeArticle(id);
-        return Response.<Void>builder().build();
+    @GetMapping("/{id}")
+    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id, HttpServletRequest request, HttpServletResponse response) {
+        viewCountUp(id, request, response);
+        return Response.<ArticleResponse.Detail>builder()
+                .code(HttpStatus.OK.value())
+                .data(articleService.getArticle(id))
+                .build();
     }
+
+    /**
+     * [API. ] : 게시글 목록 조회
+     */
+    @GetMapping("")
+    public Response<List<ArticleResponse.Summary>> getArticles(ArticleRequest.Inventory request) {
+        return Response.<List<ArticleResponse.Summary>>builder()
+                .code(HttpStatus.OK.value())
+                .data(articleService.getArticles(request.getPage(), request.getSize()))
+                .build();
+    }
+
+    /**
+     * [API. ] : 글 검색
+     */
+    @GetMapping("/search")
+    public Response<List<ArticleResponse.Summary>> getSearchArticles(ArticleRequest.Search request) {
+        return Response.<List<ArticleResponse.Summary>>builder()
+                .code(HttpStatus.OK.value())
+                .data(articleService.getSearchArticles(request.getKeyword(), request.getPage(), request.getSize()))
+                .build();
+    }
+
 
     /**
      * [API. ] : 팔로우한 친구의 게시글 목록 조회
      * Todo: 구현(용준님)
      */
-     
+
     @GetMapping("/follower/{userId}")
     public Response<ArticleResponse.Search> getFollowArticles(@PathVariable Long userId, Pageable pageable) {
 
@@ -139,6 +104,18 @@ public class ArticleController {
                 .code(HttpStatus.OK.value())
                 .build();
     }
+
+
+    /**
+     * [API. ] : 좋아요
+     */
+    @PostMapping("/likes/{id}")
+    public Response<Void> likeArticle(@PathVariable Long id) {
+        articleService.likeArticle(id);
+        return Response.<Void>builder().build();
+    }
+
+
 
 
     /**
