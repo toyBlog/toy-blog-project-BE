@@ -2,15 +2,12 @@ package com.toy.blog.domain.repository.custom.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.entity.QArticle;
 import com.toy.blog.domain.repository.custom.ArticleRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
 
 import static com.toy.blog.domain.common.Status.Article.ACTIVE;
 import static com.toy.blog.domain.entity.QArticle.article;
@@ -20,7 +17,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private JPAQueryFactory queryFactory;
 
-    private EntityManager entityManager;
 
     public ArticleRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -43,52 +39,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     /**---------------------------------------------------------------------------------------------------------------*/
 
     @Override
-    public List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size) {
-
-        return queryFactory.select(article)
-                           .from(article)
-                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
-                           .offset(page)
-                           .limit(size)
-                           .orderBy(article.createdAt.desc())
-                           .fetch();
-    }
-
-
-    private BooleanExpression titleCond(String title) {
-
-        return title.length()==0 ? null : article.title.like("%" + title + "%");
-    }
-
-    private BooleanExpression contentCond(String content) {
-
-        return content.length()==0 ? null : article.content.like("%" + content + "%");
-    }
-
-    private BooleanExpression writerCond(String writer) {
-
-        return writer.length()==0 ? null : article.user.nickname.like("%" + writer + "%");
-    }
-
-    /**
-     * ---------------------------------------------------------------------------------------------------------------
-     */
-
-    @Override
-    public long findArticleListCount(String title, String content, String writer) {
-
-        return queryFactory.select(article)
-                           .from(article)
-                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
-                           .fetchCount();
-    }
-
-    /**
-     * ---------------------------------------------------------------------------------------------------------------
-     */
-
-    @Override
-    public long findFollowArticleListTotal(List<Long> friendIdList) {
+    public long findFollowArticleListCount(List<Long> friendIdList) {
 
         return queryFactory
                 .select(article)
@@ -99,99 +50,43 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
-    /**
-     * 게시글 목록 조회
-     */
-    @Override
-    public List<Article> findArticleList(Integer page, Integer size) {
+    public List<Article> findByTitleOrContent(String keyword, Integer page, Integer size) {
 
-        return queryFactory
-                .select(article)
-                .from(article)
-                .where(article.status.eq(Status.Article.ACTIVE))
-                .limit(size).offset(page)
-                .fetch();
+        return queryFactory.select(article)
+                           .from(article)
+                           .where(searchCond(keyword) , article.status.eq(ACTIVE))
+                           .offset(page)
+                           .limit(size)
+                           .orderBy(article.createdAt.desc())
+                           .fetch();
     }
 
+    private BooleanExpression searchCond(String keyword) {
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+        if (keyword.length() == 0) {
+            return null;
+        } else {
+            return article.title.like("%" + keyword + "%").or(article.content.like("%" + keyword + "%"));
+        }
+    }
 
     /**
-     * id로 게시글 찾기
+     * ---------------------------------------------------------------------------------------------------------------
      */
 
     @Override
-    public Optional<Article> findArticleById(Long id) {
+    public long findByTitleOrContentCount(String keyword) {
 
-        Article article = queryFactory.select(QArticle.article)
-                .from(QArticle.article)
-                .where(
-                        QArticle.article.id.eq(id),
-                        QArticle.article.status.eq(ACTIVE)
-                )
-                .fetchOne();
-
-        return Optional.ofNullable(article);
+        return queryFactory.select(article)
+                           .from(article)
+                           .where(searchCond(keyword), article.status.eq(ACTIVE))
+                           .fetchCount();
     }
-
 
     /**
-     * 조회수 증가
+     * ---------------------------------------------------------------------------------------------------------------
      */
-    @Override
-    public void updateViewCount(Long id) {
 
-        queryFactory.update(article)
-                .set(article.viewCount, article.viewCount.add(1))
-                .where(article.id.eq(id))
-                .execute();
-    }
-
-
-    /**---------------------------------------------------------------------------------------------------------------*/
-
-    /**
-     * 게시글 수정
-     */
-    @Override
-    public void updateArticle(Long id, String title, String content) {
-
-        queryFactory.update(article)
-                .set(article.title, title)
-                .set(article.content, content)
-                .where(article.id.eq(id))
-                .execute();
-    }
-
-
-    /**---------------------------------------------------------------------------------------------------------------*/
-
-    /**
-     * 게시글 삭제
-     */
-    @Override
-    public void inactiveArticle(Long id) {
-
-        queryFactory.update(article)
-                .set(article.status, Status.Article.INACTIVE)
-                .where(article.id.eq(id))
-                .execute();
-    }
-
-
-    /**---------------------------------------------------------------------------------------------------------------*/
-
-    /**
-     * 게시글 좋아요 증가/취소
-     */
-    @Override
-    public void updateLikedCount(Long id, Integer value) {
-
-        queryFactory.update(article)
-                .set(article.likedCount, article.likedCount.add(value))
-                .where(article.id.eq(id))
-                .execute();
-    }
 
 }
 

@@ -12,6 +12,12 @@ public class Status {
         INACTIVE
     }
 
+    public enum ArticleImage {
+        ACTIVE,
+        INACTIVE
+    }
+
+
     public enum Like{
         ACTIVE,
         INACTIVE

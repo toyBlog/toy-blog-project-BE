@@ -1,9 +1,11 @@
 package com.toy.blog.api.service;
 
+import com.toy.blog.api.exception.article.AccessDeniedException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.exception.user_friend.BlockedUserFriendException;
 import com.toy.blog.api.exception.user_friend.SameIdUserFriendException;
 import com.toy.blog.api.model.response.UserFriendResponse;
+import com.toy.blog.auth.service.LoginService;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.User;
 import com.toy.blog.domain.entity.UserFriend;
@@ -12,6 +14,8 @@ import com.toy.blog.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 import static com.toy.blog.domain.common.Status.User.ACTIVE;
 import static com.toy.blog.domain.common.Status.UserFriend.*;
@@ -23,6 +27,7 @@ public class UserFriendService {
 
     private final UserRepository userRepository;
     private final UserFriendRepository userFriendRepository;
+    private final LoginService loginService;
 
 
     /**
@@ -30,10 +35,16 @@ public class UserFriendService {
      *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
      * */
     @Transactional
-    public UserFriendResponse.Info followFriend(Long userId, Long friendId) {
+    public UserFriendResponse.Info followFriend(Long friendId) {
 
         //1. ACTIVE 한 User를 조회
-        User user = getUser(userId, ACTIVE);
+        Long userId = loginService.getLoginUserId();
+        User user = createDummyUser();
+        if (Optional.ofNullable(userId).isPresent()) {
+            user = getUser(userId, Status.User.ACTIVE);
+        } else{
+            throw new AccessDeniedException();
+        }
 
         //1_2. userId와 friendId가 같으면 예외
         if (userId.equals(friendId)) {
@@ -76,6 +87,10 @@ public class UserFriendService {
         );
     }
 
+    private User createDummyUser() {
+        return User.builder().build();
+    }
+
     /** --------------------------------------------------------------------------------------------------------------*/
 
     /**
@@ -83,10 +98,16 @@ public class UserFriendService {
      *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
      * */
     @Transactional
-    public UserFriendResponse.Info blockFriend(Long userId, Long friendId) {
+    public UserFriendResponse.Info blockFriend(Long friendId) {
 
         //1. ACTIVE 한 User와 Friend를 조회
-        User user = getUser(userId, ACTIVE);
+        Long userId = loginService.getLoginUserId();
+        User user = createDummyUser();
+        if (Optional.ofNullable(userId).isPresent()) {
+            user = getUser(userId, Status.User.ACTIVE);
+        } else{
+            throw new AccessDeniedException();
+        }
         User friend = getUser(friendId, ACTIVE);
 
         //1_2. userId와 friendId가 같으면 예외
