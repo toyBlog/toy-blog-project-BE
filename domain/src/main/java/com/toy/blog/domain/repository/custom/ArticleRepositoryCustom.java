@@ -10,11 +10,9 @@ public interface ArticleRepositoryCustom {
 
     List<Article> findFollowArticleList(List<Long> friendIdList, Pageable pageable);
 
-    long findFollowArticleListCount(List<Long> friendIdList);
+    long findFollowArticleListTotal(List<Long> friendIdList);
 
     List<Article> findArticleList(Integer page, Integer size);
-
-    List<Article> findSearchArticleList(String keyword, Integer page, Integer size);
 
     Optional<Article> findArticleById(Long id);
 
@@ -26,13 +24,11 @@ public interface ArticleRepositoryCustom {
 
     void updateLikedCount(Long id, Integer value);
 
-    /**
-     * --------------------------------------------------------------------------------------------------------------
-     */
+    /** --------------------------------------------------------------------------------------------------------------*/
 
+    List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size);
 
-    List<Article> findByTitleOrContent(String keyword, Integer page, Integer size);
+    long findArticleListCount(String title, String content, String writer);
 
-    long findByTitleOrContentCount(String keyword);
 
 }

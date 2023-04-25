@@ -9,13 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.List;
 
 @UtilityClass
 public class ArticleRequest {
@@ -28,15 +25,20 @@ public class ArticleRequest {
 
         Integer page = 0;
 
-        Integer size = 20;
+        Integer size = 5;
     }
 
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Search extends Inventory {
+    public static class Search extends Inventory{
+        @Size(min = 2, max = 20)
+        String title;
 
-        String keyword;
+        @Size(min = 2, max = 200)
+        String content;
+
+        String writer;
     }
 
     @Getter
@@ -44,16 +46,13 @@ public class ArticleRequest {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Register {
 
-        @NotNull(message = "제목은 필수입니다.")
+        @NotNull
         @Size(min = 2, max = 20)
         String title;
 
-        @NotNull(message = "본문 내용은 필수입니다.")
+        @NotNull
         @Size(min = 2, max = 200)
         String content;
-
-        @Size(max = 5, message = "사진은 최대 5장 까지 등록 가능합니다.")
-        private List<MultipartFile> imageList = new ArrayList<>();
 
         public Article toEntity(Long userId) {
             return Article.builder()
@@ -65,24 +64,6 @@ public class ArticleRequest {
                     .status(Status.Article.ACTIVE)
                     .build();
         }
-    }
-
-    @Getter
-    @Setter
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Edit {
-
-        @NotNull(message = "제목은 필수입니다.")
-        @Size(min = 2, max = 20)
-        String title;
-
-        @NotNull(message = "본문 내용은 필수입니다.")
-        @Size(min = 2, max = 200)
-        String content;
-
-        @Size(max = 5, message = "사진은 최대 5장 까지 등록 가능합니다.")
-        private List<MultipartFile> imageList = new ArrayList<>();
-
     }
 
     @Getter

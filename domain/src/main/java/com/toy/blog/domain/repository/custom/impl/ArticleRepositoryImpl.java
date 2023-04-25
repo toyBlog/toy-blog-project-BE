@@ -2,12 +2,15 @@ package com.toy.blog.domain.repository.custom.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.entity.QArticle;
 import com.toy.blog.domain.repository.custom.ArticleRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 import static com.toy.blog.domain.common.Status.Article.ACTIVE;
 import static com.toy.blog.domain.entity.QArticle.article;
@@ -17,6 +20,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private JPAQueryFactory queryFactory;
 
+    private EntityManager entityManager;
 
     public ArticleRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -36,39 +40,34 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
-    /**
-     * ---------------------------------------------------------------------------------------------------------------
-     */
-
-    @Override
-    public long findFollowArticleListCount(List<Long> friendIdList) {
-
-        return queryFactory
-                .select(article)
-                .from(article)
-                .where(article.user.id.in(friendIdList), article.status.eq(ACTIVE))
-                .fetchCount();
-    }
-
     /**---------------------------------------------------------------------------------------------------------------*/
 
-    public List<Article> findByTitleOrContent(String keyword, Integer page, Integer size) {
+    @Override
+    public List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size) {
 
         return queryFactory.select(article)
-                .from(article)
-                .where(titleCond(title), contentCond(content), writerCond(writer))
-                .offset(page)
-                .limit(size)
-                .orderBy(article.createdAt.desc())
-                .fetch();
+                           .from(article)
+                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
+                           .offset(page)
+                           .limit(size)
+                           .orderBy(article.createdAt.desc())
+                           .fetch();
     }
 
-    private BooleanExpression searchCond(String keyword) {
-        if (keyword.length() == 0) {
-            return null;
-        } else {
-            return article.title.like("%" + keyword + "%").or(article.content.like("%" + keyword + "%"));
-        }
+
+    private BooleanExpression titleCond(String title) {
+
+        return title.length()==0 ? null : article.title.like("%" + title + "%");
+    }
+
+    private BooleanExpression contentCond(String content) {
+
+        return content.length()==0 ? null : article.content.like("%" + content + "%");
+    }
+
+    private BooleanExpression writerCond(String writer) {
+
+        return writer.length()==0 ? null : article.user.nickname.like("%" + writer + "%");
     }
 
     /**
@@ -76,13 +75,12 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
      */
 
     @Override
-    public long findByTitleOrContentCount(String keyword) {
+    public long findArticleListCount(String title, String content, String writer) {
 
         return queryFactory.select(article)
-                .from(article)
-                .where(titleCond(title), contentCond(content), writerCond(writer))
-                .fetchCount();
-
+                           .from(article)
+                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
+                           .fetchCount();
     }
 
     /**
@@ -115,20 +113,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
-    /**
-     * 게시글 검색
-     */
-    @Override
-    public List<Article> findSearchArticleList(String keyword, Integer page, Integer size) {
-        BooleanExpression titleCondition = article.title.contains(keyword);
-        BooleanExpression contentCondition = article.content.contains(keyword);
-        return queryFactory
-                .select(article)
-                .from(article)
-                .where(titleCondition.or(contentCondition))
-                .limit(size).offset(page)
-                .fetch();
-    }
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
@@ -149,6 +133,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         return Optional.ofNullable(article);
     }
+
 
     /**
      * 조회수 증가
@@ -207,7 +192,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .where(article.id.eq(id))
                 .execute();
     }
-
 
 }
 
