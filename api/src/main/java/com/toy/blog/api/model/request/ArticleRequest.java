@@ -34,7 +34,7 @@ public class ArticleRequest {
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Search extends Inventory{
+    public static class Search extends Inventory {
 
         String keyword;
     }

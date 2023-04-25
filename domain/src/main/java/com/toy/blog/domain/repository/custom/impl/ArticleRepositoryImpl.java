@@ -36,7 +36,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ---------------------------------------------------------------------------------------------------------------
+     */
 
     @Override
     public long findFollowArticleListCount(List<Long> friendIdList) {
@@ -53,16 +55,15 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     public List<Article> findByTitleOrContent(String keyword, Integer page, Integer size) {
 
         return queryFactory.select(article)
-                           .from(article)
-                           .where(searchCond(keyword) , article.status.eq(ACTIVE))
-                           .offset(page)
-                           .limit(size)
-                           .orderBy(article.createdAt.desc())
-                           .fetch();
+                .from(article)
+                .where(titleCond(title), contentCond(content), writerCond(writer))
+                .offset(page)
+                .limit(size)
+                .orderBy(article.createdAt.desc())
+                .fetch();
     }
 
     private BooleanExpression searchCond(String keyword) {
-
         if (keyword.length() == 0) {
             return null;
         } else {
@@ -78,14 +79,134 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     public long findByTitleOrContentCount(String keyword) {
 
         return queryFactory.select(article)
-                           .from(article)
-                           .where(searchCond(keyword), article.status.eq(ACTIVE))
-                           .fetchCount();
+                .from(article)
+                .where(titleCond(title), contentCond(content), writerCond(writer))
+                .fetchCount();
+
     }
 
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
+
+    @Override
+    public long findFollowArticleListTotal(List<Long> friendIdList) {
+
+        return queryFactory
+                .select(article)
+                .from(article)
+                .where(article.user.id.in(friendIdList), article.status.eq(ACTIVE))
+                .fetchCount();
+    }
+
+    /**---------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * 게시글 목록 조회
+     */
+    @Override
+    public List<Article> findArticleList(Integer page, Integer size) {
+
+        return queryFactory
+                .select(article)
+                .from(article)
+                .where(article.status.eq(Status.Article.ACTIVE))
+                .limit(size).offset(page)
+                .fetch();
+    }
+
+    /**
+     * 게시글 검색
+     */
+    @Override
+    public List<Article> findSearchArticleList(String keyword, Integer page, Integer size) {
+        BooleanExpression titleCondition = article.title.contains(keyword);
+        BooleanExpression contentCondition = article.content.contains(keyword);
+        return queryFactory
+                .select(article)
+                .from(article)
+                .where(titleCondition.or(contentCondition))
+                .limit(size).offset(page)
+                .fetch();
+    }
+
+    /**---------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * id로 게시글 찾기
+     */
+
+    @Override
+    public Optional<Article> findArticleById(Long id) {
+
+        Article article = queryFactory.select(QArticle.article)
+                .from(QArticle.article)
+                .where(
+                        QArticle.article.id.eq(id),
+                        QArticle.article.status.eq(ACTIVE)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(article);
+    }
+
+    /**
+     * 조회수 증가
+     */
+    @Override
+    public void updateViewCount(Long id) {
+
+        queryFactory.update(article)
+                .set(article.viewCount, article.viewCount.add(1))
+                .where(article.id.eq(id))
+                .execute();
+    }
+
+
+    /**---------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * 게시글 수정
+     */
+    @Override
+    public void updateArticle(Long id, String title, String content) {
+
+        queryFactory.update(article)
+                .set(article.title, title)
+                .set(article.content, content)
+                .where(article.id.eq(id))
+                .execute();
+    }
+
+
+    /**---------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * 게시글 삭제
+     */
+    @Override
+    public void inactiveArticle(Long id) {
+
+        queryFactory.update(article)
+                .set(article.status, Status.Article.INACTIVE)
+                .where(article.id.eq(id))
+                .execute();
+    }
+
+
+    /**---------------------------------------------------------------------------------------------------------------*/
+
+    /**
+     * 게시글 좋아요 증가/취소
+     */
+    @Override
+    public void updateLikedCount(Long id, Integer value) {
+
+        queryFactory.update(article)
+                .set(article.likedCount, article.likedCount.add(value))
+                .where(article.id.eq(id))
+                .execute();
+    }
 
 
 }

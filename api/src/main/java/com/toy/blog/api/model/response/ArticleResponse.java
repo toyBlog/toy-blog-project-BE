@@ -54,11 +54,10 @@ public class ArticleResponse {
         public static BaseResponse of(Long id) {
 
             return BaseResponse.builder()
-                               .id(id)
-                               .build();
+                    .id(id)
+                    .build();
         }
     }
-
 
     @Getter
     @Setter

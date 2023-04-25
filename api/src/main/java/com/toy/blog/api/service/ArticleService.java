@@ -278,8 +278,8 @@ public class ArticleService {
         if (Optional.ofNullable(loginUserId).isPresent()) {
             User user = getUser(loginUserId, Status.User.ACTIVE);
             isLikedList = articleList.stream()
-                                     .map(article -> likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE))
-                                     .collect(Collectors.toList());
+                    .map(article -> likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE))
+                    .collect(Collectors.toList());
         } else{
             for (int i = 0; i < articleList.size(); i++) {
                 isLikedList.add(false); /** 로그인 하지 않았다면 , 좋아요 여부는 모두 false */
