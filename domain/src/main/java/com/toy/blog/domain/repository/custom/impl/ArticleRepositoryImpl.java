@@ -20,8 +20,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     private JPAQueryFactory queryFactory;
 
-    private EntityManager entityManager;
-
     public ArticleRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }

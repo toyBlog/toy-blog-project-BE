@@ -58,15 +58,7 @@ public class ArticleService {
      *  findArticleById() -> findByIdAndStatus()  <동적 쿼리도 아니니깐 굳이 querydsl을 쓰기보다는 spring data jpa 를 쓰는게 훨씬 깔끔 + 네이밍 부터 findArticleById() 라고 인위적이므로 - 차라리 쉽게 있는 기능 쓰자!>
      * */
     public ArticleResponse.Detail getArticle(Long id) {
-        Long userId = loginService.getLoginUserId();
         Article article = articleRepository.findByIdAndStatus(id, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
-
-        // 조회수 증가 Todo: 조회수 증가 로직 고민
-        if (!userId.equals(article.getUser().getId())) {
-            articleRepository.updateViewCount(id);
-        } else if (userId == null) {
-            articleRepository.updateViewCount(id);
-        }
 
         return ArticleResponse.Detail.of(article);
     }
@@ -188,6 +180,17 @@ public class ArticleService {
     }
 
 
+    /**
+     * 조회수 증가 메소드
+     */
+    @Transactional
+    public void viewCountUp(Long id) {
+        articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
+        articleRepository.updateViewCount(id);
+    }
+        
+
+
     public ArticleResponse.Search getArticleList(String title, String content, String writer, Integer page, Integer size) {
 
         //0. 로그인 한 User의 Id 가져옴
@@ -212,5 +215,6 @@ public class ArticleService {
 
         //2. 결과 반환
         return ArticleResponse.Detail.of(article);
+
     }
 }

@@ -37,7 +37,9 @@ dependencies {
     implementation("com.querydsl:querydsl-apt")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation("com.h2database:h2")
+    implementation "com.h2database:h2"
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'it.ozimov:embedded-redis:0.7.3'
 }
 
 configurations {
