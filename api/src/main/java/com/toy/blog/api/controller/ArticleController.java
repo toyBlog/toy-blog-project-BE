@@ -27,7 +27,18 @@ public class ArticleController {
     public Response<List<ArticleResponse.Summary>> getArticles(ArticleRequest.Inventory request) {
         return Response.<List<ArticleResponse.Summary>>builder()
                 .code(HttpStatus.OK.value())
-                .data(articleService.getArticles(request))
+                .data(articleService.getArticles(request.getPage(), request.getSize()))
+                .build();
+    }
+
+    /**
+     * [API. ] : 글 검색
+     */
+    @GetMapping("/search")
+    public Response<List<ArticleResponse.Summary>> getSearchArticles(ArticleRequest.Search request) {
+        return Response.<List<ArticleResponse.Summary>>builder()
+                .code(HttpStatus.OK.value())
+                .data(articleService.getSearchArticles(request.getKeyword(), request.getPage(), request.getSize()))
                 .build();
     }
 
@@ -72,20 +83,15 @@ public class ArticleController {
 
     /**
      * [API. ] : 글 작성
-     * Todo: 이미지 업로드 추가(박수빈)
-     */
-
-    /**
+     *
      * [수정사항]
      * insertArticle -> registerArticle <insert는 쿼리에서 사용되는 용어이므로 배제>
-     * */
+     */
     @PostMapping("")
     public Response<Void> registerArticle(@RequestBody ArticleRequest.Register request) {
         articleService.registerArticle(request);
         return Response.<Void>builder().build();
     }
-
-
 
     /**
      * [API. ] : 글 수정
@@ -100,7 +106,7 @@ public class ArticleController {
     /**
      * [API. ] : 글 삭제
      */
-    @DeleteMapping("/{id}")
+    @PostMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public Response<Void> deleteArticle(@PathVariable Long id) {
         articleService.deleteArticle(id);
@@ -108,14 +114,9 @@ public class ArticleController {
     }
 
     /**
-     * [API. ] : 글 검색
-     * Todo: 글 검색 구현(박수빈)
-     */
-
-    /**
      * [API. ] : 좋아요
      */
-    @PostMapping("/{id}")
+    @PostMapping("/likes/{id}")
     public Response<Void> likeArticle(@PathVariable Long id) {
         articleService.likeArticle(id);
         return Response.<Void>builder().build();
@@ -124,16 +125,14 @@ public class ArticleController {
     /**
      * [API. ] : 팔로우한 친구의 게시글 목록 조회
      * Todo: 구현(용준님)
-     * */
-
+     */
     @GetMapping("/follower/{userId}")
-    public Response<ArticleResponse.Search> getFollowArticles(@PathVariable Long userId, Pageable pageable){
+    public Response<ArticleResponse.Search> getFollowArticles(@PathVariable Long userId, Pageable pageable) {
 
         return Response.<ArticleResponse.Search>builder()
                 .data(articleService.getFollowArticleList(userId, pageable))
                 .code(HttpStatus.OK.value())
                 .build();
     }
-
 
 }
