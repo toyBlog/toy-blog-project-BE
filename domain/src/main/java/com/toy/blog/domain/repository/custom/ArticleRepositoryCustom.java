@@ -24,5 +24,11 @@ public interface ArticleRepositoryCustom {
 
     void updateLikedCount(Long id, Integer value);
 
+    /** --------------------------------------------------------------------------------------------------------------*/
+
+    List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size);
+
+    long findArticleListCount(String title, String content, String writer);
+
 
 }

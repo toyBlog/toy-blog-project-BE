@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
@@ -26,10 +27,28 @@ public class ArticleController {
      * [API. ] : 게시글 목록 조회
      */
     @GetMapping("")
-    public Response<List<ArticleResponse.Summary>> getArticles(ArticleRequest.Search request) {
+    public Response<List<ArticleResponse.Summary>> getArticles(ArticleRequest.Inventory request) {
         return Response.<List<ArticleResponse.Summary>>builder()
                 .code(HttpStatus.OK.value())
                 .data(articleService.getArticles(request))
+                .build();
+    }
+
+    @GetMapping("/yj")
+    public Response<ArticleResponse.Search> getArticleList(@Validated @ModelAttribute ArticleRequest.Inventory request) {
+
+        return Response.<ArticleResponse.Search>builder()
+                .code(HttpStatus.OK.value())
+                .data(articleService.getArticleList(null, null, null, request.getPage(), request.getSize()))
+                .build();
+    }
+
+    @GetMapping("/yj/search")
+    public Response<ArticleResponse.Search> searchArticleList(@Validated @ModelAttribute ArticleRequest.Search request) {
+
+        return Response.<ArticleResponse.Search>builder()
+                .data(articleService.getArticleList(request.getTitle(), request.getContent(), request.getWriter(), request.getPage(), request.getSize()))
+                .code(HttpStatus.OK.value())
                 .build();
     }
 
@@ -43,6 +62,15 @@ public class ArticleController {
         return Response.<ArticleResponse.Detail>builder()
                 .code(HttpStatus.OK.value())
                 .data(articleService.getArticle(id))
+                .build();
+    }
+
+    @GetMapping("/yj/{id}")
+    public Response<ArticleResponse.Detail> getArticleYJ(@PathVariable Long id) {
+
+        return Response.<ArticleResponse.Detail>builder()
+                .code(HttpStatus.OK.value())
+                .data(articleService.getArticleYJ(id))
                 .build();
     }
 
@@ -102,7 +130,8 @@ public class ArticleController {
      */
 
     @GetMapping("/follower/{userId}")
-    public Response<ArticleResponse.Search> getFollowArticleList(@PathVariable Long userId, Pageable pageable) {
+    public Response<ArticleResponse.Search> getFollowArticles(@PathVariable Long userId, Pageable pageable) {
+
 
         return Response.<ArticleResponse.Search>builder()
                 .data(articleService.getFollowArticleList(userId, pageable))

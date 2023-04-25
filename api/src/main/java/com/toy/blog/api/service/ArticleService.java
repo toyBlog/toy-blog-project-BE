@@ -44,7 +44,7 @@ public class ArticleService {
     /** [수정 사항]
      * getArticleList() -> findArticleList()
      * */
-    public List<ArticleResponse.Summary> getArticles(ArticleRequest.Search request) {
+    public List<ArticleResponse.Summary> getArticles(ArticleRequest.Inventory request) {
         List<Article> articles = articleRepository.findArticleList(request.getPage(), request.getSize());
 
         return ArticleResponse.Summary.of(articles);
@@ -142,6 +142,8 @@ public class ArticleService {
         }
     }
 
+    /**---------------------------------------------------------------------------------------------------------------*/
+
     /**
      * [특정 User가 Follow 한 Friend들이 올린 Article List를 조회 하는 서비스]
      * Todo: 구현(용준님^^)
@@ -177,6 +179,7 @@ public class ArticleService {
         return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
     }
 
+
     /**
      * 조회수 증가 메소드
      */
@@ -184,5 +187,34 @@ public class ArticleService {
     public void viewCountUp(Long id) {
         articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
         articleRepository.updateViewCount(id);
+    }
+        
+
+
+    public ArticleResponse.Search getArticleList(String title, String content, String writer, Integer page, Integer size) {
+
+        //0. 로그인 한 User의 Id 가져옴
+        Long loginUserId = loginService.getLoginUserId();
+
+        //1_1. 넘어온 값에 따른 ArticleList 조회
+        List<Article> articleList = articleRepository.findArticleList(title, content, writer, page, size);
+
+        //1_2. totalCount 조회
+        long totalCount = articleRepository.findArticleListCount(title, content, writer);
+
+        //1_3. 각 Article별로 로그인 한 그 User가 이 Article에 대해 좋아요를 눌렀는지의 여부를 가져옴
+
+        //2. 결과 반환
+        return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList), totalCount);
+    }
+
+    public ArticleResponse.Detail getArticleYJ(Long id) {
+
+        //1. Ariticle 조회
+        Article article = articleRepository.findByIdAndStatus(id, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
+
+        //2. 결과 반환
+        return ArticleResponse.Detail.of(article);
+
     }
 }
