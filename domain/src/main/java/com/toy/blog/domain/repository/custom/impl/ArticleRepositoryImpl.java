@@ -38,34 +38,36 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ---------------------------------------------------------------------------------------------------------------
+     */
 
     @Override
     public List<Article> findArticleList(String title, String content, String writer, Integer page, Integer size) {
 
         return queryFactory.select(article)
-                           .from(article)
-                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
-                           .offset(page)
-                           .limit(size)
-                           .orderBy(article.createdAt.desc())
-                           .fetch();
+                .from(article)
+                .where(titleCond(title), contentCond(content), writerCond(writer))
+                .offset(page)
+                .limit(size)
+                .orderBy(article.createdAt.desc())
+                .fetch();
     }
 
 
     private BooleanExpression titleCond(String title) {
 
-        return title.length()==0 ? null : article.title.like("%" + title + "%");
+        return title.length() == 0 ? null : article.title.like("%" + title + "%");
     }
 
     private BooleanExpression contentCond(String content) {
 
-        return content.length()==0 ? null : article.content.like("%" + content + "%");
+        return content.length() == 0 ? null : article.content.like("%" + content + "%");
     }
 
     private BooleanExpression writerCond(String writer) {
 
-        return writer.length()==0 ? null : article.user.nickname.like("%" + writer + "%");
+        return writer.length() == 0 ? null : article.user.nickname.like("%" + writer + "%");
     }
 
     /**
@@ -76,9 +78,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     public long findArticleListCount(String title, String content, String writer) {
 
         return queryFactory.select(article)
-                           .from(article)
-                           .where(titleCond(title) , contentCond(content) , writerCond(writer))
-                           .fetchCount();
+                .from(article)
+                .where(titleCond(title), contentCond(content), writerCond(writer))
+                .fetchCount();
     }
 
     /**
@@ -111,6 +113,20 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
+    /**
+     * 게시글 검색
+     */
+    @Override
+    public List<Article> findSearchArticleList(String keyword, Integer page, Integer size) {
+        BooleanExpression titleCondition = article.title.contains(keyword);
+        BooleanExpression contentCondition = article.content.contains(keyword);
+        return queryFactory
+                .select(article)
+                .from(article)
+                .where(titleCondition.or(contentCondition))
+                .limit(size).offset(page)
+                .fetch();
+    }
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
@@ -131,7 +147,6 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
         return Optional.ofNullable(article);
     }
-
 
     /**
      * 조회수 증가
