@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -55,15 +56,14 @@ public class ArticleService {
 
         //0. 글을 등록할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
+        if (Objects.isNull(userId)) {
             throw new AccessDeniedException();
         }
 
-        //0_2. 함께 넘어온 파일이 -> 이미지 파일인지 확인
-        if (!fileServiceUtil.isAllImageExt(imageList)) {
+        User user = getUser(userId, Status.User.ACTIVE);
+
+        //0_2. 함께 넘어온 파일이 -> 이미지 파일인지 확인 -> 하나라도 이미지 파일이 아닌게 있으면 예외
+        if (fileServiceUtil.hasNonImageExt(imageList)) {
             throw new NotImageFileException();
         }
 
@@ -94,9 +94,7 @@ public class ArticleService {
         articleImageRepository.saveAll(articleImageList);
 
         //3. 실제 이미지를 저장
-        IntStream.range(0, pathList.size()).forEach(
-                idx -> fileServiceUtil.uploadFile(pathList.get(idx), imageList.get(idx))
-        );
+       fileServiceUtil.uploadFileList(pathList, imageList);
 
         //4. 응답값 리턴
         return ArticleResponse.BaseResponse.of(article.getId());
@@ -156,10 +154,7 @@ public class ArticleService {
         articleImageRepository.saveAll(articleImageList);
 
         //3. 실제 이미지 수정 -> 사실상 넘어온 이미지들을 모두 저장 (이떄 저장솟에는 중복된 이미지가 저장되는 상황이 발생하지만 , 일단 그렇게 구현)
-        IntStream.range(0, pathList.size())
-                .forEach(
-                        idx -> fileServiceUtil.uploadFile(pathList.get(idx) , imageList.get(idx))
-                );
+        fileServiceUtil.uploadFileList(pathList, imageList);
 
         //4. 응답 리턴
         return ArticleResponse.BaseResponse.of(article.getId());

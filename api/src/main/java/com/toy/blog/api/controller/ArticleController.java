@@ -37,13 +37,13 @@ public class ArticleController {
     /**
      * [API. ] : 글 수정
      */
-    @PatchMapping("/{articleId}")
+    @PatchMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public Response<ArticleResponse.BaseResponse> editArticle(@PathVariable Long articleId, @ModelAttribute ArticleRequest.Edit request) {
+    public Response<ArticleResponse.BaseResponse> editArticle(@PathVariable Long id, @ModelAttribute ArticleRequest.Edit request) {
 
         return Response.<ArticleResponse.BaseResponse>builder()
                 .code(HttpStatus.CREATED.value())
-                .data(articleService.edit(articleId, request.getTitle(), request.getContent(), request.getImageList()))
+                .data(articleService.edit(id, request.getTitle(), request.getContent(), request.getImageList()))
                 .build();
     }
 
@@ -51,10 +51,10 @@ public class ArticleController {
     /**
      * [API. ] : 글 삭제
      */
-    @PostMapping("/{articleId}")
+    @PostMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
-    public Response<Void> removeArticle(@PathVariable Long articleId) {
-        articleService.remove(articleId);
+    public Response<Void> removeArticle(@PathVariable Long id) {
+        articleService.remove(id);
         return Response.<Void>builder().build();
     }
 
@@ -62,12 +62,12 @@ public class ArticleController {
     /**
      * [API. ] : 글 단건 조회
      * */
-    @GetMapping("/{articleId}")
-    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long articleId) {
+    @GetMapping("/{id}")
+    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id) {
 
         return Response.<ArticleResponse.Detail>builder()
                 .code(HttpStatus.OK.value())
-                .data(articleService.getArticle(articleId))
+                .data(articleService.getArticle(id))
                 .build();
     }
 
@@ -117,10 +117,10 @@ public class ArticleController {
     /**
      * [API. ] : 좋아요
      */
-    @PostMapping("/likes/{articleId}")
+    @PostMapping("/likes/{id}")
     @PreAuthorize("isAuthenticated()")
-    public Response<Void> likeArticle(@PathVariable Long articleId) {
-        articleService.like(articleId);
+    public Response<Void> likeArticle(@PathVariable Long id) {
+        articleService.like(id);
         return Response.<Void>builder().build();
     }
 

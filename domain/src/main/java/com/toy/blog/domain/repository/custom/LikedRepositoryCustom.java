@@ -18,5 +18,8 @@ public interface LikedRepositoryCustom {
 
     List<Article> findArticleListByUserId(Long userId, Pageable pageable);
 
+
     long findArticleListByUserIdCount(Long userId);
+
+
 }

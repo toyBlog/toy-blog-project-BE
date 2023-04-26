@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 @RequiredArgsConstructor
@@ -29,6 +30,13 @@ public class FileServiceUtil {
                 .map(MultipartFile::getOriginalFilename)
                 .map(FilenameUtils::getExtension)
                 .allMatch(e -> e.equals("jpeg") || e.equals("jpg") || e.equals("png") || e.equals("JPG") || e.equals("JPEG") || e.equals("PNG"));
+    }
+
+    /**
+     * 0_2. [넘어온 파일 중 하나라도 지정된 이미지 형식의 파일이 아닌지 확인] : 하나라도 아닌게 있다면 true / 모두다 이미지 파일이라면 false
+     * */
+    public boolean hasNonImageExt(List<MultipartFile> imageList) {
+        return !isAllImageExt(imageList);
     }
 
     /**
@@ -59,6 +67,15 @@ public class FileServiceUtil {
         s3ServiceUtil.uploadFile(path, image);
     }
 
+    /**
+     * 2_2. [여러 path를 받아 , 각 이미지파일들을 - 각 path에 실제로 저장하는 서비스]
+     * */
+    public void uploadFileList(List<String> pathList , List<MultipartFile> imageList) {
+        IntStream.range(0, imageList.size()).forEach(
+                idx -> s3ServiceUtil.uploadFile(pathList.get(idx) , imageList.get(idx))
+        );
+    }
+
 
     /**
      * 3. [path를 받아 , 각 이미지의 url을 만들어 리턴하는 서비스]
@@ -68,4 +85,7 @@ public class FileServiceUtil {
                 .map(p -> url + File.separator + p)
                 .collect(Collectors.toList());
     }
+
+
+
 }
