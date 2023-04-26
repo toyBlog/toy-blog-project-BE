@@ -1,6 +1,7 @@
 package com.toy.blog.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.toy.blog.domain.common.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -50,6 +51,11 @@ public class Article extends BaseEntity {
 
     @OneToMany(mappedBy = "article")
     List<Liked> likedList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "article",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OrderBy("id desc")
+    @JsonManagedReference
+    List<Comment> commentList = new ArrayList<>();
 
     /**
      * [변경 메서드]

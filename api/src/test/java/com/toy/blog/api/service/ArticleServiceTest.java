@@ -1,18 +1,18 @@
 package com.toy.blog.api.service;
 
-import com.toy.blog.api.exception.article.NotFoundArticleException;
 import com.toy.blog.api.model.request.ArticleRequest;
-import com.toy.blog.api.model.request.LikedRequest;
-import com.toy.blog.domain.common.Status;
+import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.entity.Liked;
+import com.toy.blog.domain.entity.Comment;
 import com.toy.blog.domain.repository.ArticleRepository;
-import com.toy.blog.domain.repository.LikedRepository;
+import com.toy.blog.domain.repository.CommentRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -23,42 +23,46 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@EntityScan(basePackages = "com.toy.blog")
 @SpringBootTest
-@ActiveProfiles("domain-dev")
-class ArticleServiceTest {
+@ActiveProfiles("dev")
+public class ArticleServiceTest {
 
     @Autowired
     ArticleService articleService;
 
     @Autowired
-    ArticleRepository articleRepository;
+    CommentRepository commentRepository;
 
     @Autowired
-    LikedRepository likedRepository;
+    ArticleRepository articleRepository;
+//
+//    @Autowired
+//    LikedRepository likedRepository;
 
-    @Test
-    @DisplayName("게시글 목록 조회")
-    public void getArticlesTest() {
-        ArticleRequest.Search search = new ArticleRequest.Search();
-//        articleService.getArticles(search);
-        List<Article> list = articleRepository.findByTitleOrContent("" ,search.getPage(), search.getSize());
 
-        for (Article article : list) {
-            log.info("article title : {}", article.getTitle());
-        }
-        assertThat(list.size()).isEqualTo(5);
-    }
-
-    @Test
-    @DisplayName("게시글 상세 보기")
-    public void getArticleTest() {
-        Article article = articleRepository.findByIdAndStatus(1L, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
-
-        log.info("article.getId() : {}", article.getId());
-        log.info("article.getTitle() : {}", article.getTitle());
-        log.info("article.getContent() : {}", article.getContent());
-    }
+//    @Test
+//    @DisplayName("게시글 목록 조회")
+//    public void getArticlesTest() {
+//        ArticleRequest.Search search = new ArticleRequest.Search();
+////        articleService.getArticles(search);
+//        List<Article> list = articleRepository.findByTitleOrContent("" ,search.getPage(), search.getSize());
+//
+//        for (Article article : list) {
+//            log.info("article title : {}", article.getTitle());
+//        }
+//        assertThat(list.size()).isEqualTo(5);
+//    }
+//
+//    @Test
+//    @DisplayName("게시글 상세 보기")
+//    public void getArticleTest() {
+//        Article article = articleRepository.findByIdAndStatus(1L, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
+//
+//        log.info("article.getId() : {}", article.getId());
+//        log.info("article.getTitle() : {}", article.getTitle());
+//        log.info("article.getContent() : {}", article.getContent());
+//    }
 
 //    @Test
 //    @DisplayName("조회수 증가")
@@ -127,20 +131,21 @@ class ArticleServiceTest {
 //        assertThat(article.getLikedCount()).isEqualTo(1);
 //    }
 
-    @Test
-    @DisplayName("좋아요 테이블 생성")
-    @Transactional
-    public void createLikedTableTest() {
-        likedRepository.save(new LikedRequest.Register().toEntity(1L, 1L));
-        Liked liked = likedRepository.findByArticleAndUser(1L, 1L).orElseThrow();
-        log.info("게시글 id : {}", liked.getArticle().getId());
-        log.info("사용자 id : {}", liked.getUser().getId());
-        log.info("좋아요 id : {}", liked.getId());
-        assertThat(liked).isNotNull();
-        assertThat(liked.getArticle().getId()).isEqualTo(1L);
-        assertThat(liked.getUser().getId()).isEqualTo(1L);
-        assertThat(liked.getId()).isEqualTo(5L);
-    }
+//    @Test
+//    @DisplayName("좋아요 테이블 생성")
+//    @Transactional
+//    public void createLikedTableTest() {
+//        likedRepository.save(new LikedRequest.Register().toEntity(1L, 1L));
+//        Liked liked = likedRepository.findByArticleAndUser(1L, 1L).orElseThrow();
+//
+//        log.info("게시글 id : {}", liked.getArticle().getId());
+//        log.info("사용자 id : {}", liked.getUser().getId());
+//        log.info("좋아요 id : {}", liked.getId());
+//        assertThat(liked).isNotNull();
+//        assertThat(liked.getArticle().getId()).isEqualTo(1L);
+//        assertThat(liked.getUser().getId()).isEqualTo(1L);
+//        assertThat(liked.getId()).isEqualTo(5L);
+//    }
 
 //    @Test
 //    @DisplayName("좋아요 취소")
@@ -152,14 +157,59 @@ class ArticleServiceTest {
 //        assertThat(article.getLikedCount()).isEqualTo(-1);
 //    }
 
+//    @Test
+//    @DisplayName("좋아요 테이블 상태 변경")
+//    @Transactional
+//    public void deleteLikedTableTest() {
+//        likedRepository.deleteLiked(1L);
+//        Liked liked = likedRepository.findById(1L).orElseThrow();
+//        log.info("좋아요 상태 : {}", liked.getStatus());
+//        assertThat(liked.getStatus()).isEqualTo(Status.Like.INACTIVE);
+//    }
+
+
     @Test
-    @DisplayName("좋아요 테이블 상태 변경")
+    @DisplayName("게시글 댓글 작성")
     @Transactional
-    public void deleteLikedTableTest() {
-        likedRepository.deleteLiked(1L);
-        Liked liked = likedRepository.findById(1L).orElseThrow();
-        log.info("좋아요 상태 : {}", liked.getStatus());
-        assertThat(liked.getStatus()).isEqualTo(Status.Like.INACTIVE);
+    public void registerCommentTest() {
+        Long id = 1L;
+
+        ArticleRequest.Comments request = new ArticleRequest.Comments();
+        request.setComments("게시글 댓글 테스트1");
+
+        articleService.registerComment(request, id);
+        Comment comment = commentRepository.findById(8L).get();
+
+
+        Assertions.assertEquals("게시글 댓글 테스트1", comment.getComments());
     }
 
+    @Test
+    @Transactional
+    @DisplayName("게시글 댓글 수정")
+    public void editCommentTest() {
+        Long articleId = 1L;
+        Long commentId = 4L;
+        ArticleRequest.Comments comments = new ArticleRequest.Comments();
+        comments.setComments("변경된 댓글 1");
+
+        articleService.editComment(comments, articleId, commentId);
+        Comment comment = commentRepository.findById(commentId).get();
+
+        Assertions.assertEquals("변경된 댓글 1", comment.getComments());
+    }
+
+    @Test
+    @Transactional
+    @DisplayName("게시글 댓글 삭제")
+    public void removeCommentTest() {
+        Long articleId = 1L;
+        Long commentId = 4L;
+
+        articleService.removeComment(articleId, commentId);
+        Article article = articleRepository.findArticleWithCommentsById(articleId).get();
+
+        Assertions.assertEquals(1, article.getCommentList().size());
+
+    }
 }

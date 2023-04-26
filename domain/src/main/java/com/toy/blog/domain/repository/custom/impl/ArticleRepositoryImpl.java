@@ -2,15 +2,18 @@ package com.toy.blog.domain.repository.custom.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.repository.custom.ArticleRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 import static com.toy.blog.domain.common.Status.Article.ACTIVE;
 import static com.toy.blog.domain.entity.QArticle.article;
+import static com.toy.blog.domain.entity.QComment.comment;
 import static com.toy.blog.domain.entity.QUser.user;
 
 public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
@@ -83,7 +86,21 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetchCount();
     }
 
+
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
+
+    @Override
+    public Optional<Article> findArticleWithCommentsById(Long id) {
+        return Optional.ofNullable(queryFactory.select(article)
+                .from(article)
+                .join(article.commentList, comment)
+                .fetchJoin()
+                .where(article.id.eq(id)
+                        .and(article.status.eq(ACTIVE))
+                        .and(comment.status.eq(Status.Comments.ACTIVE)))
+                .fetchOne());
+    }
 }

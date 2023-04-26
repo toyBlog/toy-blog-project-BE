@@ -1,21 +1,19 @@
 package com.toy.blog.api.model.response;
 
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.experimental.UtilityClass;
-import org.apache.commons.collections4.CollectionUtils;
 
-import java.io.File;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.toy.blog.domain.common.CommonConstant.BaseUrl.BASE_URL;
 
 @UtilityClass
 public class ArticleResponse {
@@ -65,6 +63,8 @@ public class ArticleResponse {
     public static class Detail extends ArticleBase {
 
         List<String> urlList;
+
+        Set<Comment> comments;
 
         public static Detail of(Article article, Boolean isLiked, long likedCount) {
 
@@ -140,6 +140,26 @@ public class ArticleResponse {
                     .articleSummaryList(articleSummaryList)
                     .totalCount(totalCount)
                     .build();
+        }
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class Comments {
+        String content;
+
+        String writer;
+
+        public static Comments of(Comment comment) {
+            return Comments.builder()
+                    .content(comment.getComments())
+                    .writer(comment.getUser().getNickname())
+                    .build();
+        }
+
+        public static List<Comments> of(List<Comment> commentList) {
+            return commentList.stream().map(ArticleResponse.Comments::of).collect(Collectors.toList());
         }
     }
 

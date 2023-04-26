@@ -64,7 +64,7 @@ public class ArticleController {
 
     /**
      * [API. ] : 글 단건 조회
-     * */
+     */
     @GetMapping("/{id}")
     public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id) {
 
@@ -104,11 +104,11 @@ public class ArticleController {
     /**
      * [API. ] : 팔로우한 친구의 게시글 목록 조회
      * Todo: 구현(용준님)
-     * */
+     */
 
     @GetMapping("/follower")
     @PreAuthorize("isAuthenticated()")
-    public Response<ArticleResponse.Search> getFollowArticles(Pageable pageable){
+    public Response<ArticleResponse.Search> getFollowArticles(Pageable pageable) {
 
         return Response.<ArticleResponse.Search>builder()
                 .code(HttpStatus.OK.value())
@@ -129,7 +129,7 @@ public class ArticleController {
 
     /**
      * [API. ] : 좋아요 한 게시글 목록 조회
-     * */
+     */
     @GetMapping("/likes")
     @PreAuthorize("isAuthenticated()")
     public Response<ArticleResponse.Search> getLikeArticleList(Pageable pageable) {
@@ -137,6 +137,47 @@ public class ArticleController {
         return Response.<ArticleResponse.Search>builder()
                 .code(HttpStatus.OK.value())
                 .data(articleService.getLikeArticleList(pageable))
+                .build();
+    }
+
+    /** ----------------------------------------------------------------------------- */
+
+    /**
+     * [API. ] : 댓글 작성
+     */
+
+    @PostMapping("/{id}/comments")
+    public Response<Void> registerComment(@Validated @RequestBody ArticleRequest.Comments request, @PathVariable Long id) {
+
+        articleService.registerComment(request, id);
+        return Response.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .build();
+    }
+
+    /**
+     * [API. ] : 댓글 수정
+     */
+
+    @PatchMapping("/{articleId}/comments{commentId}")
+    public Response<Void> editComment(@Validated @RequestBody ArticleRequest.Comments request, @PathVariable Long articleId, @PathVariable Long commentId) {
+
+        articleService.editComment(request, articleId, commentId);
+        return Response.<Void>builder()
+                .code(HttpStatus.OK.value())
+                .build();
+    }
+
+    /**
+     * [API. ] : 댓글 삭제
+     */
+
+    @DeleteMapping("/{articleId}/comments/{commentId}")
+    public Response<Void> removeComment(@PathVariable Long articleId, @PathVariable Long commentId) {
+
+        articleService.removeComment(articleId, commentId);
+        return Response.<Void>builder()
+                .code(HttpStatus.OK.value())
                 .build();
     }
 }

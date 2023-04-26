@@ -18,6 +18,7 @@ import lombok.Getter;
  *  4 : liked 오류
  *  5 : userFriend 오류
  *  6 : file 오류
+ *  7 : comments 오류
  *
  * [10단위] - 오류 HTTP Method
  *  0~19 : Common
@@ -46,6 +47,7 @@ public enum Error {
 
     FAIL_SAVE_FILE(4601, "fail save image"),
     NOT_IMAGE_FILE(4602, "not image file"),
+    NOT_FOUND_COMMENTS(4721, "not found comments"),
 
     INTERNAL_SERVER_ERROR(9999, "internal server error");
 

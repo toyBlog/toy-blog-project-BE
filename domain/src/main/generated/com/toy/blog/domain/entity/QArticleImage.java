@@ -33,6 +33,8 @@ public class QArticleImage extends EntityPathBase<ArticleImage> {
 
     public final StringPath path = createString("path");
 
+    public final EnumPath<com.toy.blog.domain.common.Status.ArticleImage> status = createEnum("status", com.toy.blog.domain.common.Status.ArticleImage.class);
+
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> updatedAt = _super.updatedAt;
 
