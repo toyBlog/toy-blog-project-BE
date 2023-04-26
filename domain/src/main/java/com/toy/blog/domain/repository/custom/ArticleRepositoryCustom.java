@@ -1,8 +1,7 @@
 package com.toy.blog.domain.repository.custom;
 
-import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.entity.Comment;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -22,5 +21,5 @@ public interface ArticleRepositoryCustom {
 
     /** --------------------------------------------------------------------------------------------------------------*/
 
-    Optional<Article> findArticleWithCommentsById(Long id);
+    Optional<Article> findByIdWithComment(Long id,Integer page, Integer size);
 }

@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface ArticleRepository extends JpaRepository<Article, Long>, ArticleRepositoryCustom {
 
     Optional<Article> findByIdAndStatus(Long id, Status.Article status);
+
+
 }

@@ -1,18 +1,18 @@
 package com.toy.blog.api.service;
 
 
+import com.toy.blog.api.exception.user.AlreadyExistUserException;
+import com.toy.blog.api.exception.user.AlreadyWithdrawUserException;
+import com.toy.blog.api.exception.user.InvalidPasswordException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.exception.user_friend.NotFoundUserFriend;
+import com.toy.blog.api.model.request.UserRequest;
 import com.toy.blog.api.model.response.UserResponse;
+import com.toy.blog.auth.model.TokenResponseDto;
+import com.toy.blog.auth.service.LoginService;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.User;
 import com.toy.blog.domain.entity.UserFriend;
-import com.toy.blog.api.exception.user.AlreadyExistUserException;
-import com.toy.blog.api.exception.user.InvalidPasswordException;
-import com.toy.blog.api.model.request.UserRequest;
-import com.toy.blog.auth.model.TokenResponseDto;
-import com.toy.blog.auth.service.LoginService;
-
 import com.toy.blog.domain.repository.UserFriendRepository;
 import com.toy.blog.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class UserService {
 
     /**
      * User의 정보를 가져오는 서비스
-     * */
+     */
     public UserResponse.Info getUserInfo() {
 
         //1. ACTIVE 한 User 조회
@@ -68,15 +68,17 @@ public class UserService {
         }
 
         List<Long> connectingIdList = connectingList.stream()
-                                                    .map(UserFriend::getFriendId)
-                                                    .collect(Collectors.toList());
+                .map(UserFriend::getFriendId)
+                .collect(Collectors.toList());
 
         //3. 응답값 리턴
         return UserResponse.Info.of(user, followIdList, followingIdList, connectingIdList);
     }
 
-    /** [(id, status) 를 가지고 User를 조회하는 private Service 로직]*/
-    private User getUser(Long userId, Status.User status){
+    /**
+     * [(id, status) 를 가지고 User를 조회하는 private Service 로직]
+     */
+    private User getUser(Long userId, Status.User status) {
 
         return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
     }
@@ -85,7 +87,7 @@ public class UserService {
 
     /**
      * [해당 idList에 해당하는 모든 User들의 정보를 조회해주는 서비스]
-     * */
+     */
     public UserResponse.Search getUserInfoList(List<Long> userIdList, Pageable pageable) {
 
         //1. 요청을 보낸 User가 ACTIVE한 user인지 판별
@@ -117,7 +119,13 @@ public class UserService {
     }
 
     public TokenResponseDto login(UserRequest.Login request) {
-        User user = userRepository.findByEmail(request.getEmail()).orElseThrow(NotFoundUserException::new);
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(NotFoundUserException::new);
+
+        if (!user.getStatus().equals(ACTIVE)) {
+            throw new AlreadyWithdrawUserException();
+        }
+
         if (!request.getPassword().equals(user.getPassword())) {
             throw new InvalidPasswordException();
         }

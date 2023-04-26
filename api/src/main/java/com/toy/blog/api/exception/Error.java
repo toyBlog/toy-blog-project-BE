@@ -38,6 +38,7 @@ public enum Error {
     NOT_FOUND_ACTIVE_USER(2121, "user not found"),
     ALREADY_EXIST_USER(2140, "already exist user"),
     INVALID_PASSWORD(2141, "invalid password"),
+    ALREADY_WITHDRAW_USER(2142, "already withdraw user"),
     NOT_FOUND_ARTICLE(2220, "not found article"),
     BLOCKED_USER_FRIEND(2521, "blocked friend"),
     SAME_ID_USER_FRIEND(2501, "same id user-friend"),

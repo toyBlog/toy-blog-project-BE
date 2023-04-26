@@ -77,7 +77,7 @@ public class ArticleRequest {
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Comments {
+    public static class Comments { //todo: renaming 이름 고민해봐야함
 
         String comments;
 

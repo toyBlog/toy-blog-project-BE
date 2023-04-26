@@ -1,7 +1,6 @@
 package com.toy.blog.api.service;
 
 import com.toy.blog.api.model.request.ArticleRequest;
-import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.entity.Comment;
 import com.toy.blog.domain.repository.ArticleRepository;
@@ -10,15 +9,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -207,7 +202,7 @@ public class ArticleServiceTest {
         Long commentId = 4L;
 
         articleService.removeComment(articleId, commentId);
-        Article article = articleRepository.findArticleWithCommentsById(articleId).get();
+        Article article = articleRepository.findByIdWithComment(articleId,0,5).get();
 
         Assertions.assertEquals(1, article.getCommentList().size());
 

@@ -1,9 +1,11 @@
 package com.toy.blog.domain.repository.custom.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.entity.Comment;
 import com.toy.blog.domain.repository.custom.ArticleRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 
@@ -39,7 +41,9 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetch();
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ---------------------------------------------------------------------------------------------------------------
+     */
 
     @Override
     public long countFollowArticleList(List<Long> friendIdList) {
@@ -51,13 +55,15 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetchCount();
     }
 
-    /**---------------------------------------------------------------------------------------------------------------*/
+    /**
+     * ---------------------------------------------------------------------------------------------------------------
+     */
 
     public List<Article> findByTitleOrContent(String keyword, Integer page, Integer size) {
 
         return queryFactory.select(article)
                 .from(article)
-                .where(searchCond(keyword) , article.status.eq(ACTIVE))
+                .where(searchCond(keyword), article.status.eq(ACTIVE))
                 .offset(page)
                 .limit(size)
                 .orderBy(article.createdAt.desc())
@@ -86,21 +92,30 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetchCount();
     }
 
+    @Override
+    public Optional<Article> findByIdWithComment(Long id, Integer page, Integer size) {
+
+        JPQLQuery<Article> query = queryFactory.selectFrom(article)
+                .leftJoin(article.commentList, comment)
+                .where(article.id.eq(id).and(article.status.eq(ACTIVE)).and(comment.status.eq(Status.Comments.ACTIVE)));
+
+        Article result = query.fetchOne();
+        if (result != null) {
+            JPQLQuery<Comment> commentQuery = queryFactory.selectFrom(comment)
+                    .where(comment.article.eq(result).and(comment.status.eq(Status.Comments.ACTIVE)))
+                    .orderBy(comment.createdAt.desc())
+                    .offset(page)
+                    .limit(size);
+            result.setCommentList(commentQuery.fetch());
+        }
+
+        return Optional.ofNullable(result);
+    }
 
 
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
 
-    @Override
-    public Optional<Article> findArticleWithCommentsById(Long id) {
-        return Optional.ofNullable(queryFactory.select(article)
-                .from(article)
-                .join(article.commentList, comment)
-                .fetchJoin()
-                .where(article.id.eq(id)
-                        .and(article.status.eq(ACTIVE))
-                        .and(comment.status.eq(Status.Comments.ACTIVE)))
-                .fetchOne());
-    }
+
 }

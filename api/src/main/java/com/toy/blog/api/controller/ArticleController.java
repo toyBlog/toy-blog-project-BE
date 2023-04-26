@@ -23,7 +23,6 @@ public class ArticleController {
 
     /**
      * [API. ] : 글 작성
-     * Todo: 이미지 업로드 추가(박수빈)
      */
 
     @PostMapping("")
@@ -66,11 +65,11 @@ public class ArticleController {
      * [API. ] : 글 단건 조회
      */
     @GetMapping("/{id}")
-    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id) {
+    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id,ArticleRequest.Inventory request) {
 
         return Response.<ArticleResponse.Detail>builder()
                 .code(HttpStatus.OK.value())
-                .data(articleService.getArticle(id))
+                .data(articleService.getArticle(id,request.getPage(),request.getSize()))
                 .build();
     }
 
