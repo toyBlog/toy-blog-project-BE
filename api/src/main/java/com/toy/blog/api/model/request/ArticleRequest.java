@@ -17,6 +17,7 @@ import javax.validation.constraints.Size;
 @UtilityClass
 public class ArticleRequest {
 
+
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -24,20 +25,15 @@ public class ArticleRequest {
 
         Integer page = 0;
 
-        Integer size = 5;
+        Integer size = 20;
     }
 
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Search extends Inventory{
-        @Size(min = 2, max = 20)
-        String title;
+    public static class Search extends Inventory {
 
-        @Size(min = 2, max = 200)
-        String content;
-
-        String writer;
+        String keyword;
     }
 
     @Getter
@@ -45,39 +41,32 @@ public class ArticleRequest {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Register {
 
-        @NotNull
+        @NotNull(message = "제목은 필수입니다.")
         @Size(min = 2, max = 20)
         String title;
 
-        @NotNull
+        @NotNull(message = "본문 내용은 필수입니다.")
         @Size(min = 2, max = 200)
         String content;
 
-        public Article toEntity(Long userId) {
-            return Article.builder()
-                    .title(title)
-                    .content(content)
-                    .user(User.builder().id(userId).build())
-                    .viewCount(0)
-                    .likedCount(0)
-                    .status(Status.Article.ACTIVE)
-                    .build();
-        }
+        @Size(max = 5, message = "사진은 최대 5장 까지 등록 가능합니다.")
+        private List<MultipartFile> imageList = new ArrayList<>();
     }
 
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Login {
+    public static class Edit {
 
-        @NotNull
-        @Size(max = 50)
-        @Pattern(regexp = CommonConstant.RegExp.EMAIL)
-        String email;
+        @NotNull(message = "제목은 필수입니다.")
+        @Size(min = 2, max = 20)
+        String title;
 
-        @NotNull
-        @Size(max = 255)
-        String password;
+        @NotNull(message = "본문 내용은 필수입니다.")
+        @Size(min = 2, max = 200)
+        String content;
+
+        @Size(max = 5, message = "사진은 최대 5장 까지 등록 가능합니다.")
+        private List<MultipartFile> imageList = new ArrayList<>();
     }
-
 }

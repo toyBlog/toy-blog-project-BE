@@ -10,3 +10,4 @@ public interface UserFriendRepositoryCustom {
 
     List<UserFriend> findFollowingList(Long friendId);
 }
+

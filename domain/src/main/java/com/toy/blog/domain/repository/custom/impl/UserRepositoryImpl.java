@@ -32,7 +32,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     }
 
     @Override
-    public long findUserListCount(List<Long> userIdList) {
+    public long countUserList(List<Long> userIdList) {
 
         return queryFactory.select(user)
                            .from(user)

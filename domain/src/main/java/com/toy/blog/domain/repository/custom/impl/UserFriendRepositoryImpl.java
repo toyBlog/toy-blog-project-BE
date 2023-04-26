@@ -22,19 +22,19 @@ public class UserFriendRepositoryImpl implements UserFriendRepositoryCustom {
     public List<UserFriend> findFollowList(Long userId) {
 
         return queryFactory.select(userFriend)
-                           .from(userFriend)
-                           .where(userFriend.status.eq(Status.UserFriend.FOLLOW) , userFriend.user.id.eq(userId))
-                           .orderBy(userFriend.createdAt.desc())
-                           .fetch();
+                .from(userFriend)
+                .where(userFriend.status.eq(Status.UserFriend.FOLLOW) , userFriend.user.id.eq(userId))
+                .orderBy(userFriend.createdAt.desc())
+                .fetch();
     }
 
     @Override
     public List<UserFriend> findFollowingList(Long friendId) {
 
         return queryFactory.select(userFriend)
-                           .from(userFriend)
-                           .where(userFriend.status.eq(Status.UserFriend.FOLLOW) , userFriend.friendId.eq(friendId))
-                           .orderBy(userFriend.createdAt.desc())
-                           .fetch();
+                .from(userFriend)
+                .where(userFriend.status.eq(Status.UserFriend.FOLLOW) , userFriend.friendId.eq(friendId))
+                .orderBy(userFriend.createdAt.desc())
+                .fetch();
     }
 }

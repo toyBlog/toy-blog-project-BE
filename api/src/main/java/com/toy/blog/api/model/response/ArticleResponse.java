@@ -36,12 +36,28 @@ public class ArticleResponse {
 
         Integer viewCount;
 
-        boolean isLiked;
+        Boolean isLiked;
 
-        Integer likedCount;
+        Long likedCount;
 
         ZonedDateTime createdAt;
     }
+
+    @Getter
+    @Setter
+    @Builder
+    public static class BaseResponse {
+
+        Long id;
+
+        public static BaseResponse of(Long id) {
+
+            return BaseResponse.builder()
+                    .id(id)
+                    .build();
+        }
+    }
+
 
     @Getter
     @Setter
@@ -50,11 +66,7 @@ public class ArticleResponse {
 
         List<String> urlList;
 
-        public static Detail of(Article article) {
-
-            List<String> urlList = article.getArticleImageList().stream()
-                    .map(ai -> BASE_URL + File.separator + ai.getPath())
-                    .collect(Collectors.toList());
+        public static Detail of(Article article, Boolean isLiked, long likedCount) {
 
             return Detail.builder()
                     .id(article.getId())
@@ -62,8 +74,22 @@ public class ArticleResponse {
                     .content(article.getContent())
                     .writer(article.getUser().getNickname())
                     .viewCount(article.getViewCount())
-                    .likedCount(article.getLikedCount())
-                    .urlList(CollectionUtils.isEmpty(article.getArticleImageList()) ? new ArrayList<>() : urlList)
+                    .isLiked(isLiked)
+                    .likedCount(likedCount)
+                    .build();
+        }
+
+        public static Detail of(Article article, Boolean isLiked, long likedCount, List<String> urlList) {
+
+            return Detail.builder()
+                    .id(article.getId())
+                    .title(article.getTitle())
+                    .content(article.getContent())
+                    .writer(article.getUser().getNickname())
+                    .viewCount(article.getViewCount())
+                    .isLiked(isLiked)
+                    .likedCount(likedCount)
+                    .urlList(urlList)
                     .build();
         }
 
@@ -74,28 +100,30 @@ public class ArticleResponse {
     @SuperBuilder
     public static class Summary extends ArticleBase {
 
-        String url;
-
-        public static Summary of(Article article) {
+        public static Summary of(Article article, Boolean isLiked, long likedCount) {
 
             return Summary.builder()
                     .id(article.getId())
                     .title(article.getTitle())
-                    .content(article.getContent().length() >= 100 ? article.getContent().substring(0, 100) : article.getContent())
+                    .content(article.getContent())
                     .writer(article.getUser().getNickname())
                     .viewCount(article.getViewCount())
-                    .likedCount(article.getLikedCount())
+                    .isLiked(isLiked)
+                    .likedCount(likedCount)
                     .createdAt(article.getCreatedAt())
-                    .url(CollectionUtils.isEmpty(article.getArticleImageList()) ? "" : BASE_URL + File.separator + article.getArticleImageList().get(0).getPath())
                     .build();
 
         }
 
-        public static List<Summary> of(List<Article> articleList) {
+        public static List<Summary> of(List<Article> articleList, List<Boolean> isLikedList, List<Long> likedCountList) {
 
-            return articleList.stream()
-                    .map(Summary::of)
-                    .collect(Collectors.toList());
+            List<Summary> summaryList = new ArrayList<>();
+
+            for (int i = 0; i < articleList.size(); i++) {
+                summaryList.add(Summary.of(articleList.get(i), isLikedList.get(i), likedCountList.get(i)));
+            }
+
+            return summaryList;
         }
     }
 
@@ -104,15 +132,16 @@ public class ArticleResponse {
     @Builder
     public static class Search {
 
-        List<ArticleResponse.Summary> articleSummaryList;
+        List<ArticleResponse.Summary> articleSummaryList = new ArrayList<>();
         long totalCount;
 
-        public static Search of(List<ArticleResponse.Summary> articleSummaryList, long totalCount) {
+        public static Search of(List<ArticleResponse.Summary> articleSummaryList , long totalCount) {
             return Search.builder()
                     .articleSummaryList(articleSummaryList)
                     .totalCount(totalCount)
                     .build();
         }
     }
+
 
 }

@@ -1,6 +1,5 @@
 package com.toy.blog.api.service;
 
-import com.toy.blog.api.exception.article.AccessDeniedException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.exception.user_friend.BlockedUserFriendException;
 import com.toy.blog.api.exception.user_friend.SameIdUserFriendException;
@@ -14,8 +13,6 @@ import com.toy.blog.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static com.toy.blog.domain.common.Status.User.ACTIVE;
 import static com.toy.blog.domain.common.Status.UserFriend.*;
@@ -35,16 +32,11 @@ public class UserFriendService {
      *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
      * */
     @Transactional
-    public UserFriendResponse.Info followFriend(Long friendId) {
+    public UserFriendResponse.Info follow(Long friendId) {
 
         //1. ACTIVE 한 User를 조회
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        User user = getUser(userId, Status.User.ACTIVE);
 
         //1_2. userId와 friendId가 같으면 예외
         if (userId.equals(friendId)) {
@@ -98,16 +90,11 @@ public class UserFriendService {
      *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
      * */
     @Transactional
-    public UserFriendResponse.Info blockFriend(Long friendId) {
+    public UserFriendResponse.Info block(Long friendId) {
 
         //1. ACTIVE 한 User와 Friend를 조회
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        User user   = getUser(userId, ACTIVE);
         User friend = getUser(friendId, ACTIVE);
 
         //1_2. userId와 friendId가 같으면 예외
