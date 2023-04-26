@@ -54,7 +54,7 @@ public class ArticleController {
     /**
      * [API. ] : 글 삭제
      */
-    @PostMapping("/{id}")
+    @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public Response<Void> removeArticle(@PathVariable Long id) {
         articleService.remove(id);
