@@ -11,8 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/articles")
@@ -79,7 +77,7 @@ public class ArticleController {
      * [API. ] : 게시글 목록 조회
      */
     @GetMapping("")
-    public Response<ArticleResponse.Search> getArticles(@ModelAttribute ArticleRequest.Inventory request) {
+    public Response<ArticleResponse.Search> getArticleList(@ModelAttribute ArticleRequest.Inventory request) {
         return Response.<ArticleResponse.Search>builder()
                 .code(HttpStatus.OK.value())
                 .data(articleService.getArticleList("", request.getPage(), request.getSize()))

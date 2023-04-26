@@ -76,13 +76,13 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
     public List<Article> findArticleListByUserId(Long userId, Pageable pageable) {
 
         return queryFactory.select(article)
-                    .from(liked)
-                    .join(liked.article, article)
-                    .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
-                    .offset(pageable.getOffset())
-                    .limit(pageable.getPageSize())
-                    .orderBy(liked.createdAt.desc())
-                    .fetch();
+                .from(liked)
+                .join(liked.article, article)
+                .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(liked.createdAt.desc())
+                .fetch();
     }
 
 
@@ -95,10 +95,10 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
     @Override
     public long countArticleListByUserId(Long userId) {
 
-       return queryFactory.select(article)
-                          .from(liked)
-                          .join(liked.article, article)
-                          .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
-                          .fetchCount();
+        return queryFactory.select(article)
+                .from(liked)
+                .join(liked.article, article)
+                .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
+                .fetchCount();
     }
 }

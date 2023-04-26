@@ -26,7 +26,7 @@ public class UserFriendController {
 
         return Response.<UserFriendResponse.Info>builder()
                 .code(HttpStatus.OK.value())
-                .data(userFriendService.followFriend(request.getFriendId()))
+                .data(userFriendService.follow(request.getFriendId()))
                 .build();
     }
 
@@ -39,7 +39,7 @@ public class UserFriendController {
 
         return Response.<UserFriendResponse.Info>builder()
                 .code(HttpStatus.OK.value())
-                .data(userFriendService.blockFriend(request.getFriendId()))
+                .data(userFriendService.block(request.getFriendId()))
                 .build();
         }
 }
