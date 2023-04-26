@@ -1,5 +1,6 @@
 package com.toy.blog.api.model.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.toy.blog.domain.entity.Article;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,6 +41,7 @@ public class ArticleResponse {
 
         Long likedCount;
 
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
         ZonedDateTime createdAt;
     }
 
@@ -76,6 +78,8 @@ public class ArticleResponse {
                     .viewCount(article.getViewCount())
                     .isLiked(isLiked)
                     .likedCount(likedCount)
+                    .createdAt(article.getCreatedAt())
+                    .urlList(new ArrayList<>())
                     .build();
         }
 
@@ -89,6 +93,7 @@ public class ArticleResponse {
                     .viewCount(article.getViewCount())
                     .isLiked(isLiked)
                     .likedCount(likedCount)
+                    .createdAt(article.getCreatedAt())
                     .urlList(urlList)
                     .build();
         }
