@@ -6,9 +6,6 @@ import com.toy.blog.api.exception.article.NoRemovePermissionException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
 import com.toy.blog.api.exception.file.NotImageFileException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
-
-import com.toy.blog.api.model.request.ArticleRequest;
-
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.service.file.FileServiceUtil;
 import com.toy.blog.auth.service.LoginService;
@@ -16,7 +13,6 @@ import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.*;
 import com.toy.blog.domain.repository.ArticleImageRepository;
 import com.toy.blog.domain.repository.ArticleRepository;
-
 import com.toy.blog.domain.repository.LikedRepository;
 import com.toy.blog.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.Objects;
 import java.util.stream.Collectors;
 

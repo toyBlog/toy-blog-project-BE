@@ -2,15 +2,12 @@ package com.toy.blog.domain.repository.custom.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.entity.QArticle;
 import com.toy.blog.domain.repository.custom.ArticleRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
 import java.util.List;
-import java.util.Optional;
 
 import static com.toy.blog.domain.common.Status.Article.ACTIVE;
 import static com.toy.blog.domain.entity.QArticle.article;
