@@ -109,7 +109,7 @@ public class ArticleService {
             throw new AccessDeniedException();
         }
 
-        //0_2. 넘어온 파일이 모두 이미지 파일인지 확인
+        //0_2. 넘어온 파일이 모두 이미지 파일인지 확인 -> 이미지 파일이 아닌게 하나라도 있는지 확인
         if (fileServiceUtil.hasNonImageExt(imageList)) {
             throw new NotImageFileException();
         }
@@ -213,9 +213,7 @@ public class ArticleService {
             isLiked = likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE);
         }
 
-        //1_3. 조회수 증가 로직
-
-        //1_4. 좋아요 수 조회
+        //1_3. 좋아요 수 조회
         long likedCount = likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE);
 
         //2_1. 조회한 그 Article과 연관된 ACTIVE 한 ArticleImage가 하나도 없으면 -> 그대로 응답리턴
@@ -369,7 +367,7 @@ public class ArticleService {
         //2_2. 이 회원 이 좋아요 한 articleList의 개수 조회
         long totalCount = likedRepository.countArticleListByUserId(userId);
 
-        //2_3. 각 article별로 좋아요 여부 조회 (당연히 true 이긴 할테지만)
+        //2_3. 각 article별로 좋아요 여부 조회 (당연히 true 이긴 할테지만 - 확실하게 하기 위해)
         User finalUser = user;
         List<Boolean> isLikedList = articleList.stream()
                 .map(article -> likedRepository.existsByUserAndAndArticleAndStatus(finalUser, article, Status.Like.ACTIVE))

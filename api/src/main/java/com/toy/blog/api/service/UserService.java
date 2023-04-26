@@ -107,7 +107,7 @@ public class UserService {
         return UserResponse.Search.of(UserResponse.SummaryInfo.of(userList), totalCount);
     }
 
-
+    @Transactional
     public void join(UserRequest.Join request) {
         userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
             throw new AlreadyExistUserException();
@@ -116,6 +116,7 @@ public class UserService {
         userRepository.save(request.toEntity());
     }
 
+    @Transactional
     public TokenResponseDto login(UserRequest.Login request) {
         User user = userRepository.findByEmail(request.getEmail()).orElseThrow(NotFoundUserException::new);
         if (!request.getPassword().equals(user.getPassword())) {
