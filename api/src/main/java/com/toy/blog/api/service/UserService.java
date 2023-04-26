@@ -1,7 +1,6 @@
 package com.toy.blog.api.service;
 
 
-import com.toy.blog.api.exception.article.AccessDeniedException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.exception.user_friend.NotFoundUserFriend;
 import com.toy.blog.api.model.response.UserResponse;
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.toy.blog.domain.common.Status.User.ACTIVE;
@@ -45,12 +43,7 @@ public class UserService {
 
         //1. ACTIVE 한 User 조회
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        User user = getUser(userId, Status.User.ACTIVE);
 
         //2_1. 이 User가 Follow 하는 User들의 IdList 조회
         List<UserFriend> followList = userFriendRepository.findFollowList(userId);
@@ -88,10 +81,6 @@ public class UserService {
         return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
     }
 
-    private User createDummyUser() {
-        return User.builder().build();
-    }
-
     /** --------------------------------------------------------------------------------------------------------------*/
 
     /**
@@ -102,11 +91,6 @@ public class UserService {
         //1. 요청을 보낸 User가 ACTIVE한 user인지 판별
         Long userId = loginService.getLoginUserId();
 
-        //인증 검사
-        if (Optional.ofNullable(userId).isEmpty()) {
-            throw new AccessDeniedException();
-        }
-
         //인가 검사
         if (!userRepository.existsByIdAndStatus(userId, ACTIVE)) {
             throw new NotFoundUserFriend();
@@ -116,7 +100,7 @@ public class UserService {
         List<User> userList = userRepository.findUserList(userIdList, pageable);
 
         //2_2. totalCount 조회
-        long totalCount = userRepository.findUserListCount(userIdList);
+        long totalCount = userRepository.countUserList(userIdList);
 
 
         //3. 응답값 리턴

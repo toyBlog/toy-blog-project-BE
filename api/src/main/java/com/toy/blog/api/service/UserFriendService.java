@@ -39,12 +39,7 @@ public class UserFriendService {
 
         //1. ACTIVE 한 User를 조회
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        User user = getUser(userId, Status.User.ACTIVE);
 
         //1_2. userId와 friendId가 같으면 예외
         if (userId.equals(friendId)) {
@@ -102,12 +97,7 @@ public class UserFriendService {
 
         //1. ACTIVE 한 User와 Friend를 조회
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        User user   = getUser(userId, ACTIVE);
         User friend = getUser(friendId, ACTIVE);
 
         //1_2. userId와 friendId가 같으면 예외
