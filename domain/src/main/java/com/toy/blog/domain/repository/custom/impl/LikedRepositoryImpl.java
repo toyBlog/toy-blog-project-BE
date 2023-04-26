@@ -27,14 +27,6 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
         this.queryFactory = new JPAQueryFactory(em);
     }
 
-    /** --------------------------------------------------------------------------------------------------------------*/
-    public long findByArticleIdCount(Long articleId) {
-
-        return queryFactory.select(liked)
-                           .from(liked)
-                           .where(liked.article.id.eq(articleId) , liked.status.eq(Status.Like.ACTIVE))
-                           .fetchCount();
-    }
 
 
     /** --------------------------------------------------------------------------------------------------------------*/
@@ -101,7 +93,7 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
      * */
 
     @Override
-    public long findArticleListByUserIdCount(Long userId) {
+    public long countArticleListByUserId(Long userId) {
 
        return queryFactory.select(article)
                           .from(liked)

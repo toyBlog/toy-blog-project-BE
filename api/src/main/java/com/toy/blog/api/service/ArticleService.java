@@ -6,7 +6,6 @@ import com.toy.blog.api.exception.article.NoRemovePermissionException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
 import com.toy.blog.api.exception.file.NotImageFileException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
-import com.toy.blog.api.model.request.LikedRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.service.file.FileServiceUtil;
 import com.toy.blog.auth.service.LoginService;
@@ -27,9 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -56,10 +53,6 @@ public class ArticleService {
 
         //0. 글을 등록할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
-        if (Objects.isNull(userId)) {
-            throw new AccessDeniedException();
-        }
-
         User user = getUser(userId, Status.User.ACTIVE);
 
         //0_2. 함께 넘어온 파일이 -> 이미지 파일인지 확인 -> 하나라도 이미지 파일이 아닌게 있으면 예외
@@ -72,7 +65,6 @@ public class ArticleService {
                 .title(title)
                 .content(content)
                 .viewCount(0)
-                .likedCount(0)
                 .user(user)
                 .status(Status.Article.ACTIVE)
                 .build();
@@ -112,15 +104,14 @@ public class ArticleService {
 
         //0_1. 글을 수정할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
+
+        //인가 검증
+        if (!userRepository.existsByIdAndStatus(userId, Status.User.ACTIVE)) {
             throw new AccessDeniedException();
         }
 
         //0_2. 넘어온 파일이 모두 이미지 파일인지 확인
-        if (!fileServiceUtil.isAllImageExt(imageList)) {
+        if (fileServiceUtil.hasNonImageExt(imageList)) {
             throw new NotImageFileException();
         }
 
@@ -177,13 +168,11 @@ public class ArticleService {
 
         //0_1. 글을 수정할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
+
+        // 인가 검증
+        if (!userRepository.existsByIdAndStatus(userId, Status.User.ACTIVE)) {
             throw new AccessDeniedException();
         }
-
 
         //0_2. 글 조회 - 이때 수정하고자 하는 글이 유효한 글인지 확인
         Article article = getArticle(articleId, Status.Article.ACTIVE);
@@ -193,14 +182,12 @@ public class ArticleService {
             throw new NoRemovePermissionException();
         }
 
-
         //1. Article의 상태를 INACTIVE로 변경
         article.changeStatus(Status.Article.INACTIVE);
 
         //2. 이 Article과 연관된 ArticleImage들이 있다면 -> 그 이미지들의 상태를 INACTIVE로 변경
-        article.getArticleImageList().stream()
-                .filter(articleImage -> articleImage.getStatus().equals(Status.ArticleImage.ACTIVE))
-                .forEach(articleImage -> articleImage.changeStatus(Status.ArticleImage.INACTIVE));
+        List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
+        articleImageList.forEach(articleImage -> articleImage.changeStatus(Status.ArticleImage.INACTIVE));
     }
 
 
@@ -212,28 +199,28 @@ public class ArticleService {
      * */
     public ArticleResponse.Detail getArticle(Long articleId) {
 
-        //0. loginUserId 조회
-        Long loginUserId = loginService.getLoginUserId();
+        //0. login 한 userId 조회
+        Long userId = loginService.getLoginUserId();
 
         //1_1. Ariticle 조회
         Article article = articleRepository.findByIdAndStatus(articleId, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
 
         //1_2. 좋아요 여부 조회 (요청을 보낸 사용자가 -> ACTIVE한 로그인 된 사용자라면)
         Boolean isLiked = false;
-        if (Optional.ofNullable(loginUserId).isPresent()) {
-            User user = getUser(loginUserId, Status.User.ACTIVE); //차단된 사용라면 -> 여기서 걸림
+
+        /** 로그인 된 사용자라면 (인증 검증) */
+        if (Objects.nonNull(userId)) {
+            User user = getUser(userId, Status.User.ACTIVE); /** 차단된 사용라면 -> 여기서 걸림 (인가 검증) */
             isLiked = likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE);
         }
 
         //1_3. 조회수 증가 로직
 
         //1_4. 좋아요 수 조회
-        long likedCount = likedRepository.findByArticleIdCount(articleId);
+        long likedCount = likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE);
 
-        //2_1. 조회한 그 Article과 연관된 ArticleImage가 하나도 없으면 -> 그대로 응답리턴
-        List<ArticleImage> articleImageList = article.getArticleImageList().stream()
-                .filter(articleImage -> articleImage.getStatus().equals(Status.ArticleImage.ACTIVE))
-                .collect(Collectors.toList());
+        //2_1. 조회한 그 Article과 연관된 ACTIVE 한 ArticleImage가 하나도 없으면 -> 그대로 응답리턴
+        List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
 
         if (CollectionUtils.isEmpty(articleImageList)) {
             return ArticleResponse.Detail.of(article, isLiked, likedCount);
@@ -255,23 +242,24 @@ public class ArticleService {
     public ArticleResponse.Search getArticleList(String keyword, Integer page, Integer size) {
 
         //0. 로그인 한 User의 Id 가져옴
-        Long loginUserId = loginService.getLoginUserId();
+        Long userId = loginService.getLoginUserId();
 
         //1_1. 넘어온 값에 따른 ArticleList 조회
         /** 혹시나 null이 들어오는 경우 대비*/
-        if (Optional.ofNullable(keyword).isEmpty()) {
+        if (Objects.isNull(keyword)) {
             keyword = "";
         }
+
         List<Article> articleList = articleRepository.findByTitleOrContent(keyword, page, size);
 
         //1_2. totalCount 조회
-        long totalCount = articleRepository.findByTitleOrContentCount(keyword);
+        long totalCount = articleRepository.countByTitleOrContent(keyword);
 
         //1_3. 각 Article별로 로그인 한 그 User가 이 Article에 대해 좋아요를 눌렀는지의 여부를 가져옴 (ACTIVE 한 User가 로그인 한 경우에 한함)
         List<Boolean> isLikedList = new ArrayList<>();
 
-        if (Optional.ofNullable(loginUserId).isPresent()) {
-            User user = getUser(loginUserId, Status.User.ACTIVE);
+        if (Objects.nonNull(userId)) {
+            User user = getUser(userId, Status.User.ACTIVE);
             isLikedList = articleList.stream()
                                      .map(article -> likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE))
                                      .collect(Collectors.toList());
@@ -283,7 +271,7 @@ public class ArticleService {
 
         //1_4. 각 Article 별로 좋아요 개수를 가져옴
         List<Long> likedCountList = articleList.stream()
-                .map(article -> likedRepository.findByArticleIdCount(article.getId()))
+                .map(article -> likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE))
                 .collect(Collectors.toList());
 
 
@@ -299,26 +287,21 @@ public class ArticleService {
     public ArticleResponse.Search  getFollowArticleList(Pageable pageable) {
 
         //1.로그인 한 ACTIVE 한 user 조회
-        Long loginUserId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(loginUserId).isPresent()) {
-            user = getUser(loginUserId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        Long userId = loginService.getLoginUserId();
+        User user = getUser(userId, Status.User.ACTIVE);
 
         //2_1. 그 user가 follow 한 friendIdList 조회 후
         List<Long> friendIdList = user.getUserFriendList().stream()
-                .filter(userFriend -> userFriend.getStatus().equals(Status.UserFriend.FOLLOW))
-                .map(UserFriend::getFriendId)
-                .collect(Collectors.toList());
+                                      .filter(userFriend -> userFriend.getStatus().equals(Status.UserFriend.FOLLOW))
+                                      .map(UserFriend::getFriendId)
+                                      .collect(Collectors.toList());
 
 
         //2_2 in절을 사용하여 하여 그 friend들이 쓴 articleList 조회
         List<Article> articleList = articleRepository.findFollowArticleList(friendIdList, pageable);
 
         //2_3. 총 articleList의 개수 조회
-        long totalCount = articleRepository.findFollowArticleListCount(friendIdList);
+        long totalCount = articleRepository.countFollowArticleList(friendIdList);
 
         //2_4. articleList의 각 Article 별로 -> 좋아요 여부 조회
         User finalUser = user;
@@ -328,17 +311,13 @@ public class ArticleService {
 
         //2_5. articleList의 각 Article 별로 -> 좋아요 개수 조회
         List<Long> likedCountList = articleList.stream()
-                .map(article -> likedRepository.findByArticleIdCount(article.getId()))
-                .collect(Collectors.toList());
+                                               .map(article -> likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE))
+                                               .collect(Collectors.toList());
 
 
         //3. 조회한 값 리턴
         return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList, isLikedList, likedCountList), totalCount);
 
-    }
-
-    private User createDummyUser() {
-        return User.builder().build();
     }
 
     /** [(id, status) 를 가지고 User를 조회하는 private Service 로직]*/
@@ -360,12 +339,7 @@ public class ArticleService {
 
         //1. 로그인 한 Active한 사용자인지 판별
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        User user = getUser(userId, Status.User.ACTIVE);
 
         //2. 좋아요를 생성 또는 조회
         Article article = getArticle(articleId, Status.Article.ACTIVE); // 삭제된 게시물에는 좋아요를 할 수 없게 막는 효과도 존재
@@ -388,18 +362,13 @@ public class ArticleService {
 
         //1. 로그인 한 ACTIVE 회원인지 검증 및 조회
         Long userId = loginService.getLoginUserId();
-        User user = createDummyUser();
-        if (Optional.ofNullable(userId).isPresent()) {
-            user = getUser(userId, Status.User.ACTIVE);
-        } else{
-            throw new AccessDeniedException();
-        }
+        User user = getUser(userId, Status.User.ACTIVE);
 
         //2_1. 이 회원이 좋아요 한 articleList 조회
         List<Article> articleList = likedRepository.findArticleListByUserId(userId, pageable);
 
         //2_2. 이 회원 이 좋아요 한 articleList의 개수 조회
-        long totalCount = likedRepository.findArticleListByUserIdCount(userId);
+        long totalCount = likedRepository.countArticleListByUserId(userId);
 
         //2_3. 각 article별로 좋아요 여부 조회 (당연히 true 이긴 할테지만)
         User finalUser = user;
@@ -409,7 +378,7 @@ public class ArticleService {
 
         //2_4. 각 article 별로 좋아요 개수 조회
         List<Long> likedCountList = articleList.stream()
-                .map(article -> likedRepository.findByArticleIdCount(article.getId()))
+                .map(article -> likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE))
                 .collect(Collectors.toList());
 
         //3. 응답 리턴

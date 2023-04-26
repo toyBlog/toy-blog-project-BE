@@ -14,4 +14,6 @@ public interface LikedRepository extends JpaRepository<Liked, Long>, LikedReposi
     boolean existsByUserAndAndArticleAndStatus(User user, Article article, Status.Like status);
 
     Optional<Liked> findByUserAndArticle(User user, Article article);
+
+    long countByArticleAndStatus(Article article, Status.Like status);
 }

@@ -39,7 +39,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     /**---------------------------------------------------------------------------------------------------------------*/
 
     @Override
-    public long findFollowArticleListCount(List<Long> friendIdList) {
+    public long countFollowArticleList(List<Long> friendIdList) {
 
         return queryFactory
                 .select(article)
@@ -75,7 +75,7 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
      */
 
     @Override
-    public long findByTitleOrContentCount(String keyword) {
+    public long countByTitleOrContent(String keyword) {
 
         return queryFactory.select(article)
                            .from(article)

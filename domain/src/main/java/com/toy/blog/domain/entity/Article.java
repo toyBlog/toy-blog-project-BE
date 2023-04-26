@@ -37,10 +37,6 @@ public class Article extends BaseEntity {
     @NotNull
     Integer viewCount;
 
-    @Column(name = "liked_count")
-    @NotNull
-    Integer likedCount;
-
     @Enumerated(EnumType.STRING)
     Status.Article status;
 
