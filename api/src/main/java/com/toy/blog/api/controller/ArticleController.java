@@ -11,12 +11,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/articles")
 public class ArticleController {
 
     private final ArticleService articleService;
+
 
     /**
      * [API. ] : 글 작성
@@ -136,8 +139,4 @@ public class ArticleController {
                 .data(articleService.getLikeArticleList(pageable))
                 .build();
     }
-
-
-
-
 }

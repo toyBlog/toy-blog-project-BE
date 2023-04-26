@@ -38,7 +38,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-configuration-processor")
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
     implementation 'org.apache.commons:commons-collections4:4.4'
-    implementation("com.h2database:h2")
+    implementation "com.h2database:h2"
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'it.ozimov:embedded-redis:0.7.3'
 }
 
 configurations {

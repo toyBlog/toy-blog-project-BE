@@ -20,7 +20,6 @@ import java.util.List;
 @UtilityClass
 public class ArticleRequest {
 
-
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -28,14 +27,14 @@ public class ArticleRequest {
 
         Integer page = 0;
 
-        Integer size = 20;
+        Integer size = 5;
     }
 
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Search extends Inventory{
-
+        @Size(min = 2, max = 20)
         String keyword;
     }
 
@@ -44,45 +43,15 @@ public class ArticleRequest {
     @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class Register {
 
-        @NotNull(message = "제목은 필수입니다.")
+        @NotNull
         @Size(min = 2, max = 20)
         String title;
 
-        @NotNull(message = "본문 내용은 필수입니다.")
+        @NotNull
         @Size(min = 2, max = 200)
         String content;
 
-        @Size(max = 5, message = "사진은 최대 5장 까지 등록 가능합니다.")
-        private List<MultipartFile> imageList = new ArrayList<>();
-
-        public Article toEntity(Long userId) {
-            return Article.builder()
-                    .title(title)
-                    .content(content)
-                    .user(User.builder().id(userId).build())
-                    .viewCount(0)
-                    .likedCount(0)
-                    .status(Status.Article.ACTIVE)
-                    .build();
-        }
-    }
-
-    @Getter
-    @Setter
-    @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Edit {
-
-        @NotNull(message = "제목은 필수입니다.")
-        @Size(min = 2, max = 20)
-        String title;
-
-        @NotNull(message = "본문 내용은 필수입니다.")
-        @Size(min = 2, max = 200)
-        String content;
-
-        @Size(max = 5, message = "사진은 최대 5장 까지 등록 가능합니다.")
-        private List<MultipartFile> imageList = new ArrayList<>();
-
+        List<MultipartFile> imageList = new ArrayList<>();
     }
 
     @Getter

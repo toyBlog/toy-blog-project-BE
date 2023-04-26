@@ -40,7 +40,7 @@ class ArticleServiceTest {
     @Test
     @DisplayName("게시글 목록 조회")
     public void getArticlesTest() {
-        ArticleRequest.Inventory search = new ArticleRequest.Inventory();
+        ArticleRequest.Search search = new ArticleRequest.Search();
 //        articleService.getArticles(search);
         List<Article> list = articleRepository.findByTitleOrContent("" ,search.getPage(), search.getSize());
 

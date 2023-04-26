@@ -1,11 +1,13 @@
 package com.toy.blog.api.service;
 
 import com.toy.blog.api.exception.article.AccessDeniedException;
-import com.toy.blog.api.exception.article.NoEditPermissionException;
-import com.toy.blog.api.exception.article.NoRemovePermissionException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
 import com.toy.blog.api.exception.file.NotImageFileException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
+<<<<<<< HEAD
+=======
+import com.toy.blog.api.model.request.ArticleRequest;
+
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.service.file.FileServiceUtil;
 import com.toy.blog.auth.service.LoginService;
@@ -23,8 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
+
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -384,4 +386,6 @@ public class ArticleService {
         //3. 응답 리턴
         return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList, isLikedList, likedCountList), totalCount);
     }
+=======
+>>>>>>> 8c064ad24a93639299452f8b9268c23978a8290b
 }
