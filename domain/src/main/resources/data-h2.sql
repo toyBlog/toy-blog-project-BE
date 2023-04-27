@@ -1,9 +1,9 @@
-INSERT INTO "user" ("user_id", "email", "password", "nickname", "created_at", "updated_at", "status")
-VALUES (1, 'a@naver.com', '1234', '김유성', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE'),
-       (2, 'b@naver.com', '1234', '김용준', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE'),
-       (3, 'c@naver.com', '1234', '박수빈', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE'),
-       (4, 'd@naver.com', '1234', '홍길동', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE'),
-       (5, 'e@naver.com', '1234', '아무개', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE');
+INSERT INTO "user" ("user_id", "email", "password", "nickname", "created_at", "updated_at", "status", "authority")
+VALUES (1, 'a@naver.com', '1234', '김유성', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE', 'ROLE_USER'),
+       (2, 'b@naver.com', '1234', '김용준', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE', 'ROLE_USER'),
+       (3, 'c@naver.com', '1234', '박수빈', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE', 'ROLE_USER'),
+       (4, 'd@naver.com', '1234', '홍길동', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE', 'ROLE_USER'),
+       (5, 'e@naver.com', '1234', '아무개', '2020-12-31 05:51:47', '2020-12-31 05:52:29', 'ACTIVE', 'ROLE_ADMIN');
 
 INSERT INTO "article" ("title", "content", "view_count", "status", "user_id", "created_at", "updated_at")
 VALUES ('제목1', '내용1', 0, 'ACTIVE', 1, '2020-12-31 05:51:47', '2020-12-31 05:51:47'),

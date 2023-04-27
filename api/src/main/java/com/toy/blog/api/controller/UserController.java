@@ -59,11 +59,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Response<TokenResponseDto> login(@Validated @RequestBody UserRequest.Login request) {
-        return Response.<TokenResponseDto>builder()
-                .code(HttpStatus.OK.value())
-                .data(userService.login(request))
-                .build();
-
+    public TokenResponseDto login(@Validated @RequestBody UserRequest.Login request) {
+        return userService.login(request);
     }
 }
