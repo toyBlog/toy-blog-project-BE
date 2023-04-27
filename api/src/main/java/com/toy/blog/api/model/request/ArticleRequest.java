@@ -3,6 +3,7 @@ package com.toy.blog.api.model.request;
 import com.toy.blog.domain.common.CommonConstant;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
+import com.toy.blog.domain.entity.Comment;
 import com.toy.blog.domain.entity.User;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -71,5 +72,19 @@ public class ArticleRequest {
 
         @Size(max = 5, message = "사진은 최대 5장 까지 등록 가능합니다.")
         private List<MultipartFile> imageList = new ArrayList<>();
+    }
+
+    @Getter
+    @Setter
+    @FieldDefaults(level = AccessLevel.PRIVATE)
+    public static class Comments { //todo: renaming 이름 고민해봐야함
+
+        String comments;
+
+        public Comment toEntity() {
+            return Comment.builder()
+                    .comments(comments)
+                    .build();
+        }
     }
 }

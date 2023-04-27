@@ -1,9 +1,12 @@
 package com.toy.blog.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.toy.blog.domain.common.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,29 +18,33 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class ArticleImage extends BaseEntity {
+public class Comment extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "article_image_id")
     Long id;
 
     @NotNull
-    String path;
+    String comments;
+
+    @Enumerated(EnumType.STRING)
+    Status.Comments status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    User user;
 
     @ManyToOne
     @JoinColumn(name = "article_id")
     @JsonBackReference
     Article article;
 
-    @Enumerated(EnumType.STRING)
-    Status.ArticleImage status;
-
-    /**
-     * [변경 메서드]
-     * */
-    public void changeStatus(Status.ArticleImage status) {
+    public void changeStatus(Status.Comments status) {
         this.status = status;
     }
 
+    public void changeComments(String comments) {
+        this.comments = comments;
+    }
 }
