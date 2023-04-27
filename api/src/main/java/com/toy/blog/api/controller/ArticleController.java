@@ -155,6 +155,20 @@ public class ArticleController {
     }
 
     /**
+     * [API. ] : 댓글 조회
+     */
+
+    @GetMapping("/{id}/comments")
+    public Response<List<ArticleResponse.Comments>> getCommentList(@PathVariable Long id, ArticleRequest.Inventory request) {
+
+        return Response.<List<ArticleResponse.Comments>>builder()
+                .code(HttpStatus.OK.value())
+                .data(articleService.getCommentList(id, request.getPage(), request.getSize()))
+                .build();
+    }
+
+
+    /**
      * [API. ] : 댓글 수정
      */
 

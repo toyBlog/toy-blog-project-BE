@@ -104,7 +104,6 @@ public class ArticleService {
         //0_1. 글을 수정할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
 
-
         //0_2. 넘어온 파일이 모두 이미지 파일인지 확인
         if (fileServiceUtil.hasNonImageExt(imageList)) {
             throw new NotImageFileException();
@@ -370,7 +369,7 @@ public class ArticleService {
     /**
      * 댓글 기능 구현
      * 1. 댓글 작성
-     * 2. 댓글 조회 ( 조회한 게시글 번호에 맞는 댓글 조회 ) -> 게시글 조회 시 같이 조회
+     * 2. 댓글 조회 ( 조회한 게시글 번호에 맞는 댓글 조회 ) -> 게시글 조회 시 같이 조회 -> 후에 게시글 [더보기]를 통해 다시 조회
      * 3. 댓글 수정 ( 댓글을 작성한 유저만 수정 가능 )
      * 4. 댓글 삭제 ( 댓글 또한 Status 를 DELETE 로 변경 후 삭제 )
      */
@@ -385,6 +384,19 @@ public class ArticleService {
         }
 
         commentRepository.save(request.toEntity());
+    }
+
+    public List<ArticleResponse.Comments> getCommentList(Long id, Integer page, Integer size) {
+
+        Boolean isArticle = existsArticle(id);
+
+        if (Boolean.FALSE.equals(isArticle)) {
+            throw new NotFoundArticleException();
+        }
+
+        List<Comment> commentList = commentRepository.findByArticle(id, page, size);
+
+        return ArticleResponse.Comments.of(commentList);
     }
 
 
@@ -439,5 +451,6 @@ public class ArticleService {
 
         return articleRepository.existsById(id);
     }
+
 
 }
