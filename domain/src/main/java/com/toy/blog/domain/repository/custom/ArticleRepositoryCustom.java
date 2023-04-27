@@ -1,7 +1,6 @@
 package com.toy.blog.domain.repository.custom;
 
 import com.toy.blog.domain.entity.Article;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -13,6 +12,8 @@ public interface ArticleRepositoryCustom {
 
     long countFollowArticleList(List<Long> friendIdList);
 
+    boolean existArticleWithStatus(Long id);
+
     /** --------------------------------------------------------------------------------------------------------------*/
 
     List<Article> findByTitleOrContent(String keyword, Integer page, Integer size);
@@ -21,5 +22,7 @@ public interface ArticleRepositoryCustom {
 
     /** --------------------------------------------------------------------------------------------------------------*/
 
-    Optional<Article> findByIdWithComment(Long id,Integer page, Integer size);
+    Optional<Article> findByIdWithStatus(Long id);
+
+
 }

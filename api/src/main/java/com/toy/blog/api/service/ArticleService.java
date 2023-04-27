@@ -191,7 +191,10 @@ public class ArticleService {
         Long userId = loginService.getLoginUserId();
 
         //1_1. Ariticle 조회
-        Article article = articleRepository.findByIdWithComment(articleId, page, size).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findByIdWithStatus(articleId).orElseThrow(NotFoundArticleException::new);
+
+        //1_1_1. 댓글 조회
+        List<Comment> commentList = commentRepository.findByArticleWithStatus(articleId, page, size);
 
         //1_2. 좋아요 여부 조회 (요청을 보낸 사용자가 -> ACTIVE한 로그인 된 사용자라면)
         Boolean isLiked = false;
@@ -210,7 +213,7 @@ public class ArticleService {
         List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
 
         if (CollectionUtils.isEmpty(articleImageList)) {
-            return ArticleResponse.Detail.of(article, isLiked, likedCount);
+            return ArticleResponse.Detail.of(article, isLiked, likedCount, commentList);
         }
 
 
@@ -219,7 +222,7 @@ public class ArticleService {
         List<String> imageUrlList = fileServiceUtil.getImageUrlList(pathList);
 
 
-        return ArticleResponse.Detail.of(article, isLiked, likedCount, imageUrlList);
+        return ArticleResponse.Detail.of(article, isLiked, likedCount, imageUrlList, commentList);
     }
 
     /**---------------------------------------------------------------------------------------------------------------*/
@@ -377,7 +380,7 @@ public class ArticleService {
     @Transactional
     public void registerComment(ArticleRequest.Comments request, Long id) {
 
-        Boolean isArticle = existsArticle(id);
+        boolean isArticle = articleRepository.existArticleWithStatus(id);
 
         if (Boolean.FALSE.equals(isArticle)) {
             throw new NotFoundArticleException();
@@ -388,13 +391,13 @@ public class ArticleService {
 
     public List<ArticleResponse.Comments> getCommentList(Long id, Integer page, Integer size) {
 
-        Boolean isArticle = existsArticle(id);
+        boolean isArticle = articleRepository.existArticleWithStatus(id);
 
         if (Boolean.FALSE.equals(isArticle)) {
             throw new NotFoundArticleException();
         }
 
-        List<Comment> commentList = commentRepository.findByArticle(id, page, size);
+        List<Comment> commentList = commentRepository.findByArticleWithStatus(id, page, size);
 
         return ArticleResponse.Comments.of(commentList);
     }
@@ -403,13 +406,13 @@ public class ArticleService {
     @Transactional
     public void editComment(ArticleRequest.Comments request, Long articleId, Long commentId) {
 
-        Boolean isArticle = existsArticle(articleId);
+        boolean isArticle = articleRepository.existArticleWithStatus(articleId);
 
         if (Boolean.FALSE.equals(isArticle)) {
             throw new NotFoundArticleException();
         }
 
-        Comment comment = commentRepository.findByIdAndStatus(commentId, Status.Comments.ACTIVE)
+        Comment comment = commentRepository.findByIdAndStatus(commentId)
                 .orElseThrow(NotFoundCommentsException::new);
 
         comment.changeComments(request.getComments());
@@ -418,13 +421,13 @@ public class ArticleService {
     @Transactional
     public void removeComment(Long articleId, Long commentId) {
 
-        Boolean isArticle = existsArticle(articleId);
+        boolean isArticle = articleRepository.existArticleWithStatus(articleId);
 
         if (Boolean.FALSE.equals(isArticle)) {
             throw new NotFoundArticleException();
         }
 
-        Comment comment = commentRepository.findByIdAndStatus(commentId, Status.Comments.ACTIVE)
+        Comment comment = commentRepository.findByIdAndStatus(commentId)
                 .orElseThrow(NotFoundCommentsException::new);
 
         comment.changeStatus(Status.Comments.INACTIVE);
@@ -445,11 +448,6 @@ public class ArticleService {
     private Article getArticle(Long id, Status.Article status) {
 
         return articleRepository.findByIdAndStatus(id, status).orElseThrow(NotFoundArticleException::new);
-    }
-
-    private Boolean existsArticle(Long id) {
-
-        return articleRepository.existsById(id);
     }
 
 

@@ -66,9 +66,9 @@ public class ArticleResponse {
 
         List<String> urlList;
 
-        Set<Comment> comments;
+        List<Comment> commentList;
 
-        public static Detail of(Article article, Boolean isLiked, long likedCount) {
+        public static Detail of(Article article, Boolean isLiked, long likedCount, List<Comment> commentList) {
 
             return Detail.builder()
                     .id(article.getId())
@@ -80,10 +80,11 @@ public class ArticleResponse {
                     .likedCount(likedCount)
                     .createdAt(article.getCreatedAt())
                     .urlList(new ArrayList<>())
+                    .commentList(commentList)
                     .build();
         }
 
-        public static Detail of(Article article, Boolean isLiked, long likedCount, List<String> urlList) {
+        public static Detail of(Article article, Boolean isLiked, long likedCount, List<String> urlList, List<Comment> commentList) {
 
             return Detail.builder()
                     .id(article.getId())
@@ -95,6 +96,7 @@ public class ArticleResponse {
                     .likedCount(likedCount)
                     .createdAt(article.getCreatedAt())
                     .urlList(urlList)
+                    .commentList(commentList)
                     .build();
         }
 

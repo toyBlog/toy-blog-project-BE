@@ -7,6 +7,7 @@ import com.toy.blog.domain.repository.custom.CommentRepositoryCustom;
 
 import javax.persistence.EntityManager;
 import java.util.List;
+import java.util.Optional;
 
 import static com.toy.blog.domain.common.Status.Article.ACTIVE;
 import static com.toy.blog.domain.entity.QArticle.article;
@@ -22,7 +23,7 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public List<Comment> findByArticle(Long id, Integer page, Integer size) {
+    public List<Comment> findByArticleWithStatus(Long id, Integer page, Integer size) {
         return queryFactory.select(comment)
                 .from(comment)
                 .join(comment.article, article)
@@ -33,5 +34,14 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
                 .limit(size)
                 .orderBy(article.createdAt.desc())
                 .fetch();
+    }
+
+    @Override
+    public Optional<Comment> findByIdAndStatus(Long id) {
+        return Optional.ofNullable(queryFactory.select(comment)
+                .from(comment)
+                .where(comment.id.eq(id)
+                        .and(comment.status.eq(Status.Comments.ACTIVE)))
+                .fetchOne());
     }
 }

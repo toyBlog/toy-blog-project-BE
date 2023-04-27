@@ -12,6 +12,4 @@ import java.util.Optional;
 public interface CommentRepository extends JpaRepository<Comment, Long>, CommentRepositoryCustom {
 
     List<Comment> findCommentByArticleAndStatus(Article article, Status.Comments status);
-
-    Optional<Comment> findByIdAndStatus(Long id, Status.Comments status);
 }

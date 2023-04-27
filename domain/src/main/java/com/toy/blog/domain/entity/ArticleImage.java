@@ -25,8 +25,8 @@ public class ArticleImage extends BaseEntity {
     @NotNull
     String path;
 
+    @ManyToOne
     @JoinColumn(name = "article_id")
-    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     Article article;
 

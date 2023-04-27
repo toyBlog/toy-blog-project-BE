@@ -1,6 +1,8 @@
 package com.toy.blog.api.service;
 
+import com.toy.blog.api.exception.article.NotFoundArticleException;
 import com.toy.blog.api.model.request.ArticleRequest;
+import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.entity.Comment;
 import com.toy.blog.domain.repository.ArticleRepository;
@@ -14,6 +16,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,8 +55,9 @@ public class ArticleServiceTest {
 //
 //    @Test
 //    @DisplayName("게시글 상세 보기")
+//    @Transactional
 //    public void getArticleTest() {
-//        Article article = articleRepository.findByIdAndStatus(1L, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
+//        Article article = articleRepository.findByIdAndStatus(1L, Status.Article.ACTIVE).get();
 //
 //        log.info("article.getId() : {}", article.getId());
 //        log.info("article.getTitle() : {}", article.getTitle());
@@ -173,7 +178,7 @@ public class ArticleServiceTest {
         request.setComments("게시글 댓글 테스트1");
 
         articleService.registerComment(request, id);
-        Comment comment = commentRepository.findById(8L).get();
+        Comment comment = commentRepository.findById(13L).get();
 
 
         Assertions.assertEquals("게시글 댓글 테스트1", comment.getComments());
@@ -202,9 +207,8 @@ public class ArticleServiceTest {
         Long commentId = 4L;
 
         articleService.removeComment(articleId, commentId);
-        Article article = articleRepository.findByIdWithComment(articleId,0,5).get();
+        List<Comment> commentList = commentRepository.findByArticleWithStatus(articleId, 0, 8);
 
-        Assertions.assertEquals(1, article.getCommentList().size());
-
+        Assertions.assertEquals(6, commentList.size());
     }
 }

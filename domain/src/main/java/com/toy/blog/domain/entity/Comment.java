@@ -1,6 +1,7 @@
 package com.toy.blog.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.toy.blog.domain.common.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,12 +30,12 @@ public class Comment extends BaseEntity{
     @Enumerated(EnumType.STRING)
     Status.Comments status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonBackReference
     User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "article_id")
     @JsonBackReference
     Article article;

@@ -55,6 +55,16 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetchCount();
     }
 
+    @Override
+    public boolean existArticleWithStatus(Long id) {
+         return queryFactory.selectOne()
+                .from(article)
+                .where(article.id.eq(id), article.status.eq(ACTIVE))
+                 .fetchOne() != null;
+
+
+    }
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
@@ -93,23 +103,13 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
     }
 
     @Override
-    public Optional<Article> findByIdWithComment(Long id, Integer page, Integer size) {
+    public Optional<Article> findByIdWithStatus(Long id) {
 
-        JPQLQuery<Article> query = queryFactory.selectFrom(article)
-                .leftJoin(article.commentList, comment)
-                .where(article.id.eq(id).and(article.status.eq(ACTIVE)).and(comment.status.eq(Status.Comments.ACTIVE)));
-
-        Article result = query.fetchOne();
-        if (result != null) {
-            JPQLQuery<Comment> commentQuery = queryFactory.selectFrom(comment)
-                    .where(comment.article.eq(result).and(comment.status.eq(Status.Comments.ACTIVE)))
-                    .orderBy(comment.createdAt.desc())
-                    .offset(page)
-                    .limit(size);
-            result.setCommentList(commentQuery.fetch());
-        }
-
-        return Optional.ofNullable(result);
+        return Optional.ofNullable(queryFactory.select(article)
+                .from(article)
+                .where(article.id.eq(id)
+                        .and(article.status.eq(ACTIVE)))
+                .fetchOne());
     }
 
 

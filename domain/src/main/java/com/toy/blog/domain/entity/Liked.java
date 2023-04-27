@@ -26,12 +26,12 @@ public class Liked extends BaseEntity {
     Status.Like status;
 
     @JoinColumn(name = "user_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JsonBackReference
     User user;
 
     @JoinColumn(name = "article_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JsonBackReference
     Article article;
 

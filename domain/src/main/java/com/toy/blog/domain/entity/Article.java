@@ -1,6 +1,7 @@
 package com.toy.blog.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.toy.blog.domain.common.Status;
 import lombok.*;
@@ -41,19 +42,21 @@ public class Article extends BaseEntity {
     @Enumerated(EnumType.STRING)
     Status.Article status;
 
+    @JsonIgnore
     @JoinColumn(name = "user_id")
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JsonBackReference
     User user;
 
     @OneToMany(mappedBy = "article")
+    @JsonManagedReference
     List<ArticleImage> articleImageList = new ArrayList<>();
 
     @OneToMany(mappedBy = "article")
+    @JsonManagedReference
     List<Liked> likedList = new ArrayList<>();
 
     @OneToMany(mappedBy = "article",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @OrderBy("id desc")
     @JsonManagedReference
     List<Comment> commentList = new ArrayList<>();
 
