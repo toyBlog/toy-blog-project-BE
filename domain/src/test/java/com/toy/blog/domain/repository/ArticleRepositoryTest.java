@@ -3,6 +3,7 @@ package com.toy.blog.domain.repository;
 import com.toy.blog.domain.entity.Article;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,16 @@ public class ArticleRepositoryTest {
         log.info("articleId : {}", article.getTitle());
         assertThat(article.getId()).isEqualTo(1L);
         assertThat(article.getTitle()).isEqualTo("제목1");
+    }
+
+    @Test
+    @DisplayName("게시글 조회 + 댓글 조회")
+    public void findArticleWithCommentByIdTest() {
+        Long articleId = 1L;
+
+        Article article = articleRepository.findByIdWithStatus(articleId).get();
+
+        Assertions.assertEquals(7, article.getCommentList().size());
     }
 
 }

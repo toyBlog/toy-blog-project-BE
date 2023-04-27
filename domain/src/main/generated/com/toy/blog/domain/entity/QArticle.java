@@ -26,14 +26,14 @@ public class QArticle extends EntityPathBase<Article> {
 
     public final ListPath<ArticleImage, QArticleImage> articleImageList = this.<ArticleImage, QArticleImage>createList("articleImageList", ArticleImage.class, QArticleImage.class, PathInits.DIRECT2);
 
+    public final ListPath<Comment, QComment> commentList = this.<Comment, QComment>createList("commentList", Comment.class, QComment.class, PathInits.DIRECT2);
+
     public final StringPath content = createString("content");
 
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> createdAt = _super.createdAt;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
-
-    public final NumberPath<Integer> likedCount = createNumber("likedCount", Integer.class);
 
     public final ListPath<Liked, QLiked> likedList = this.<Liked, QLiked>createList("likedList", Liked.class, QLiked.class, PathInits.DIRECT2);
 

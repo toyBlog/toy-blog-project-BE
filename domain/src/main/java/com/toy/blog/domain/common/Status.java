@@ -28,4 +28,10 @@ public class Status {
         UNFOLLOW,
         BLOCKED
     }
+
+    public enum Comments {
+        ACTIVE,
+        INACTIVE,
+        BLOCKED
+    }
 }

@@ -11,52 +11,55 @@ import com.querydsl.core.types.dsl.PathInits;
 
 
 /**
- * QArticleImage is a Querydsl query type for ArticleImage
+ * QComment is a Querydsl query type for Comment
  */
 @Generated("com.querydsl.codegen.EntitySerializer")
-public class QArticleImage extends EntityPathBase<ArticleImage> {
+public class QComment extends EntityPathBase<Comment> {
 
-    private static final long serialVersionUID = 1047216501L;
+    private static final long serialVersionUID = -801121041L;
 
     private static final PathInits INITS = PathInits.DIRECT2;
 
-    public static final QArticleImage articleImage = new QArticleImage("articleImage");
+    public static final QComment comment = new QComment("comment");
 
     public final QBaseEntity _super = new QBaseEntity(this);
 
     public final QArticle article;
+
+    public final StringPath comments = createString("comments");
 
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> createdAt = _super.createdAt;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final StringPath path = createString("path");
-
-    public final EnumPath<com.toy.blog.domain.common.Status.ArticleImage> status = createEnum("status", com.toy.blog.domain.common.Status.ArticleImage.class);
+    public final EnumPath<com.toy.blog.domain.common.Status.Comments> status = createEnum("status", com.toy.blog.domain.common.Status.Comments.class);
 
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> updatedAt = _super.updatedAt;
 
-    public QArticleImage(String variable) {
-        this(ArticleImage.class, forVariable(variable), INITS);
+    public final QUser user;
+
+    public QComment(String variable) {
+        this(Comment.class, forVariable(variable), INITS);
     }
 
-    public QArticleImage(Path<? extends ArticleImage> path) {
+    public QComment(Path<? extends Comment> path) {
         this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
     }
 
-    public QArticleImage(PathMetadata metadata) {
+    public QComment(PathMetadata metadata) {
         this(metadata, PathInits.getFor(metadata, INITS));
     }
 
-    public QArticleImage(PathMetadata metadata, PathInits inits) {
-        this(ArticleImage.class, metadata, inits);
+    public QComment(PathMetadata metadata, PathInits inits) {
+        this(Comment.class, metadata, inits);
     }
 
-    public QArticleImage(Class<? extends ArticleImage> type, PathMetadata metadata, PathInits inits) {
+    public QComment(Class<? extends Comment> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.article = inits.isInitialized("article") ? new QArticle(forProperty("article"), inits.get("article")) : null;
+        this.user = inits.isInitialized("user") ? new QUser(forProperty("user")) : null;
     }
 
 }

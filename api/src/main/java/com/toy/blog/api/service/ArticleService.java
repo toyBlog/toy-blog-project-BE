@@ -1,21 +1,20 @@
 package com.toy.blog.api.service;
 
-import com.toy.blog.api.exception.article.AccessDeniedException;
+import com.sun.xml.bind.v2.TODO;
 import com.toy.blog.api.exception.article.NoEditPermissionException;
 import com.toy.blog.api.exception.article.NoRemovePermissionException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
+import com.toy.blog.api.exception.article.NotFoundCommentsException;
 import com.toy.blog.api.exception.file.NotImageFileException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
+import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.service.file.FileServiceUtil;
 import com.toy.blog.auth.service.LoginService;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.dto.ArticleSummaryDto;
 import com.toy.blog.domain.entity.*;
-import com.toy.blog.domain.repository.ArticleImageRepository;
-import com.toy.blog.domain.repository.ArticleRepository;
-import com.toy.blog.domain.repository.LikedRepository;
-import com.toy.blog.domain.repository.UserRepository;
+import com.toy.blog.domain.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +41,8 @@ public class ArticleService {
     private final LikedRepository likedRepository;
 
     private final UserRepository userRepository;
+
+    private final CommentRepository commentRepository;
 
     private final FileServiceUtil fileServiceUtil;
 
@@ -86,7 +87,7 @@ public class ArticleService {
         articleImageRepository.saveAll(articleImageList);
 
         //3. 실제 이미지를 저장
-       fileServiceUtil.uploadFileList(pathList, imageList);
+        fileServiceUtil.uploadFileList(pathList, imageList);
 
         //4. 응답값 리턴
         return ArticleResponse.BaseResponse.of(article.getId());
@@ -105,12 +106,7 @@ public class ArticleService {
         //0_1. 글을 수정할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
 
-        //인가 검증
-        if (!userRepository.existsByIdAndStatus(userId, Status.User.ACTIVE)) {
-            throw new AccessDeniedException();
-        }
-
-        //0_2. 넘어온 파일이 모두 이미지 파일인지 확인 -> 이미지 파일이 아닌게 하나라도 있는지 확인
+        //0_2. 넘어온 파일이 모두 이미지 파일인지 확인
         if (fileServiceUtil.hasNonImageExt(imageList)) {
             throw new NotImageFileException();
         }
@@ -151,11 +147,6 @@ public class ArticleService {
         return ArticleResponse.BaseResponse.of(article.getId());
     }
 
-    private Article getArticle(Long id, Status.Article status) {
-
-        return articleRepository.findByIdAndStatus(id, status).orElseThrow(NotFoundArticleException::new);
-    }
-
     /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
@@ -168,11 +159,6 @@ public class ArticleService {
 
         //0_1. 글을 수정할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
-
-        // 인가 검증
-        if (!userRepository.existsByIdAndStatus(userId, Status.User.ACTIVE)) {
-            throw new AccessDeniedException();
-        }
 
         //0_2. 글 조회 - 이때 수정하고자 하는 글이 유효한 글인지 확인
         Article article = getArticle(articleId, Status.Article.ACTIVE);
@@ -188,6 +174,10 @@ public class ArticleService {
         //2. 이 Article과 연관된 ArticleImage들이 있다면 -> 그 이미지들의 상태를 INACTIVE로 변경
         List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
         articleImageList.forEach(articleImage -> articleImage.changeStatus(Status.ArticleImage.INACTIVE));
+
+        //3. 이 Article 과 연관된 Comment 들이 있다면 -> 댓글 상태 INACTIVE 로 변경 todo: 테스트 해봐야함(유성) + findByArticleAndStatus() 로 변경하는게 어떨까요
+        List<Comment> commentList = commentRepository.findCommentByArticleAndStatus(article, Status.Comments.ACTIVE);
+        commentList.forEach(comment -> comment.changeStatus(Status.Comments.INACTIVE));
     }
 
 
@@ -196,14 +186,22 @@ public class ArticleService {
 
     /**
      * 글 단건 조회 서비스
-     * */
-    public ArticleResponse.Detail getArticle(Long articleId) {
+     */
+    public ArticleResponse.Detail getArticle(Long articleId, Integer page, Integer size) {
 
         //0. login 한 userId 조회
         Long userId = loginService.getLoginUserId();
 
+        // TODO: 2023/04/27 [articleRepository.findByIdWithStatus() 네이밍 및 정의] : Spring Data JPA의 findByIdAndStatus()와 동일 기능이므로 , 네이밍도 그 명명 규칙을 따르면서 따로 구현하지 않아도 될 것 같습니다.
+        // TODO : 또한 그렇게 했을 때 Id 값 하고 Status 값을 같이 인자로 넘기는 Spring Data Jpa의 방식을 따르는게 좋을 것 같습니다.
         //1_1. Ariticle 조회
-        Article article = articleRepository.findByIdAndStatus(articleId, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
+        Article article = articleRepository.findByIdWithStatus(articleId).orElseThrow(NotFoundArticleException::new);
+
+        // TODO: 마찬가지로 findByArticleAndStatus() 가 더 적절한 네이밍이 아닌가 생각합니다
+        //  / 또한 내부 where 문 중 article의 ACTIVE 조건이 들어가는거에 대해서 여쭤보고 싶습니다. -
+        //  저는 조건은 ACTIVE를 추가하는게 맞다고 생각하는데 , 이론상 - 196번 호출 후 그 Article이 삭제되면 - 이 댓글이 조회되지 않는 현상이 일어날 수 있다고 생각했기 때문입니다.
+        //1_1_1. 댓글 조회
+        List<Comment> commentList = commentRepository.findByArticleWithStatus(articleId, page, size);
 
         //1_2. 좋아요 여부 조회 (요청을 보낸 사용자가 -> ACTIVE한 로그인 된 사용자라면)
         Boolean isLiked = false;
@@ -214,14 +212,15 @@ public class ArticleService {
             isLiked = likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE);
         }
 
-        //1_3. 좋아요 수 조회
+
+        //1_4. 좋아요 수 조회
         long likedCount = likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE);
 
         //2_1. 조회한 그 Article과 연관된 ACTIVE 한 ArticleImage가 하나도 없으면 -> 그대로 응답리턴
         List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
 
         if (CollectionUtils.isEmpty(articleImageList)) {
-            return ArticleResponse.Detail.of(article, isLiked, likedCount);
+            return ArticleResponse.Detail.of(article, isLiked, likedCount, commentList);
         }
 
 
@@ -229,14 +228,17 @@ public class ArticleService {
         List<String> pathList = articleImageList.stream().map(ArticleImage::getPath).collect(Collectors.toList());
         List<String> imageUrlList = fileServiceUtil.getImageUrlList(pathList);
 
-        return ArticleResponse.Detail.of(article, isLiked, likedCount, imageUrlList);
+
+        //TODO : Comment라는 엔티티를 API에 바로 넘기는건 아닌것 같습니다
+        //TODO : 차라리 articleContent/commentContent , articleWriter/commentWriter 와 같은 형식으로 구분하여 - 넘겨야 할 데이터만 넘기는게 맞다고 생각합니다
+        return ArticleResponse.Detail.of(article, isLiked, likedCount, imageUrlList, commentList);
     }
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
      * 글 목록 조회 + keyword 에 따른 검색 기능 추가 제공
-     * */
+     */
     public ArticleResponse.Search getArticleList(String keyword, Integer page, Integer size) {
 
         //0. 로그인 한 User의 Id 가져옴
@@ -259,9 +261,9 @@ public class ArticleService {
         if (Objects.nonNull(userId)) {
             User user = getUser(userId, Status.User.ACTIVE);
             isLikedList = articleList.stream()
-                                     .map(article -> likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE))
-                                     .collect(Collectors.toList());
-        } else{
+                    .map(article -> likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE))
+                    .collect(Collectors.toList());
+        } else {
             for (int i = 0; i < articleList.size(); i++) {
                 isLikedList.add(false); /** 로그인 하지 않았다면 , 좋아요 여부는 모두 false */
             }
@@ -279,10 +281,9 @@ public class ArticleService {
 
     /**
      * 특정 User가 Follow 한 Friend들이 올린 Article List를 조회 하는 서비스
-     * Todo: 구현(용준님^^)
-     * */
+     */
 
-    public ArticleResponse.Search  getFollowArticleList(Pageable pageable) {
+    public ArticleResponse.Search getFollowArticleList(Pageable pageable) {
 
         //1.로그인 한 ACTIVE 한 user 조회
         Long userId = loginService.getLoginUserId();
@@ -290,9 +291,9 @@ public class ArticleService {
 
         //2_1. 그 user가 follow 한 friendIdList 조회 후
         List<Long> friendIdList = user.getUserFriendList().stream()
-                                      .filter(userFriend -> userFriend.getStatus().equals(Status.UserFriend.FOLLOW))
-                                      .map(UserFriend::getFriendId)
-                                      .collect(Collectors.toList());
+                .filter(userFriend -> userFriend.getStatus().equals(Status.UserFriend.FOLLOW))
+                .map(UserFriend::getFriendId)
+                .collect(Collectors.toList());
 
 
         //2_2 in절을 사용하여 하여 그 friend들이 쓴 articleList 조회
@@ -309,8 +310,8 @@ public class ArticleService {
 
         //2_5. articleList의 각 Article 별로 -> 좋아요 개수 조회
         List<Long> likedCountList = articleList.stream()
-                                               .map(article -> likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE))
-                                               .collect(Collectors.toList());
+                .map(article -> likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE))
+                .collect(Collectors.toList());
 
 
         //3. 조회한 값 리턴
@@ -318,18 +319,12 @@ public class ArticleService {
 
     }
 
-    /** [(id, status) 를 가지고 User를 조회하는 private Service 로직]*/
-    private User getUser(Long userId, Status.User status){
-
-        return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
-    }
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
      * 좋아요 증가/취소
      * 좋아요 테이블 저장/삭제 처리
-     * Todo: 좋아요 수정(박수빈)
      */
 
     @Transactional
@@ -382,4 +377,92 @@ public class ArticleService {
         //3. 응답 리턴
         return ArticleResponse.Search.of(ArticleResponse.Summary.of(articleList, isLikedList, likedCountList), totalCount);
     }
+
+    /**
+     * 댓글 기능 구현
+     * 1. 댓글 작성
+     * 2. 댓글 조회 ( 조회한 게시글 번호에 맞는 댓글 조회 ) -> 게시글 조회 시 같이 조회 -> 후에 게시글 [더보기]를 통해 다시 조회
+     * 3. 댓글 수정 ( 댓글을 작성한 유저만 수정 가능 )
+     * 4. 댓글 삭제 ( 댓글 또한 Status 를 DELETE 로 변경 후 삭제 )
+     */
+
+    @Transactional
+    public void registerComment(ArticleRequest.Comments request, Long id) {
+
+        boolean isArticle = articleRepository.existArticleWithStatus(id);
+
+        // TODO : 이러면 auto boxing 이 일어날 텐데 - 그럼에도 부정 조건을 명시적으로 나타내어 가독성을 올리고자 Boolean.FALSE를 사용하신건지 궁금합니다
+        // TODO : 저는 그냥 if(!articleRepository.existsArticle(id,ACTIVE)) 로 - "ACTIVE한 Article이 존재하지 않는다면" 으로 할 것 같습니다.
+        if (Boolean.FALSE.equals(isArticle)) {
+            throw new NotFoundArticleException();
+        }
+        // TODO : 요청 보낸 user와 해당 id의 Article도 함께 인자로 넣어 Comment를 생성해야 할 것 같습니다.
+        // TODO : 그렇다면 어차피 내부메서드 getArticle() 로 ACTIVE한 Article을 조회하게 되므로 -> 위의 ACTIVE 유효성 검사는 하지 않아도 될 것 같습니다
+        commentRepository.save(request.toEntity());
+    }
+
+    // TODO : totalCount 고려
+    public List<ArticleResponse.Comments> getCommentList(Long id, Integer page, Integer size) {
+
+        boolean isArticle = articleRepository.existArticleWithStatus(id);
+
+        if (Boolean.FALSE.equals(isArticle)) {
+            throw new NotFoundArticleException();
+        }
+
+        List<Comment> commentList = commentRepository.findByArticleWithStatus(id, page, size);
+
+        return ArticleResponse.Comments.of(commentList);
+    }
+
+    //TODO : 수정하려고 하는 User가 이 댓글을 쓴 User와 일치하는지 여부 확인 필요
+    @Transactional
+    public void editComment(ArticleRequest.Comments request, Long articleId, Long commentId) {
+
+        boolean isArticle = articleRepository.existArticleWithStatus(articleId);
+
+        if (Boolean.FALSE.equals(isArticle)) {
+            throw new NotFoundArticleException();
+        }
+        // TODO : status값도 인자로
+        Comment comment = commentRepository.findByIdAndStatus(commentId)
+                .orElseThrow(NotFoundCommentsException::new);
+
+        comment.changeComments(request.getComments());
+    }
+
+    //TODO : 삭제하려고 하는 User가 이 댓글을 쓴 User와 일치하는지 여부 확인 필요
+    @Transactional
+    public void removeComment(Long articleId, Long commentId) {
+
+        boolean isArticle = articleRepository.existArticleWithStatus(articleId);
+
+        if (Boolean.FALSE.equals(isArticle)) {
+            throw new NotFoundArticleException();
+        }
+
+        Comment comment = commentRepository.findByIdAndStatus(commentId)
+                .orElseThrow(NotFoundCommentsException::new);
+
+        comment.changeStatus(Status.Comments.INACTIVE);
+    }
+
+
+    /**---------------------------------------------------------------------------------------------------------------*/
+
+
+    /**
+     * [(id, status) 를 가지고 User를 조회하는 private Service 로직]
+     */
+    private User getUser(Long userId, Status.User status) {
+
+        return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
+    }
+
+    private Article getArticle(Long id, Status.Article status) {
+
+        return articleRepository.findByIdAndStatus(id, status).orElseThrow(NotFoundArticleException::new);
+    }
+
+
 }
