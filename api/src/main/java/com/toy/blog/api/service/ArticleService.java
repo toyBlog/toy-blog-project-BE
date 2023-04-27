@@ -1,9 +1,6 @@
 package com.toy.blog.api.service;
 
-import com.toy.blog.api.exception.article.NoEditPermissionException;
-import com.toy.blog.api.exception.article.NoRemovePermissionException;
-import com.toy.blog.api.exception.article.NotFoundArticleException;
-import com.toy.blog.api.exception.article.NotFoundCommentsException;
+import com.toy.blog.api.exception.article.*;
 import com.toy.blog.api.exception.file.NotImageFileException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.model.request.ArticleRequest;
@@ -104,7 +101,12 @@ public class ArticleService {
         //0_1. 글을 수정할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
 
-        //0_2. 넘어온 파일이 모두 이미지 파일인지 확인
+        //인가 검증
+        if (!userRepository.existsByIdAndStatus(userId, Status.User.ACTIVE)) {
+            throw new AccessDeniedException();
+        }
+
+        //0_2. 넘어온 파일이 모두 이미지 파일인지 확인 -> 이미지 파일이 아닌게 하나라도 있는지 확인
         if (fileServiceUtil.hasNonImageExt(imageList)) {
             throw new NotImageFileException();
         }
@@ -145,6 +147,11 @@ public class ArticleService {
         return ArticleResponse.BaseResponse.of(article.getId());
     }
 
+    private Article getArticle(Long id, Status.Article status) {
+
+        return articleRepository.findByIdAndStatus(id, status).orElseThrow(NotFoundArticleException::new);
+    }
+
     /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
@@ -157,6 +164,11 @@ public class ArticleService {
 
         //0_1. 글을 수정할 수 있는 로그인 한 User인지 확인
         Long userId = loginService.getLoginUserId();
+
+        // 인가 검증
+        if (!userRepository.existsByIdAndStatus(userId, Status.User.ACTIVE)) {
+            throw new AccessDeniedException();
+        }
 
         //0_2. 글 조회 - 이때 수정하고자 하는 글이 유효한 글인지 확인
         Article article = getArticle(articleId, Status.Article.ACTIVE);
@@ -202,9 +214,7 @@ public class ArticleService {
             isLiked = likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE);
         }
 
-        //1_3. 조회수 증가 로직 -> Controller 에서 처리 HTTP request 를 처리해야해서
-
-        //1_4. 좋아요 수 조회
+        //1_3. 좋아요 수 조회
         long likedCount = likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE);
 
         //2_1. 조회한 그 Article과 연관된 ACTIVE 한 ArticleImage가 하나도 없으면 -> 그대로 응답리턴
@@ -308,12 +318,20 @@ public class ArticleService {
 
     }
 
+    /**
+     * [(id, status) 를 가지고 User를 조회하는 private Service 로직]
+     */
+    private User getUser(Long userId, Status.User status) {
+
+        return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
+    }
 
     /**---------------------------------------------------------------------------------------------------------------*/
 
     /**
      * 좋아요 증가/취소
      * 좋아요 테이블 저장/삭제 처리
+     * Todo: 좋아요 수정(박수빈)
      */
 
     @Transactional
@@ -352,7 +370,7 @@ public class ArticleService {
         //2_2. 이 회원 이 좋아요 한 articleList의 개수 조회
         long totalCount = likedRepository.countArticleListByUserId(userId);
 
-        //2_3. 각 article별로 좋아요 여부 조회 (당연히 true 이긴 할테지만)
+        //2_3. 각 article별로 좋아요 여부 조회 (당연히 true 이긴 할테지만 - 확실하게 하기 위해)
         User finalUser = user;
         List<Boolean> isLikedList = articleList.stream()
                 .map(article -> likedRepository.existsByUserAndAndArticleAndStatus(finalUser, article, Status.Like.ACTIVE))
@@ -378,66 +396,39 @@ public class ArticleService {
     @Transactional
     public void registerComment(ArticleRequest.Comments request, Long id) {
 
-        Boolean isArticle = existsArticle(id);
-
-        if (Boolean.FALSE.equals(isArticle)) {
-            throw new NotFoundArticleException();
-        }
+        getArticle(id, Status.Article.ACTIVE);
 
         commentRepository.save(request.toEntity());
     }
 
 
-    @Transactional
     public void editComment(ArticleRequest.Comments request, Long articleId, Long commentId) {
 
-        Boolean isArticle = existsArticle(articleId);
+        getArticle(articleId, Status.Article.ACTIVE);
 
-        if (Boolean.FALSE.equals(isArticle)) {
-            throw new NotFoundArticleException();
-        }
-
-        Comment comment = commentRepository.findByIdAndStatus(commentId, Status.Comments.ACTIVE)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(NotFoundCommentsException::new);
+
+        if (!comment.getStatus().equals(Status.Comments.ACTIVE)) {
+            throw new NotFoundCommentsException();
+        }
 
         comment.changeComments(request.getComments());
     }
 
-    @Transactional
     public void removeComment(Long articleId, Long commentId) {
 
-        Boolean isArticle = existsArticle(articleId);
+        getArticle(articleId, Status.Article.ACTIVE);
 
-        if (Boolean.FALSE.equals(isArticle)) {
-            throw new NotFoundArticleException();
-        }
-
-        Comment comment = commentRepository.findByIdAndStatus(commentId, Status.Comments.ACTIVE)
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(NotFoundCommentsException::new);
+
+        if (!comment.getStatus().equals(Status.Comments.ACTIVE)) {
+            throw new NotFoundCommentsException();
+        }
 
         comment.changeStatus(Status.Comments.INACTIVE);
     }
 
-
-    /**---------------------------------------------------------------------------------------------------------------*/
-
-
-    /**
-     * [(id, status) 를 가지고 User를 조회하는 private Service 로직]
-     */
-    private User getUser(Long userId, Status.User status) {
-
-        return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
-    }
-
-    private Article getArticle(Long id, Status.Article status) {
-
-        return articleRepository.findByIdAndStatus(id, status).orElseThrow(NotFoundArticleException::new);
-    }
-
-    private Boolean existsArticle(Long id) {
-
-        return articleRepository.existsById(id);
-    }
 
 }
