@@ -1,9 +1,7 @@
 package com.toy.blog.api.service;
 
-import com.toy.blog.api.exception.article.NotFoundArticleException;
 import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.domain.common.Status;
-import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.entity.Comment;
 import com.toy.blog.domain.repository.ArticleRepository;
 import com.toy.blog.domain.repository.CommentRepository;
@@ -207,7 +205,7 @@ public class ArticleServiceTest {
         Long commentId = 4L;
 
         articleService.removeComment(articleId, commentId);
-        List<Comment> commentList = commentRepository.findByArticleWithStatus(articleId, 0, 8);
+        List<Comment> commentList = commentRepository.findByArticleAndStatus(articleId, Status.Comments.ACTIVE,0, 8);
 
         Assertions.assertEquals(6, commentList.size());
     }
