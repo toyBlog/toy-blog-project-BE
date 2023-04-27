@@ -4,6 +4,7 @@ import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.model.response.Response;
 import com.toy.blog.api.service.ArticleService;
+import com.toy.blog.domain.dto.ArticleSummaryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
