@@ -1,5 +1,6 @@
 package com.toy.blog.api.service;
 
+import com.sun.xml.bind.v2.TODO;
 import com.toy.blog.api.exception.article.NoEditPermissionException;
 import com.toy.blog.api.exception.article.NoRemovePermissionException;
 import com.toy.blog.api.exception.article.NotFoundArticleException;
@@ -173,7 +174,7 @@ public class ArticleService {
         List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
         articleImageList.forEach(articleImage -> articleImage.changeStatus(Status.ArticleImage.INACTIVE));
 
-        //3. 이 Article 과 연관된 Comment 들이 있다면 -> 댓글 상태 INACTIVE 로 변경 todo: 테스트 해봐야함(유성)
+        //3. 이 Article 과 연관된 Comment 들이 있다면 -> 댓글 상태 INACTIVE 로 변경 todo: 테스트 해봐야함(유성) + findByArticleAndStatus() 로 변경하는게 어떨까요
         List<Comment> commentList = commentRepository.findCommentByArticleAndStatus(article, Status.Comments.ACTIVE);
         commentList.forEach(comment -> comment.changeStatus(Status.Comments.INACTIVE));
     }
@@ -190,9 +191,14 @@ public class ArticleService {
         //0. login 한 userId 조회
         Long userId = loginService.getLoginUserId();
 
+        // TODO: 2023/04/27 [articleRepository.findByIdWithStatus() 네이밍 및 정의] : Spring Data JPA의 findByIdAndStatus()와 동일 기능이므로 , 네이밍도 그 명명 규칙을 따르면서 따로 구현하지 않아도 될 것 같습니다.
+        // TODO : 또한 그렇게 했을 때 Id 값 하고 Status 값을 같이 인자로 넘기는 Spring Data Jpa의 방식을 따르는게 좋을 것 같습니다.
         //1_1. Ariticle 조회
         Article article = articleRepository.findByIdWithStatus(articleId).orElseThrow(NotFoundArticleException::new);
 
+        // TODO: 마찬가지로 findByArticleAndStatus() 가 더 적절한 네이밍이 아닌가 생각합니다
+        //  / 또한 내부 where 문 중 article의 ACTIVE 조건이 들어가는거에 대해서 여쭤보고 싶습니다. -
+        //  저는 조건은 ACTIVE를 추가하는게 맞다고 생각하는데 , 이론상 - 196번 호출 후 그 Article이 삭제되면 - 이 댓글이 조회되지 않는 현상이 일어날 수 있다고 생각했기 때문입니다.
         //1_1_1. 댓글 조회
         List<Comment> commentList = commentRepository.findByArticleWithStatus(articleId, page, size);
 
@@ -222,6 +228,8 @@ public class ArticleService {
         List<String> imageUrlList = fileServiceUtil.getImageUrlList(pathList);
 
 
+        //TODO : Comment라는 엔티티를 API에 바로 넘기는건 아닌것 같습니다
+        //TODO : 차라리 articleContent/commentContent , articleWriter/commentWriter 와 같은 형식으로 구분하여 - 넘겨야 할 데이터만 넘기는게 맞다고 생각합니다
         return ArticleResponse.Detail.of(article, isLiked, likedCount, imageUrlList, commentList);
     }
 
@@ -382,13 +390,17 @@ public class ArticleService {
 
         boolean isArticle = articleRepository.existArticleWithStatus(id);
 
+        // TODO : 이러면 auto boxing 이 일어날 텐데 - 그럼에도 부정 조건을 명시적으로 나타내어 가독성을 올리고자 Boolean.FALSE를 사용하신건지 궁금합니다
+        // TODO : 저는 그냥 if(!articleRepository.existsArticle(id,ACTIVE)) 로 - "ACTIVE한 Article이 존재하지 않는다면" 으로 할 것 같습니다.
         if (Boolean.FALSE.equals(isArticle)) {
             throw new NotFoundArticleException();
         }
-
+        // TODO : 요청 보낸 user와 해당 id의 Article도 함께 인자로 넣어 Comment를 생성해야 할 것 같습니다.
+        // TODO : 그렇다면 어차피 내부메서드 getArticle() 로 ACTIVE한 Article을 조회하게 되므로 -> 위의 ACTIVE 유효성 검사는 하지 않아도 될 것 같습니다
         commentRepository.save(request.toEntity());
     }
 
+    // TODO : totalCount 고려
     public List<ArticleResponse.Comments> getCommentList(Long id, Integer page, Integer size) {
 
         boolean isArticle = articleRepository.existArticleWithStatus(id);
@@ -402,7 +414,7 @@ public class ArticleService {
         return ArticleResponse.Comments.of(commentList);
     }
 
-
+    //TODO : 수정하려고 하는 User가 이 댓글을 쓴 User와 일치하는지 여부 확인 필요
     @Transactional
     public void editComment(ArticleRequest.Comments request, Long articleId, Long commentId) {
 
@@ -411,13 +423,14 @@ public class ArticleService {
         if (Boolean.FALSE.equals(isArticle)) {
             throw new NotFoundArticleException();
         }
-
+        // TODO : status값도 인자로
         Comment comment = commentRepository.findByIdAndStatus(commentId)
                 .orElseThrow(NotFoundCommentsException::new);
 
         comment.changeComments(request.getComments());
     }
 
+    //TODO : 삭제하려고 하는 User가 이 댓글을 쓴 User와 일치하는지 여부 확인 필요
     @Transactional
     public void removeComment(Long articleId, Long commentId) {
 

@@ -11,5 +11,4 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
 
     Optional<Article> findByIdAndStatus(Long id, Status.Article status);
 
-
 }

@@ -88,7 +88,6 @@ public class ArticleController {
 
     /**
      * [API. ] : 글 검색
-     * Todo: 글 검색 구현(박수빈)
      */
 
     @GetMapping("/search")
@@ -102,7 +101,6 @@ public class ArticleController {
 
     /**
      * [API. ] : 팔로우한 친구의 게시글 목록 조회
-     * Todo: 구현(용준님)
      */
 
     @GetMapping("/follower")
