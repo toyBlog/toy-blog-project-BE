@@ -23,13 +23,14 @@ public class CommentRepositoryImpl implements CommentRepositoryCustom {
     }
 
     @Override
-    public List<Comment> findByArticleWithStatus(Long id, Integer page, Integer size) {
+    public List<Comment> findByArticleAndStatus(Long id, Status.Comments status ,Integer page, Integer size) {
         return queryFactory.select(comment)
                 .from(comment)
                 .join(comment.article, article)
                 .fetchJoin()
-                .where(comment.status.eq(Status.Comments.ACTIVE)
-                        .and(comment.article.id.eq(id)))
+                .where(comment.status.eq(status)
+                        .and(comment.article.id.eq(id))
+                        .and(comment.article.status.eq(ACTIVE)))
                 .offset(page)
                 .limit(size)
                 .orderBy(article.createdAt.desc())
