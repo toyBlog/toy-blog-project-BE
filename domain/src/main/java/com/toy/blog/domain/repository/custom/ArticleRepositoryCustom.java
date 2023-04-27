@@ -14,6 +14,7 @@ public interface ArticleRepositoryCustom {
 
     boolean existArticleWithStatus(Long id);
 
+
     /** --------------------------------------------------------------------------------------------------------------*/
 
     List<Article> findByTitleOrContent(String keyword, Integer page, Integer size);

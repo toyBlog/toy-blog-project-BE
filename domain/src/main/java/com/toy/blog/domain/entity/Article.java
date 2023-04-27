@@ -13,6 +13,7 @@ import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
+// Article 단건조회 시 -> 연관된 여러 댓글 조회시 -> Article 속성을 함꼐 가져오게 되는데 - 그 Article에 또 commentList가 있끼 떄문에 순환참조
 @Entity
 @Getter
 @Setter
@@ -44,7 +45,7 @@ public class Article extends BaseEntity {
 
     @JsonIgnore
     @JoinColumn(name = "user_id")
-    @ManyToOne
+    @ManyToOne //TODO : LAZT LOADING 문제 해결 해야함
     @JsonBackReference
     User user;
 
