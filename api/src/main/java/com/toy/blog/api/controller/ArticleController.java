@@ -4,6 +4,7 @@ import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.model.response.Response;
 import com.toy.blog.api.service.ArticleService;
+import com.toy.blog.domain.dto.ArticleSummaryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -88,7 +89,6 @@ public class ArticleController {
 
     /**
      * [API. ] : 글 검색
-     * Todo: 글 검색 구현(박수빈)
      */
 
     @GetMapping("/search")
@@ -102,7 +102,6 @@ public class ArticleController {
 
     /**
      * [API. ] : 팔로우한 친구의 게시글 목록 조회
-     * Todo: 구현(용준님)
      */
 
     @GetMapping("/follower")
