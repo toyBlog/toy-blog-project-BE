@@ -88,7 +88,7 @@ public class TokenProvider {
         return Jwts.builder()
                 .setIssuer("blog")
                 .setSubject(user.getId().toString())
-                //.claim(AUTHORITY_KEY, user.getAuthority())
+                .claim(AUTHORITY_KEY, user.getAuthority())
                 .setExpiration(expDate)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();

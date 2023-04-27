@@ -24,6 +24,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final ListPath<Article, QArticle> articleList = this.<Article, QArticle>createList("articleList", Article.class, QArticle.class, PathInits.DIRECT2);
 
+    public final EnumPath<com.toy.blog.domain.value.Authority> authority = createEnum("authority", com.toy.blog.domain.value.Authority.class);
+
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> createdAt = _super.createdAt;
 
