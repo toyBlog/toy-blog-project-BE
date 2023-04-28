@@ -419,7 +419,7 @@ public class ArticleService {
 
         //1_2. Article의 삭제 여부 확인
         if (!articleRepository.existsByIdAndStatus(articleId, Status.Article.ACTIVE)) {
-            throw new AccessDeniedException();
+            throw new NotFoundArticleException();
         }
 
         //2_1. commentList 조회
@@ -447,7 +447,7 @@ public class ArticleService {
 
         //1_2. 글의 삭제 여부 검증
         if (!articleRepository.existsByIdAndStatus(articleId, Status.Article.ACTIVE)) {
-            throw new AccessDeniedException();
+            throw new NotFoundArticleException();
         }
 
         //1_3. 삭제된 댓글은 아닌지 검증 -> ACTIVE 한 댓글 조회
@@ -473,7 +473,7 @@ public class ArticleService {
 
         //1_2. 글의 삭제 여부 검증
         if (!articleRepository.existsByIdAndStatus(articleId, Status.Article.ACTIVE)) {
-            throw new AccessDeniedException();
+            throw new NotFoundArticleException();
         }
 
         //1_3. 삭제된 댓글은 아닌지 검증 -> ACTIVE 한 댓글 조회
