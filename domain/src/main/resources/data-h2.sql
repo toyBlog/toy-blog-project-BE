@@ -35,7 +35,7 @@ VALUES ('FOLLOW', 3, 4, '2020-12-31 05:51:47', '2020-12-31 05:51:47'),
        ('FOLLOW', 1, 4, '2020-12-31 05:51:47', '2020-12-31 05:51:47'),
        ('FOLLOW', 5, 1, '2020-12-31 05:51:47', '2020-12-31 05:51:47');
 
-INSERT INTO "comment" ("status", "user_id", "article_id", "comments", "created_at", "updated_at")
+INSERT INTO "comment" ("status", "user_id", "article_id", "content", "created_at", "updated_at")
 VALUES ('ACTIVE', 3, 4, '댓글 내용1', '2020-12-31 05:51:47', '2020-12-31 05:51:47'),
        ('ACTIVE', 4, 3, '댓글 내용1', '2020-12-31 05:51:47', '2020-12-31 05:51:47'),
        ('ACTIVE', 1, 2, '댓글 내용1', '2020-12-31 05:51:47', '2020-12-31 05:51:47'),

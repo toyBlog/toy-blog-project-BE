@@ -2,17 +2,15 @@ package com.toy.blog.api.controller;
 
 import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
+import com.toy.blog.api.model.response.CommentResponse;
 import com.toy.blog.api.model.response.Response;
 import com.toy.blog.api.service.ArticleService;
-import com.toy.blog.domain.dto.ArticleSummaryDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,11 +64,11 @@ public class ArticleController {
      * [API. ] : 글 단건 조회
      */
     @GetMapping("/{id}")
-    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id,ArticleRequest.Inventory request) {
+    public Response<ArticleResponse.Detail> getArticle(@PathVariable Long id, Pageable pageable) {
 
         return Response.<ArticleResponse.Detail>builder()
                 .code(HttpStatus.OK.value())
-                .data(articleService.getArticle(id,request.getPage(),request.getSize()))
+                .data(articleService.getArticle(id, pageable))
                 .build();
     }
 
@@ -145,24 +143,25 @@ public class ArticleController {
      */
 
     @PostMapping("/{id}/comments")
-    public Response<Void> registerComment(@Validated @RequestBody ArticleRequest.Comments request, @PathVariable Long id) {
+    @PreAuthorize("isAuthenticated()")
+    public Response<CommentResponse.BaseResponse> registerComment(@Validated @RequestBody ArticleRequest.Comment request, @PathVariable Long id) {
 
-        articleService.registerComment(request, id);
-        return Response.<Void>builder()
+        return Response.<CommentResponse.BaseResponse>builder()
                 .code(HttpStatus.OK.value())
+                .data(articleService.registerComment(request.getContent(), id))
                 .build();
     }
 
     /**
-     * [API. ] : 댓글 조회
+     * [API. ] : 댓글 목록 조회
      */
 
     @GetMapping("/{id}/comments")
-    public Response<List<ArticleResponse.Comments>> getCommentList(@PathVariable Long id, ArticleRequest.Inventory request) {
+    public Response<CommentResponse.Search> getCommentList(@PathVariable Long id, Pageable pageable) {
 
-        return Response.<List<ArticleResponse.Comments>>builder()
+        return Response.<CommentResponse.Search>builder()
                 .code(HttpStatus.OK.value())
-                .data(articleService.getCommentList(id, request.getPage(), request.getSize()))
+                .data(articleService.getCommentList(id, pageable))
                 .build();
     }
 
@@ -172,11 +171,12 @@ public class ArticleController {
      */
 
     @PatchMapping("/{articleId}/comments{commentId}")
-    public Response<Void> editComment(@Validated @RequestBody ArticleRequest.Comments request, @PathVariable Long articleId, @PathVariable Long commentId) {
+    @PreAuthorize("isAuthenticated()")
+    public Response<CommentResponse.BaseResponse> editComment(@Validated @RequestBody ArticleRequest.Comment request, @PathVariable Long articleId, @PathVariable Long commentId) {
 
-        articleService.editComment(request, articleId, commentId);
-        return Response.<Void>builder()
+        return Response.<CommentResponse.BaseResponse>builder()
                 .code(HttpStatus.OK.value())
+                .data(articleService.editComment(request.getContent(), articleId, commentId))
                 .build();
     }
 
@@ -185,6 +185,7 @@ public class ArticleController {
      */
 
     @DeleteMapping("/{articleId}/comments/{commentId}")
+    @PreAuthorize("isAuthenticated()")
     public Response<Void> removeComment(@PathVariable Long articleId, @PathVariable Long commentId) {
 
         articleService.removeComment(articleId, commentId);
