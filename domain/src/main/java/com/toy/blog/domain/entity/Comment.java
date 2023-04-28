@@ -1,12 +1,9 @@
 package com.toy.blog.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.toy.blog.domain.common.Status;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -25,26 +22,26 @@ public class Comment extends BaseEntity{
     Long id;
 
     @NotNull
-    String comments;
+    String content;
 
     @Enumerated(EnumType.STRING)
-    Status.Comments status;
+    Status.Comment status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
     User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     @JsonBackReference
     Article article;
 
-    public void changeStatus(Status.Comments status) {
+    public void changeStatus(Status.Comment status) {
         this.status = status;
     }
 
-    public void changeComments(String comments) {
-        this.comments = comments;
+    public void changeContent(String content) {
+        this.content = content;
     }
 }

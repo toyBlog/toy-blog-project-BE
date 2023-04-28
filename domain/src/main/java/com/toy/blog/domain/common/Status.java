@@ -29,7 +29,7 @@ public class Status {
         BLOCKED
     }
 
-    public enum Comments {
+    public enum Comment {
         ACTIVE,
         INACTIVE,
         BLOCKED

@@ -1,13 +1,11 @@
 package com.toy.blog.api.service;
 
-import com.toy.blog.api.exception.article.NoEditPermissionException;
-import com.toy.blog.api.exception.article.NoRemovePermissionException;
-import com.toy.blog.api.exception.article.NotFoundArticleException;
-import com.toy.blog.api.exception.article.NotFoundCommentsException;
+import com.toy.blog.api.exception.article.*;
 import com.toy.blog.api.exception.file.NotImageFileException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
 import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
+import com.toy.blog.api.model.response.CommentResponse;
 import com.toy.blog.api.service.file.FileServiceUtil;
 import com.toy.blog.auth.service.LoginService;
 import com.toy.blog.domain.common.Status;
@@ -15,6 +13,7 @@ import com.toy.blog.domain.entity.*;
 import com.toy.blog.domain.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.data.convert.ClassGeneratingEntityInstantiator;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -169,14 +168,11 @@ public class ArticleService {
         //1. Article의 상태를 INACTIVE로 변경
         article.changeStatus(Status.Article.INACTIVE);
 
-        //2. 이 Article과 연관된 ArticleImage들이 있다면 -> 그 이미지들의 상태를 INACTIVE로 변경
-        List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
-        articleImageList.forEach(articleImage -> articleImage.changeStatus(Status.ArticleImage.INACTIVE));
+        //2. 이 Article과 연관된 ArticleImage들이 있다면 -> 그 이미지들의 상태를 INACTIVE로 변경 (변경감지 말고 - 벌크성 업데이트 활용)
+        articleImageRepository.updateStatusByArticleId(Status.ArticleImage.INACTIVE, article.getId());
 
-        //3. 이 Article 과 연관된 Comment 들이 있다면 -> 댓글 상태 INACTIVE 로 변경
-        // todo: page, size 를 정적으로 할당해줘야 하는 문제 발생(유성)
-        List<Comment> commentList = commentRepository.findByArticleAndStatus(articleId, Status.Comments.ACTIVE, 0, 9999);
-        commentList.forEach(comment -> comment.changeStatus(Status.Comments.INACTIVE));
+        //3. 이 Article 과 연관된 Comment 들이 있다면 -> 댓글 상태 INACTIVE 로 변경 (변경감지 말고 - 벌크성 업데이트 활용)
+        commentRepository.updateStatusByArticleId(Status.Comment.INACTIVE, article.getId());
     }
 
 
@@ -186,47 +182,55 @@ public class ArticleService {
     /**
      * 글 단건 조회 서비스
      */
-    public ArticleResponse.Detail getArticle(Long articleId, Integer page, Integer size) {
+    public ArticleResponse.Detail getArticle(Long articleId, Pageable pageable) {
 
         //0. login 한 userId 조회
+        /** 로그인 하지 않으면 null이 조회됨 */
         Long userId = loginService.getLoginUserId();
 
-        //1_1. Article 조회
-        Article article = articleRepository.findByIdAndStatus(articleId, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
+        //1_1. Article 조회 -> 이때 그 글을 쓴 작성자 User도 함께 fetchJoin
+        Article article = articleRepository.findByIdAndStatusWithUser(articleId, Status.Article.ACTIVE).orElseThrow(NotFoundArticleException::new);
 
-        //1_1_1. 댓글 조회
-        List<Comment> commentList = commentRepository.findByArticleAndStatus(articleId, Status.Comments.ACTIVE, page, size);
-
-        //1_2. 좋아요 여부 조회 (요청을 보낸 사용자가 -> ACTIVE 한 로그인 된 사용자라면)
-        Boolean isLiked = false;
-
-        /** 로그인 된 사용자라면 (인증 검증) */
-        if (Objects.nonNull(userId)) {
-            User user = getUser(userId, Status.User.ACTIVE); /** 차단된 사용라면 -> 여기서 걸림 (인가 검증) */
-            isLiked = likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE);
-        }
-
-
-        //1_4. 좋아요 수 조회
+        //1_2. 좋아요 수 조회
         long likedCount = likedRepository.countByArticleAndStatus(article, Status.Like.ACTIVE);
 
-        //2_1. 조회한 그 Article과 연관된 ACTIVE 한 ArticleImage가 하나도 없으면 -> 그대로 응답리턴
+        //2_1. 그 글에 달린 ACTIVE 한 댓글 조회 - 이때 각 댓글은 그 댓글을 작성한 User를 함께 조회 (fetchJoin)
+        List<Comment> commentList = commentRepository.findByArticleIdAndStatusWithUser(articleId, Status.Comment.ACTIVE, pageable);
+
+        //2_2. 그 글에 달린 ACTIVE 한 댓글 개수 조회
+        long commentCount = commentRepository.countByArticleIdAndStatus(articleId, Status.Comment.ACTIVE);
+
+        //3_1. 조회한 그 Article과 연관된 ACTIVE 한 ArticleImageList 조회
         List<ArticleImage> articleImageList = articleImageRepository.findByArticleAndStatus(article, Status.ArticleImage.ACTIVE);
 
+        /** CASE1: 이미지가 없는 경우 */
         if (CollectionUtils.isEmpty(articleImageList)) {
-            return ArticleResponse.Detail.of(article, isLiked, likedCount, commentList);
+
+            /** CASE 1_1 : 로그인 된 사용자라면 (인증 검증) -> 그 글의 좋아요 여부 + 그 글의 작성 여부 + 그 글에 달린 댓글의 작성 여부 -> 를 함께 고려 */
+            if (Objects.nonNull(userId)) {
+                User user = getUser(userId, Status.User.ACTIVE); /** 차단된 사용라면 -> 여기서 걸림 (인가 검증) */
+                boolean isLiked = likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE);
+                return getArticleInfo(article, user.getId(), isLiked, likedCount, commentList, commentCount, new ArrayList<>());
+            }
+
+            /** CASE 1_2 : 로그인 된 사용자가 아닌 경우 */
+            return getArticleInfo(article, likedCount, commentList, commentCount, new ArrayList<>());
         }
 
-
-        //2_2. 이미지가 하나라도 있으면 -> 그 ArticleImage들 안에있는 path를 가지고 -> urlList를 만들어서 -> 함께 반환
+        /** CASE 2 : 이미지가 있는 경우 */
+        //3_2. 이미지가 하나라도 있으면 -> 그 ArticleImage들 안에있는 path를 가지고 -> urlList를 만들어서 -> 함께 반환
         List<String> pathList = articleImageList.stream().map(ArticleImage::getPath).collect(Collectors.toList());
         List<String> imageUrlList = fileServiceUtil.getImageUrlList(pathList);
 
+        /** CASE 2_1 : 로그인 된 사용자라면 (인증 검증) -> 그 글의 좋아요 여부 + 그 글의 작성 여부 + 그 글에 달린 댓글의 작성 여부 -> 를 함께 고려 */
+        if (Objects.nonNull(userId)) {
+            User user = getUser(userId, Status.User.ACTIVE); /** 차단된 사용라면 -> 여기서 걸림 (인가 검증) */
+            boolean isLiked = likedRepository.existsByUserAndAndArticleAndStatus(user, article, Status.Like.ACTIVE);
+            return getArticleInfo(article, user.getId(), isLiked, likedCount, commentList, commentCount, imageUrlList);
+        }
 
-        //TODO : Comment라는 엔티티를 API에 바로 넘기는건 아닌것 같습니다
-        //TODO : 차라리 articleContent/commentContent , articleWriter/commentWriter 와 같은 형식으로 구분하여 - 넘겨야 할 데이터만 넘기는게 맞다고 생각합니다
-        // -> todo : 그렇게 구현 한적이 없어서 한 번 구현해 보시면 좋을것 같습니다. (유성)
-        return ArticleResponse.Detail.of(article, isLiked, likedCount, imageUrlList, commentList);
+        /** CASE 2_2: 로그인 된 사용자가 아닌 경우 */
+        return getArticleInfo(article, likedCount, commentList, commentCount, imageUrlList);
     }
 
     /**---------------------------------------------------------------------------------------------------------------*/
@@ -382,65 +386,106 @@ public class ArticleService {
      */
 
     @Transactional
-    public void registerComment(ArticleRequest.Comments request, Long id) {
+    public CommentResponse.BaseResponse registerComment(String content, Long articleId) {
 
-        boolean isArticle = articleRepository.existArticleWithStatus(id);
+        //1_1. ACTIVE한 User 조회    -> 탈퇴환 회원이 아니어야 함 (어차피 loginService에서 보장 해줌)
+        Long userId = loginService.getLoginUserId();
+        User user = getUser(userId, Status.User.ACTIVE);
 
-        // TODO : 이러면 auto boxing 이 일어날 텐데 - 그럼에도 부정 조건을 명시적으로 나타내어 가독성을 올리고자 Boolean.FALSE를 사용하신건지 궁금합니다
-        // -> auto Boxing 이 일어나더라도 가독성을 확실하게 올리고 싶어서 코드를 이렇게 작성했습니다. 용준님 원하시는대로 변경하겠습니다.
-        if (!articleRepository.existArticleWithStatus(id)) {
-            throw new NotFoundArticleException();
-        }
-        // TODO : 요청 보낸 user와 해당 id의 Article도 함께 인자로 넣어 Comment를 생성해야 할 것 같습니다.
-        // TODO : 그렇다면 어차피 내부메서드 getArticle() 로 ACTIVE한 Article을 조회하게 되므로 -> 위의 ACTIVE 유효성 검사는 하지 않아도 될 것 같습니다
-        // TODO : -> 아직 미구현 메소드 였습니다. 구현 하겠습니다. (유성)
-        commentRepository.save(request.toEntity());
+        //1_2. ACTIVE한 Article 조회 -> 삭제되 글이 아니어야 함
+        Article article = getArticle(articleId, Status.Article.ACTIVE);
+
+        //2. User, Article, content를 가지고 Comment를 생성하여 save
+        Comment comment = Comment.builder()
+                                 .content(content)
+                                 .user(user)
+                                 .article(article)
+                                 .status(Status.Comment.ACTIVE)
+                                 .build();
+
+        commentRepository.save(comment);
+
+        //3. 응답 리턴
+        return  CommentResponse.BaseResponse.of(comment.getId());
     }
 
-    // TODO : totalCount 고려
-    public List<ArticleResponse.Comments> getCommentList(Long id, Integer page, Integer size) {
+    /**
+     * 로그인 여부를 따져줘야 함
+     * */
+    public CommentResponse.Search getCommentList(Long articleId, Pageable pageable) {
 
-        boolean isArticle = articleRepository.existArticleWithStatus(id);
+        //1_1. userId 조회
+        Long userId = loginService.getLoginUserId();
 
-        if (Boolean.FALSE.equals(isArticle)) {
+        //1_2. Article의 삭제 여부 확인
+        if (!articleRepository.existsByIdAndStatus(articleId, Status.Article.ACTIVE)) {
             throw new NotFoundArticleException();
         }
 
-        List<Comment> commentList = commentRepository.findByArticleAndStatus(id, Status.Comments.ACTIVE, page, size);
+        //2_1. commentList 조회
+        List<Comment> commentList = commentRepository.findByArticleIdAndStatusWithUser(articleId, Status.Comment.ACTIVE, pageable);
 
-        return ArticleResponse.Comments.of(commentList);
+        //2_2. totalCount 조회
+        long totalCount = commentRepository.countByArticleIdAndStatus(articleId, Status.Comment.ACTIVE);
+
+        //3_1. 응답 리턴 - 로그인 한 경우
+        if (Objects.nonNull(userId)) {
+            CommentResponse.Search search = getCommentInfo(commentList, totalCount, userId);
+            return search;
+        }
+
+        //3_2. 응답 리턴 - 로그인 하지 않은 경우
+        CommentResponse.Search search = getCommentInfo(commentList, totalCount);
+        return search;
     }
 
-    //TODO : 수정하려고 하는 User가 이 댓글을 쓴 User와 일치하는지 여부 확인 필요
     @Transactional
-    public void editComment(ArticleRequest.Comments request, Long articleId, Long commentId) {
+    public CommentResponse.BaseResponse editComment(String content, Long articleId, Long commentId) {
 
-        boolean isArticle = articleRepository.existArticleWithStatus(articleId);
+        //1_1. userId 조회
+        Long userId = loginService.getLoginUserId();
 
-        if (Boolean.FALSE.equals(isArticle)) {
+        //1_2. 글의 삭제 여부 검증
+        if (!articleRepository.existsByIdAndStatus(articleId, Status.Article.ACTIVE)) {
             throw new NotFoundArticleException();
         }
-        // TODO : status값도 인자로
-        Comment comment = commentRepository.findByIdAndStatus(commentId)
-                .orElseThrow(NotFoundCommentsException::new);
 
-        comment.changeComments(request.getComments());
+        //1_3. 삭제된 댓글은 아닌지 검증 -> ACTIVE 한 댓글 조회
+        Comment comment = commentRepository.findByIdAndStatusWithUser(commentId, Status.Comment.ACTIVE).orElseThrow(NotFoundCommentsException::new);
+
+        //1_4. 이 댓글의 작성자가 맞는지 검증
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException();
+        }
+
+        //2. 댓글 내용 수정
+        comment.changeContent(content);
+
+        //3. 응답
+        return CommentResponse.BaseResponse.of(comment.getId());
     }
 
-    //TODO : 삭제하려고 하는 User가 이 댓글을 쓴 User와 일치하는지 여부 확인 필요
     @Transactional
     public void removeComment(Long articleId, Long commentId) {
 
-        boolean isArticle = articleRepository.existArticleWithStatus(articleId);
+        //1_1. userId 조회
+        Long userId = loginService.getLoginUserId();
 
-        if (Boolean.FALSE.equals(isArticle)) {
+        //1_2. 글의 삭제 여부 검증
+        if (!articleRepository.existsByIdAndStatus(articleId, Status.Article.ACTIVE)) {
             throw new NotFoundArticleException();
         }
 
-        Comment comment = commentRepository.findByIdAndStatus(commentId)
-                .orElseThrow(NotFoundCommentsException::new);
+        //1_3. 삭제된 댓글은 아닌지 검증 -> ACTIVE 한 댓글 조회
+        Comment comment = commentRepository.findByIdAndStatusWithUser(commentId, Status.Comment.ACTIVE).orElseThrow(NotFoundCommentsException::new);
 
-        comment.changeStatus(Status.Comments.INACTIVE);
+        //1_4. 이 댓글의 작성자가 맞는지 검증
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException();
+        }
+
+        //2. 댓글 삭제 (논리적 삭제)
+        comment.changeStatus(Status.Comment.INACTIVE);
     }
 
 
@@ -460,5 +505,34 @@ public class ArticleService {
         return articleRepository.findByIdAndStatus(id, status).orElseThrow(NotFoundArticleException::new);
     }
 
+
+    /** 로그인 하지 않는 경우 */
+    private CommentResponse.Search getCommentInfo(List<Comment> commentList, long commentCount) {
+
+        List<CommentResponse.Detail> commentDetailList = commentList.stream().map(comment -> CommentResponse.Detail.of(comment)).collect(Collectors.toList());
+        return CommentResponse.Search.of(commentDetailList, commentCount);
+    }
+
+    /** 로그인 한 경우 */
+    private CommentResponse.Search getCommentInfo(List<Comment> commentList, long commentCount, Long authorId) {
+
+        List<CommentResponse.Detail> commentDetailList = commentList.stream().map(comment -> CommentResponse.Detail.of(comment, authorId)).collect(Collectors.toList());
+        return CommentResponse.Search.of(commentDetailList, commentCount);
+    }
+
+
+    /** 로그인 하지 않은 경우 */
+    private ArticleResponse.Detail getArticleInfo(Article article, long likedCount, List<Comment> commentList, long commentCount, List<String> urlList) {
+
+        CommentResponse.Search commentInfo = getCommentInfo(commentList, commentCount);
+        return ArticleResponse.Detail.of(article, likedCount, commentInfo, urlList);
+    }
+
+    /** 로그인 한 경우 */
+    private ArticleResponse.Detail getArticleInfo(Article article, Long authorId, boolean isliked, long likedCount, List<Comment> commentList, long commentCount, List<String> urlList) {
+
+        CommentResponse.Search commentInfo = getCommentInfo(commentList, commentCount, authorId);
+        return ArticleResponse.Detail.of(article, authorId, isliked, likedCount, commentInfo, urlList);
+    }
 
 }

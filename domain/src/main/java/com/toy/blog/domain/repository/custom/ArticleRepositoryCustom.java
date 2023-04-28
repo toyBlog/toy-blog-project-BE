@@ -24,6 +24,4 @@ public interface ArticleRepositoryCustom {
     /** --------------------------------------------------------------------------------------------------------------*/
 
     Optional<Article> findByIdWithStatus(Long id);
-
-
 }

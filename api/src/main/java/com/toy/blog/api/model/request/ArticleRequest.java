@@ -1,10 +1,5 @@
 package com.toy.blog.api.model.request;
 
-import com.toy.blog.domain.common.CommonConstant;
-import com.toy.blog.domain.common.Status;
-import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.entity.Comment;
-import com.toy.blog.domain.entity.User;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +8,6 @@ import lombok.experimental.UtilityClass;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,14 +71,9 @@ public class ArticleRequest {
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Comments { //todo: renaming 이름 고민해봐야함
+    public static class Comment { //todo: renaming 이름 고민해봐야함
 
-        String comments;
-
-        public Comment toEntity() {
-            return Comment.builder()
-                    .comments(comments)
-                    .build();
-        }
+        @NotNull(message = "댓글 내용은 필수입니다")
+        String content;
     }
 }

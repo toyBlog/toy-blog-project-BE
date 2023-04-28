@@ -26,14 +26,14 @@ public class QComment extends EntityPathBase<Comment> {
 
     public final QArticle article;
 
-    public final StringPath comments = createString("comments");
+    public final StringPath content = createString("content");
 
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> createdAt = _super.createdAt;
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
-    public final EnumPath<com.toy.blog.domain.common.Status.Comments> status = createEnum("status", com.toy.blog.domain.common.Status.Comments.class);
+    public final EnumPath<com.toy.blog.domain.common.Status.Comment> status = createEnum("status", com.toy.blog.domain.common.Status.Comment.class);
 
     //inherited
     public final DateTimePath<java.time.ZonedDateTime> updatedAt = _super.updatedAt;

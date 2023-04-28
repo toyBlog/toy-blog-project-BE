@@ -4,3 +4,8 @@ spring:
   profiles:
     include:
       - domain-dev
+
+    servlet:
+      multipart:
+        max-file-size: 50MB
+        max-request-size: 300MB
