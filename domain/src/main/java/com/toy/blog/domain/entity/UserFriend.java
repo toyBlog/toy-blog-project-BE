@@ -44,7 +44,7 @@ public class UserFriend extends BaseEntity {
     /**
      * [비교 메서드]
      * */
-    public boolean isConnecting(UserFriend userFriend) {
+    public boolean isConnect(UserFriend userFriend) {
 
         if (this.getUser().getId().equals(userFriend.friendId) && this.getFriendId().equals(userFriend.getUser().getId())
                 && this.status.equals(Status.UserFriend.FOLLOW) && userFriend.getStatus().equals(Status.UserFriend.FOLLOW)) {

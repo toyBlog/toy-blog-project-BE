@@ -4,24 +4,22 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.toy.blog.domain.common.Status;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.entity.Liked;
-import com.toy.blog.domain.entity.QArticle;
 import com.toy.blog.domain.entity.QLiked;
 import com.toy.blog.domain.repository.custom.LikedRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
-
 import java.util.List;
 import java.util.Optional;
 
 import static com.toy.blog.domain.entity.QArticle.article;
 import static com.toy.blog.domain.entity.QLiked.liked;
 
-@RequiredArgsConstructor
 public class LikedRepositoryImpl implements LikedRepositoryCustom {
 
     private JPAQueryFactory queryFactory;
+
 
     public LikedRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
@@ -76,15 +74,14 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
     public List<Article> findArticleListByUserId(Long userId, Pageable pageable) {
 
         return queryFactory.select(article)
-                .from(liked)
-                .join(liked.article, article)
-                .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(liked.createdAt.desc())
-                .fetch();
+                           .from(liked)
+                           .join(liked.article, article)
+                           .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
+                           .offset(pageable.getOffset())
+                           .limit(pageable.getPageSize())
+                           .orderBy(liked.createdAt.desc())
+                           .fetch();
     }
-
 
     /** --------------------------------------------------------------------------------------------------------------*/
 

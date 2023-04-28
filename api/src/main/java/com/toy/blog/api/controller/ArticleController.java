@@ -170,7 +170,7 @@ public class ArticleController {
      * [API. ] : 댓글 수정
      */
 
-    @PatchMapping("/{articleId}/comments{commentId}")
+    @PatchMapping("/{articleId}/comments/{commentId}")
     @PreAuthorize("isAuthenticated()")
     public Response<CommentResponse.BaseResponse> editComment(@Validated @RequestBody ArticleRequest.Comment request, @PathVariable Long articleId, @PathVariable Long commentId) {
 

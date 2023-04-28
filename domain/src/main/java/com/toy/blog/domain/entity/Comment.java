@@ -27,12 +27,12 @@ public class Comment extends BaseEntity{
     @Enumerated(EnumType.STRING)
     Status.Comment status;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonBackReference
     User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "article_id")
     @JsonBackReference
     Article article;

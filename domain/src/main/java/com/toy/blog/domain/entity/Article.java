@@ -45,7 +45,7 @@ public class Article extends BaseEntity {
 
     @JsonIgnore
     @JoinColumn(name = "user_id")
-    @ManyToOne //TODO : LAZT LOADING 문제 해결 해야함
+    @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
     User user;
 

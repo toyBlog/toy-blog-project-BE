@@ -60,7 +60,7 @@ public class UserService {
 
             for (int j = 0; j < followingList.size(); j++) {
 
-                if (followList.get(i).isConnecting(followingList.get(j))) {
+                if (followList.get(i).isConnect(followingList.get(j))) {
                     connectingList.add(followList.get(i));
                     break;
                 }
