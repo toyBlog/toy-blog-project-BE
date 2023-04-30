@@ -1,7 +1,7 @@
 description = 'api'
 
 bootJar {
-    enabled = false
+    enabled = true
     archiveFileName = 'blog-api.jar'
 }
 
@@ -17,4 +17,15 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+task zip(type: Zip, dependsOn: bootJar) {
+    archiveFileName = 'blog-api.zip'
+    from 'build/libs'
+    from(projectDir) {
+        include '.ebextensions/**'
+        include '.platform/**'
+        include 'Procfile'
+    }
+    destinationDir project.buildDir
 }

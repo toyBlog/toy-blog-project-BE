@@ -2,6 +2,7 @@ package com.toy.blog.domain.repository.custom.impl;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.querydsl.jpa.impl.JPAUpdateClause;
 import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.repository.custom.ArticleRepositoryCustom;
 import org.springframework.data.domain.Pageable;
@@ -53,10 +54,10 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
 
     @Override
     public boolean existArticleWithStatus(Long id) {
-         return queryFactory.selectOne()
+        return queryFactory.selectOne()
                 .from(article)
                 .where(article.id.eq(id), article.status.eq(ACTIVE))
-                 .fetchOne() != null;
+                .fetchOne() != null;
 
 
     }
@@ -108,9 +109,18 @@ public class ArticleRepositoryImpl implements ArticleRepositoryCustom {
                 .fetchOne());
     }
 
+
+
     /**
      * ---------------------------------------------------------------------------------------------------------------
      */
 
+    @Override
+    public void updateViewCount(Long id) {
+        queryFactory.update(article)
+                .set(article.viewCount ,article.viewCount.add(1))
+                .where(article.id.eq(id))
+                .execute();
+    }
 
 }

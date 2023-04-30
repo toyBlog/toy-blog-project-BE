@@ -23,20 +23,20 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     public List<User> findUserList(List<Long> userIdList, Pageable pageable) {
 
         return queryFactory.select(user)
-                           .from(user)
-                           .where(user.id.in(userIdList) , user.status.eq(ACTIVE))
-                           .offset(pageable.getOffset())
-                           .limit(pageable.getPageSize())
-                           .orderBy(user.createdAt.desc())
-                           .fetch();
+                .from(user)
+                .where(user.id.in(userIdList), user.status.eq(ACTIVE))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(user.createdAt.desc())
+                .fetch();
     }
 
     @Override
     public long countUserList(List<Long> userIdList) {
 
         return queryFactory.select(user)
-                           .from(user)
-                           .where(user.id.in(userIdList), user.status.eq(ACTIVE))
-                           .fetchCount();
+                .from(user)
+                .where(user.id.in(userIdList), user.status.eq(ACTIVE))
+                .fetchCount();
     }
 }

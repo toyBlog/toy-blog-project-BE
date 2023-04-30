@@ -23,4 +23,5 @@ public class Response<T> {
     String message = HttpStatus.OK.getReasonPhrase();
 
     T data;
+
 }

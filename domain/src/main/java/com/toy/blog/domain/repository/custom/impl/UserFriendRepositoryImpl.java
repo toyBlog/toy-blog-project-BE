@@ -23,7 +23,7 @@ public class UserFriendRepositoryImpl implements UserFriendRepositoryCustom {
 
         return queryFactory.select(userFriend)
                 .from(userFriend)
-                .where(userFriend.status.eq(Status.UserFriend.FOLLOW) , userFriend.user.id.eq(userId))
+                .where(userFriend.status.eq(Status.UserFriend.FOLLOW), userFriend.user.id.eq(userId))
                 .orderBy(userFriend.createdAt.desc())
                 .fetch();
     }
@@ -33,7 +33,7 @@ public class UserFriendRepositoryImpl implements UserFriendRepositoryCustom {
 
         return queryFactory.select(userFriend)
                 .from(userFriend)
-                .where(userFriend.status.eq(Status.UserFriend.FOLLOW) , userFriend.friendId.eq(friendId))
+                .where(userFriend.status.eq(Status.UserFriend.FOLLOW), userFriend.friendId.eq(friendId))
                 .orderBy(userFriend.createdAt.desc())
                 .fetch();
     }

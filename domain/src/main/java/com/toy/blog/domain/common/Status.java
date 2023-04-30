@@ -2,12 +2,12 @@ package com.toy.blog.domain.common;
 
 public class Status {
 
-    public enum User{
+    public enum User {
         ACTIVE,
         INACTIVE
     }
 
-    public enum Article{
+    public enum Article {
         ACTIVE,
         INACTIVE
     }
@@ -18,7 +18,7 @@ public class Status {
     }
 
 
-    public enum Like{
+    public enum Like {
         ACTIVE,
         INACTIVE
     }

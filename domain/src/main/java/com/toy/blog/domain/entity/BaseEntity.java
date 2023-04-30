@@ -26,4 +26,5 @@ public abstract class BaseEntity {
     @LastModifiedDate
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     ZonedDateTime updatedAt;
+
 }

@@ -19,7 +19,7 @@ public class UserFriendController {
 
     /**
      * [API. ] : 친구 맺기 or 친구 끊기
-     * */
+     */
     @PostMapping("")
     @PreAuthorize("isAuthenticated()")
     public Response<UserFriendResponse.Info> followFriend(@Validated @RequestBody UserFriendRequest.FollowUserFriend request) {
@@ -32,7 +32,7 @@ public class UserFriendController {
 
     /**
      * [API. ] : 친구 차단 or 차단 해제
-     * */
+     */
     @PatchMapping("")
     @PreAuthorize("isAuthenticated()")
     public Response<UserFriendResponse.Info> blockFriend(@Validated @RequestBody UserFriendRequest.BlockUserFriend request) {
@@ -41,5 +41,6 @@ public class UserFriendController {
                 .code(HttpStatus.OK.value())
                 .data(userFriendService.block(request.getFriendId()))
                 .build();
-        }
+    }
+
 }

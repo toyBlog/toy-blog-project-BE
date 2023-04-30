@@ -10,4 +10,5 @@ public interface UserRepositoryCustom {
     List<User> findUserList(List<Long> userIdList, Pageable pageable);
 
     long countUserList(List<Long> userIdList);
+
 }

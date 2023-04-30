@@ -29,8 +29,8 @@ public class UserFriendService {
 
     /**
      * [특정 Id의 User를 Follow or UnFollow 하는 서비스]
-     *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
-     * */
+     * -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
+     */
     @Transactional
     public UserFriendResponse.Info follow(Long friendId) {
 
@@ -47,7 +47,7 @@ public class UserFriendService {
         UserFriend userFriend = getUserFriend(user, userId, friendId);
 
         /** 만약 조회한 userFriend가 차단한 userFriend라면 -> 팔로우도 / 언팔로우도 안되는 경우니 Exception */
-        if(userFriend.getStatus().equals(BLOCKED)){
+        if (userFriend.getStatus().equals(BLOCKED)) {
             throw new BlockedUserFriendException();
         }
 
@@ -65,13 +65,17 @@ public class UserFriendService {
         return UserFriendResponse.Info.of(userFriend);
     }
 
-    /** [(id, status) 를 가지고 User를 조회하는 private Service 로직]*/
-    private User getUser(Long userId, Status.User status){
+    /**
+     * [(id, status) 를 가지고 User를 조회하는 private Service 로직]
+     */
+    private User getUser(Long userId, Status.User status) {
 
         return userRepository.findByIdAndStatus(userId, status).orElseThrow(NotFoundUserException::new);
     }
 
-    /** [(userId, friendId) 를 가지고 UserFruebd를 조회 or 생성 하는 private Service 로직]*/
+    /**
+     * [(userId, friendId) 를 가지고 UserFruebd를 조회 or 생성 하는 private Service 로직]
+     */
     private UserFriend getUserFriend(User user, Long userId, Long friendId) {
 
         return userFriendRepository.findByUserIdAndFriendId(userId, friendId).orElse(
@@ -87,16 +91,17 @@ public class UserFriendService {
 
     /**
      * [특정 userId와 friendId로 이루어진 UserFriend의 팔로우를 "차단 or 차단 해제" 하는 서비스]
-     *  -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
-     * */
+     * -> 결과 status를 보내야 , 클라단에서 차단인지 차단 해제인지 알 수 있음
+     */
     @Transactional
     public UserFriendResponse.Info block(Long friendId) {
 
         //1. ACTIVE 한 User와 Friend를 조회
         Long userId = loginService.getLoginUserId();
-        User user   = getUser(userId, ACTIVE);
+        User user = getUser(userId, ACTIVE);
         User friend = getUser(friendId, ACTIVE);
 
+        //todo: userId와 friendId 모두 값이 유니크 한데 중복될 경우가 있나요?(유성)
         //1_2. userId와 friendId가 같으면 예외
         if (userId.equals(friendId)) {
             throw new SameIdUserFriendException();
@@ -106,9 +111,9 @@ public class UserFriendService {
         UserFriend userFriendFollow = getUserFriend(user, userId, friendId);
 
         //3_1. BLOCKED 상태가 아니라면 -> BLOCKED 상태로 / BLOCKED 상태라면 -> UNFOLLOW 상태로 변경
-        if(userFriendFollow.getStatus().equals(BLOCKED)){
+        if (userFriendFollow.getStatus().equals(BLOCKED)) {
             userFriendFollow.changeStatus(UNFOLLOW);
-        } else{
+        } else {
             userFriendFollow.changeStatus(BLOCKED);
         }
 
@@ -118,9 +123,9 @@ public class UserFriendService {
         UserFriend userFriendFollowing = getUserFriend(friend, friendId, userId);
 
         //3_2. BLOCKED 상태가 아니라면 -> BLOCKED 상태로 / BLOCKED 상태라면 -> UNFOLLOW 상태로 변경
-        if(userFriendFollowing.getStatus().equals(BLOCKED)){
+        if (userFriendFollowing.getStatus().equals(BLOCKED)) {
             userFriendFollowing.changeStatus(UNFOLLOW);
-        } else{
+        } else {
             userFriendFollowing.changeStatus(BLOCKED);
         }
 

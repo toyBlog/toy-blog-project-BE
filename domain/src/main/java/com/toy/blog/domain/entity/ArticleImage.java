@@ -35,7 +35,7 @@ public class ArticleImage extends BaseEntity {
 
     /**
      * [변경 메서드]
-     * */
+     */
     public void changeStatus(Status.ArticleImage status) {
         this.status = status;
     }

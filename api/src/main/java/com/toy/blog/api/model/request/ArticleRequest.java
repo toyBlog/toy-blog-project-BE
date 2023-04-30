@@ -34,6 +34,7 @@ public class ArticleRequest {
         String keyword;
     }
 
+
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -71,9 +72,10 @@ public class ArticleRequest {
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)
-    public static class Comment { //todo: renaming 이름 고민해봐야함
+    public static class Comment {
 
         @NotNull(message = "댓글 내용은 필수입니다")
         String content;
     }
+
 }

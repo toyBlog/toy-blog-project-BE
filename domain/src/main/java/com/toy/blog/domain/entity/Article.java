@@ -57,13 +57,13 @@ public class Article extends BaseEntity {
     @JsonManagedReference
     List<Liked> likedList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "article",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "article", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
     List<Comment> commentList = new ArrayList<>();
 
     /**
      * [변경 메서드]
-     * */
+     */
 
     public void changeStatus(Status.Article status) {
         this.status = status;

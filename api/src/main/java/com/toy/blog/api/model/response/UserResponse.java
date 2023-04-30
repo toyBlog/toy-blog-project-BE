@@ -20,7 +20,7 @@ public class UserResponse {
     @Setter
     @SuperBuilder
     @AllArgsConstructor
-    public static class UserBase{
+    public static class UserBase {
 
         Long id;
 
@@ -63,22 +63,22 @@ public class UserResponse {
         public static Info of(User user) {
 
             return Info.builder()
-                       .id(user.getId())
-                       .email(user.getEmail())
-                       .nickname(user.getNickname())
-                       .build();
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .build();
         }
 
         public static Info of(User user, List<Long> followIdList, List<Long> followingIdList, List<Long> connectingIdList) {
 
-           return Info.builder()
-                   .id(user.getId())
-                   .email(user.getEmail())
-                   .nickname(user.getNickname())
-                   .followIdList(followIdList)
-                   .followingIdList(followingIdList)
-                   .connectingIdList(connectingIdList)
-                   .build();
+            return Info.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .nickname(user.getNickname())
+                    .followIdList(followIdList)
+                    .followingIdList(followingIdList)
+                    .connectingIdList(connectingIdList)
+                    .build();
         }
 
         public static List<Info> of(List<User> userList) {
@@ -98,9 +98,9 @@ public class UserResponse {
         public static Search of(List<UserResponse.SummaryInfo> summaryInfoList, long totalCount) {
 
             return Search.builder()
-                         .summaryInfoList(summaryInfoList)
-                         .totalCount(totalCount)
-                         .build();
+                    .summaryInfoList(summaryInfoList)
+                    .totalCount(totalCount)
+                    .build();
         }
     }
 

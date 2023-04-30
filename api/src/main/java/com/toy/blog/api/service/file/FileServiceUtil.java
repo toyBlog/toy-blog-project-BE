@@ -24,8 +24,8 @@ public class FileServiceUtil {
 
     /**
      * 0. [넘어온 파일이 지정된 형식의 이미지 파일인지 확인]
-     * */
-    public boolean isAllImageExt(List<MultipartFile> imageList){
+     */
+    public boolean isAllImageExt(List<MultipartFile> imageList) {
         return imageList.stream()
                 .map(MultipartFile::getOriginalFilename)
                 .map(FilenameUtils::getExtension)
@@ -34,15 +34,15 @@ public class FileServiceUtil {
 
     /**
      * 0_2. [넘어온 파일 중 하나라도 지정된 이미지 형식의 파일이 아닌지 확인] : 하나라도 아닌게 있다면 true / 모두다 이미지 파일이라면 false
-     * */
+     */
     public boolean hasNonImageExt(List<MultipartFile> imageList) {
         return !isAllImageExt(imageList);
     }
 
     /**
      * 1. [file Original Name을 가지고 -> 실제 파일이 저장될 path들의 리스트를 생성하는 서비스]
-     * */
-    public List<String> getPathList(List<MultipartFile> imageList, Long articleId){
+     */
+    public List<String> getPathList(List<MultipartFile> imageList, Long articleId) {
 
         //1. 오늘 날짜에 대한 url 앞부분을 만들기
         LocalDate now = LocalDate.now();
@@ -62,30 +62,29 @@ public class FileServiceUtil {
 
     /**
      * 2. [인자로 넘어온 path에 , 이미지 파일을 실제로 저장하는 서비스]
-     * */
-    public void uploadFile(String path, MultipartFile image){
+     */
+    public void uploadFile(String path, MultipartFile image) {
         s3ServiceUtil.uploadFile(path, image);
     }
 
     /**
      * 2_2. [여러 path를 받아 , 각 이미지파일들을 - 각 path에 실제로 저장하는 서비스]
-     * */
-    public void uploadFileList(List<String> pathList , List<MultipartFile> imageList) {
+     */
+    public void uploadFileList(List<String> pathList, List<MultipartFile> imageList) {
         IntStream.range(0, imageList.size()).forEach(
-                idx -> s3ServiceUtil.uploadFile(pathList.get(idx) , imageList.get(idx))
+                idx -> s3ServiceUtil.uploadFile(pathList.get(idx), imageList.get(idx))
         );
     }
 
 
     /**
      * 3. [path를 받아 , 각 이미지의 url을 만들어 리턴하는 서비스]
-     * */
-    public List<String> getImageUrlList(List<String> pathList){
+     */
+    public List<String> getImageUrlList(List<String> pathList) {
         return pathList.stream()
                 .map(p -> url + File.separator + p)
                 .collect(Collectors.toList());
     }
-
 
 
 }

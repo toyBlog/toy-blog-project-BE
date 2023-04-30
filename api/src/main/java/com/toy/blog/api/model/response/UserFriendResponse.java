@@ -25,7 +25,7 @@ public class UserFriendResponse {
     @Getter
     @Setter
     @SuperBuilder
-    public static class Info extends UserFriendBase{
+    public static class Info extends UserFriendBase {
 
         public static Info of(UserFriend userFriend) {
 

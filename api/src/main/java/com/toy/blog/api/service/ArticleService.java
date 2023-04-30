@@ -3,7 +3,6 @@ package com.toy.blog.api.service;
 import com.toy.blog.api.exception.article.*;
 import com.toy.blog.api.exception.file.NotImageFileException;
 import com.toy.blog.api.exception.user.NotFoundUserException;
-import com.toy.blog.api.model.request.ArticleRequest;
 import com.toy.blog.api.model.response.ArticleResponse;
 import com.toy.blog.api.model.response.CommentResponse;
 import com.toy.blog.api.service.file.FileServiceUtil;
@@ -13,7 +12,6 @@ import com.toy.blog.domain.entity.*;
 import com.toy.blog.domain.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.data.convert.ClassGeneratingEntityInstantiator;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -397,21 +395,21 @@ public class ArticleService {
 
         //2. User, Article, content를 가지고 Comment를 생성하여 save
         Comment comment = Comment.builder()
-                                 .content(content)
-                                 .user(user)
-                                 .article(article)
-                                 .status(Status.Comment.ACTIVE)
-                                 .build();
+                .content(content)
+                .user(user)
+                .article(article)
+                .status(Status.Comment.ACTIVE)
+                .build();
 
         commentRepository.save(comment);
 
         //3. 응답 리턴
-        return  CommentResponse.BaseResponse.of(comment.getId());
+        return CommentResponse.BaseResponse.of(comment.getId());
     }
 
     /**
      * 로그인 여부를 따져줘야 함
-     * */
+     */
     public CommentResponse.Search getCommentList(Long articleId, Pageable pageable) {
 
         //1_1. userId 조회
@@ -506,14 +504,18 @@ public class ArticleService {
     }
 
 
-    /** 로그인 하지 않는 경우 */
+    /**
+     * 로그인 하지 않는 경우
+     */
     private CommentResponse.Search getCommentInfo(List<Comment> commentList, long commentCount) {
 
         List<CommentResponse.Detail> commentDetailList = commentList.stream().map(comment -> CommentResponse.Detail.of(comment)).collect(Collectors.toList());
         return CommentResponse.Search.of(commentDetailList, commentCount);
     }
 
-    /** 로그인 한 경우 */
+    /**
+     * 로그인 한 경우
+     */
     private CommentResponse.Search getCommentInfo(List<Comment> commentList, long commentCount, Long authorId) {
 
         List<CommentResponse.Detail> commentDetailList = commentList.stream().map(comment -> CommentResponse.Detail.of(comment, authorId)).collect(Collectors.toList());
@@ -521,18 +523,27 @@ public class ArticleService {
     }
 
 
-    /** 로그인 하지 않은 경우 */
+    /**
+     * 로그인 하지 않은 경우
+     */
     private ArticleResponse.Detail getArticleInfo(Article article, long likedCount, List<Comment> commentList, long commentCount, List<String> urlList) {
 
         CommentResponse.Search commentInfo = getCommentInfo(commentList, commentCount);
         return ArticleResponse.Detail.of(article, likedCount, commentInfo, urlList);
     }
 
-    /** 로그인 한 경우 */
+    /**
+     * 로그인 한 경우
+     */
     private ArticleResponse.Detail getArticleInfo(Article article, Long authorId, boolean isliked, long likedCount, List<Comment> commentList, long commentCount, List<String> urlList) {
 
         CommentResponse.Search commentInfo = getCommentInfo(commentList, commentCount, authorId);
         return ArticleResponse.Detail.of(article, authorId, isliked, likedCount, commentInfo, urlList);
     }
 
+    @Transactional
+    public void viewCountUp(Long id) {
+        articleRepository.findById(id).orElseThrow(NotFoundArticleException::new);
+        articleRepository.updateViewCount(id);
+    }
 }

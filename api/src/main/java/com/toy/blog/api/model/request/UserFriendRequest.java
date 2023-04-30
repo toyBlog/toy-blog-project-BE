@@ -28,4 +28,5 @@ public class UserFriendRequest {
         @NotNull(message = "friendId는 필수값 입니다.")
         Long friendId;
     }
+
 }

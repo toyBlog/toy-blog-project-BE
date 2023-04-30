@@ -12,7 +12,7 @@ public class CommonConstant {
     }
 
     @UtilityClass
-    public static class BaseUrl{
+    public static class BaseUrl {
         public static final String BASE_URL = "test/";
     }
 }

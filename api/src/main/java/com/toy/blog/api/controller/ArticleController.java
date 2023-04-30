@@ -12,6 +12,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/articles")
@@ -192,5 +196,35 @@ public class ArticleController {
         return Response.<Void>builder()
                 .code(HttpStatus.OK.value())
                 .build();
+    }
+
+    private void viewCountUp(Long id, HttpServletRequest request, HttpServletResponse response) {
+        Cookie oldCookie = null;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("articleView")) {
+                    oldCookie = cookie;
+                    break;
+                }
+            }
+        }
+        if (oldCookie == null) {
+            // 새로운 쿠키를 생성하여 추가
+            Cookie newCookie = new Cookie("articleView", "[" + id + "]");
+            newCookie.setPath("/");
+            newCookie.setMaxAge(7200);
+            response.addCookie(newCookie);
+            articleService.viewCountUp(id);
+        } else {
+            // 기존 쿠키에 해당 게시글 번호가 포함되어 있지 않으면 조회수 증가 및 쿠키 값 갱신
+            if (!oldCookie.getValue().contains("[" + id.toString() + "]")) {
+                oldCookie.setValue(oldCookie.getValue() + "_[" + id + "]");
+                oldCookie.setPath("/");
+                oldCookie.setMaxAge(7200);
+                response.addCookie(oldCookie);
+                articleService.viewCountUp(id);
+            }
+        }
     }
 }

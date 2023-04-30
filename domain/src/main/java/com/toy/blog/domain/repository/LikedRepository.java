@@ -7,7 +7,6 @@ import com.toy.blog.domain.entity.User;
 import com.toy.blog.domain.repository.custom.LikedRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface LikedRepository extends JpaRepository<Liked, Long>, LikedRepositoryCustom {
@@ -17,4 +16,5 @@ public interface LikedRepository extends JpaRepository<Liked, Long>, LikedReposi
     Optional<Liked> findByUserAndArticle(User user, Article article);
 
     long countByArticleAndStatus(Article article, Status.Like status);
+
 }

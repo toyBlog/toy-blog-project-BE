@@ -17,5 +17,6 @@ public interface ArticleImageRepository extends JpaRepository<ArticleImage, Long
 
     @Modifying
     @Query("update ArticleImage ai set ai.status=:status where ai.article.id=:articleId")
-    int updateStatusByArticleId(@Param("status")Status.ArticleImage status, @Param("articleId") Long articleId);
+    int updateStatusByArticleId(@Param("status") Status.ArticleImage status, @Param("articleId") Long articleId);
+
 }

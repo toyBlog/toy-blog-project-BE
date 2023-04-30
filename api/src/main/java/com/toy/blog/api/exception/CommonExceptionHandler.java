@@ -50,4 +50,5 @@ public class CommonExceptionHandler {
                 .message(Error.INTERNAL_SERVER_ERROR.getMessage())
                 .build();
     }
+
 }

@@ -6,7 +6,6 @@ import com.toy.blog.domain.entity.Article;
 import com.toy.blog.domain.entity.Liked;
 import com.toy.blog.domain.entity.QLiked;
 import com.toy.blog.domain.repository.custom.LikedRepositoryCustom;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
 import javax.persistence.EntityManager;
@@ -24,7 +23,6 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
     public LikedRepositoryImpl(EntityManager em) {
         this.queryFactory = new JPAQueryFactory(em);
     }
-
 
 
     /** --------------------------------------------------------------------------------------------------------------*/
@@ -69,25 +67,25 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
 
     /**
      * 이 userId의 User가 좋아요 한 글 목록 조회
-     * */
+     */
     @Override
     public List<Article> findArticleListByUserId(Long userId, Pageable pageable) {
 
         return queryFactory.select(article)
-                           .from(liked)
-                           .join(liked.article, article)
-                           .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
-                           .offset(pageable.getOffset())
-                           .limit(pageable.getPageSize())
-                           .orderBy(liked.createdAt.desc())
-                           .fetch();
+                .from(liked)
+                .join(liked.article, article)
+                .where(liked.user.id.eq(userId), liked.status.eq(Status.Like.ACTIVE), article.status.eq(Status.Article.ACTIVE))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(liked.createdAt.desc())
+                .fetch();
     }
 
     /** --------------------------------------------------------------------------------------------------------------*/
 
     /**
      * 이 userId의 User가 좋아요 한 글 목록개수 조회
-     * */
+     */
 
     @Override
     public long countArticleListByUserId(Long userId) {
@@ -95,7 +93,7 @@ public class LikedRepositoryImpl implements LikedRepositoryCustom {
         return queryFactory.select(article)
                 .from(liked)
                 .join(liked.article, article)
-                .where(liked.user.id.eq(userId) , liked.status.eq(Status.Like.ACTIVE) , article.status.eq(Status.Article.ACTIVE))
+                .where(liked.user.id.eq(userId), liked.status.eq(Status.Like.ACTIVE), article.status.eq(Status.Article.ACTIVE))
                 .fetchCount();
     }
 }

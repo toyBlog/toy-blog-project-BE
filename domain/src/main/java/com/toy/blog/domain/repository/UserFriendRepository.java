@@ -6,7 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UserFriendRepository extends JpaRepository<UserFriend, Long> , UserFriendRepositoryCustom {
+public interface UserFriendRepository extends JpaRepository<UserFriend, Long>, UserFriendRepositoryCustom {
 
     Optional<UserFriend> findByUserIdAndFriendId(Long userId, Long friendId);
+
 }

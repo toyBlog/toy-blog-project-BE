@@ -2,7 +2,6 @@ package com.toy.blog.api.model.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.toy.blog.domain.entity.Article;
-import com.toy.blog.domain.entity.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +12,6 @@ import lombok.experimental.UtilityClass;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @UtilityClass
 public class ArticleResponse {
@@ -58,7 +56,6 @@ public class ArticleResponse {
     }
 
 
-
     @Getter
     @Setter
     @SuperBuilder
@@ -70,7 +67,9 @@ public class ArticleResponse {
 
         CommentResponse.Search commentInfo;
 
-        /** 로그인 하지 않은 경우 */
+        /**
+         * 로그인 하지 않은 경우
+         */
         public static Detail of(Article article, long likedCount, CommentResponse.Search commentInfo, List<String> urlList) {
 
             return Detail.builder()
@@ -88,7 +87,9 @@ public class ArticleResponse {
                     .build();
         }
 
-        /** 로그인 한 경우 */
+        /**
+         * 로그인 한 경우
+         */
         public static Detail of(Article article, Long authorId, Boolean isLiked, long likedCount, CommentResponse.Search commentInfo, List<String> urlList) {
 
             return Detail.builder()
@@ -148,11 +149,12 @@ public class ArticleResponse {
         List<ArticleResponse.Summary> articleSummaryList = new ArrayList<>();
         long totalCount;
 
-        public static Search of(List<ArticleResponse.Summary> articleSummaryList , long totalCount) {
+        public static Search of(List<ArticleResponse.Summary> articleSummaryList, long totalCount) {
             return Search.builder()
                     .articleSummaryList(articleSummaryList)
                     .totalCount(totalCount)
                     .build();
         }
     }
+
 }

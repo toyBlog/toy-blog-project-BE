@@ -19,7 +19,7 @@ public class S3ServiceUtil {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    /** *
+    /**
      * 1. [인자로 넘어온 file을 , 인자로 넘어온 path에 저장하는 서비스]
      */
     public void uploadFile(String path, MultipartFile file) {

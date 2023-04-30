@@ -88,9 +88,10 @@ public class CommentResponse {
         public static Search of(List<CommentResponse.Detail> commentDetailList, long totalCount) {
 
             return Search.builder()
-                         .commentDetailList(commentDetailList)
-                         .totalCount(totalCount)
-                         .build();
+                    .commentDetailList(commentDetailList)
+                    .totalCount(totalCount)
+                    .build();
         }
     }
+
 }

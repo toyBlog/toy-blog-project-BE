@@ -11,8 +11,11 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
+@Deprecated
 public class LikedRequest {
 
+
+    // 사용하지 않는 클래스
     @Getter
     @Setter
     @FieldDefaults(level = AccessLevel.PRIVATE)

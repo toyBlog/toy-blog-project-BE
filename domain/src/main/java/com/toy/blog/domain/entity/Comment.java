@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
-public class Comment extends BaseEntity{
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
